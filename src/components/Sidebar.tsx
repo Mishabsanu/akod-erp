@@ -1,0 +1,319 @@
+'use client';
+
+import { useAuth } from '@/contexts/AuthContext';
+import {
+  ChevronDown,
+  LayoutDashboard,
+  LogOut,
+  Database,
+  Truck,
+  RotateCcw,
+  Clock,
+  BadgeDollarSign,
+  FileText,
+  Users,
+  ShieldCheck,
+  PackageSearch,
+  Users2,
+  UserPlus,
+  IndianRupee,
+  BookOpen,
+  Wallet,
+  CreditCard,
+  Package,
+  Box,
+  Layers,
+  Contact,
+  Banknote,
+  PieChart,
+  ReceiptText,
+  ChevronRight,
+} from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useEffect, useState, useMemo } from 'react';
+
+const PRIMARY_NAVY = '#11375d';
+const PRIMARY_RED = '#cc1518';
+
+type SubMenuItem = {
+  name: string;
+  href: string;
+  icon?: any;
+  subItems?: SubMenuItem[];
+};
+
+type MenuItem = {
+  name: string;
+  icon: any;
+  href?: string;
+  subItems?: SubMenuItem[];
+};
+
+export const Sidebar = () => {
+  const { logout, can } = useAuth();
+  const pathname = usePathname();
+
+  const isOpen = true; // Sidebar permanently open per user request
+  const [openSubMenus, setOpenSubMenus] = useState<string[]>([]);
+
+  const menuItems: MenuItem[] = useMemo(() => [
+    {
+      name: 'Dashboard',
+      icon: LayoutDashboard,
+      href: '/',
+    },
+
+    // CRM Module
+    (can('sales', 'view') || can('quote_track', 'view')) && {
+      name: 'CRM',
+      icon: Users2,
+      subItems: [
+        {
+          name: 'Leads',
+          icon: UserPlus,
+          href: '/sales',
+        },
+        {
+          name: 'Quote Tracking',
+          icon: FileText,
+          href: '/quote-track',
+        },
+      ].filter(Boolean) as SubMenuItem[],
+    },
+
+    // Finance Module
+    {
+      name: 'Finance',
+      icon: IndianRupee,
+      subItems: [
+        { name: 'Accounts', icon: BookOpen, href: '/finance/accounts' },
+        { name: 'Ledger', icon: Database, href: '/finance/ledger' },
+        { name: 'Expenses', icon: Wallet, href: '/finance/expenses' },
+        { name: 'Invoices', icon: FileText, href: '/finance/invoices' },
+        { name: 'Payment', icon: CreditCard, href: '/finance/payment' },
+      ],
+    },
+
+    // Inventory Module
+    (can('inventory', 'view') || can('delivery_ticket', 'view') || can('return_ticket', 'view') || can('product', 'view')) && {
+      name: 'Inventory',
+      icon: Package,
+      subItems: [
+        can('product', 'view') && {
+          name: 'Products Catalog',
+          icon: Box,
+          href: '/master/catalog',
+        },
+        can('inventory', 'view') && {
+          name: 'Stock Status',
+          icon: Layers,
+          href: '/inventory',
+        },
+        can('delivery_ticket', 'view') && {
+          name: 'Delivery Challan',
+          icon: Truck,
+          href: '/delivery-ticket',
+        },
+        can('return_ticket', 'view') && {
+          name: 'Return Records',
+          icon: RotateCcw,
+          href: '/return-ticket',
+        },
+      ].filter(Boolean) as SubMenuItem[],
+    },
+
+    // HR & Payroll Module
+    (can('user', 'view') || can('attendance', 'view')) && {
+      name: 'HR & Payroll',
+      icon: Contact,
+      subItems: [
+        can('user', 'view') && {
+          name: 'Employee',
+          icon: Users,
+          href: '/users',
+        },
+        can('attendance', 'view') && {
+          name: 'Attendance',
+          icon: Clock,
+          href: '/attendance',
+        },
+        {
+          name: 'Payroll',
+          icon: Banknote,
+          href: '/hr/payroll',
+          subItems: [
+            { name: 'Salary Breakups', icon: PieChart, href: '/hr/payroll/breakups' },
+            { name: 'Salary Slips', icon: ReceiptText, href: '/hr/payroll/slips' },
+          ]
+        },
+      ].filter(Boolean) as SubMenuItem[],
+    },
+
+    // Admin / Master
+    (can('role', 'view') || can('customer', 'view') || can('vendor', 'view')) && {
+      name: 'Administration',
+      icon: ShieldCheck,
+      subItems: [
+        can('role', 'view') && { name: 'Roles & Permissions', href: '/roles' },
+        can('customer', 'view') && { name: 'Customers Master', href: '/master/customer' },
+        can('vendor', 'view') && { name: 'Vendors Master', href: '/master/vendor' },
+      ].filter(Boolean) as SubMenuItem[],
+    },
+  ].filter(Boolean) as MenuItem[], [can]);
+
+  useEffect(() => {
+    const findAndOpenSubMenus = (items: (MenuItem | SubMenuItem)[], currentPath: string): boolean => {
+      for (const item of items) {
+        // Precise matching for the auto-open check
+        const itemHref = (item as any).href;
+        const isMatch = itemHref && (itemHref === '/' ? currentPath === '/' : (currentPath === itemHref || currentPath.startsWith(itemHref + '/')));
+        
+        if (isMatch) return true;
+        
+        if (item.subItems) {
+          const isChildActive = findAndOpenSubMenus(item.subItems, currentPath);
+          if (isChildActive) {
+            setOpenSubMenus(prev => Array.from(new Set([...prev, item.name])));
+            return true;
+          }
+        }
+      }
+      return false;
+    };
+    findAndOpenSubMenus(menuItems, pathname);
+  }, [pathname, menuItems]);
+
+  const toggleSubMenu = (name: string) => {
+    setOpenSubMenus(prev => (prev.includes(name) ? prev.filter(n => n !== name) : [...prev, name]));
+  };
+
+  const renderSubItem = (sub: SubMenuItem) => {
+    // Precise path matching: exact match OR sub-route match (e.g. /users/add)
+    const isRouteActive = pathname === sub.href || pathname.startsWith(sub.href + '/');
+    const hasChildren = sub.subItems && sub.subItems.length > 0;
+    const isExpanded = openSubMenus.includes(sub.name);
+
+    return (
+      <div key={sub.name} className="flex flex-col">
+        {hasChildren ? (
+          <button
+            onClick={() => toggleSubMenu(sub.name)}
+            className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-300
+              ${isExpanded ? 'text-white' : 'text-gray-300 hover:text-white hover:bg-white/5'}`}
+          >
+            <div className="flex items-center gap-2">
+              <span className={`w-1 h-1 rounded-full ${isRouteActive ? 'bg-[#cc1518]' : 'bg-gray-500'}`} />
+              {sub.name}
+            </div>
+            <ChevronDown className={`w-3 h-3 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+          </button>
+        ) : (
+          <Link
+            href={sub.href}
+            className={`flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-300
+              ${isRouteActive ? 'bg-white text-[#11375d] shadow-sm' : 'text-gray-300 hover:text-white hover:bg-white/5'}`}
+          >
+             <span className={`w-1 h-1 rounded-full ${isRouteActive ? 'bg-[#cc1518]' : 'bg-gray-500'}`} />
+            <span>{sub.name}</span>
+          </Link>
+        )}
+        {hasChildren && isExpanded && (
+          <div className="ml-4 pl-2 border-l border-white/10 mt-1 space-y-1">
+            {sub.subItems!.map(child => renderSubItem(child))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <aside
+      className={`${isOpen ? 'w-80' : 'w-24'} h-screen fixed md:relative z-50 flex flex-col transition-all duration-500
+      bg-gradient-to-b from-[#11375d] via-[#08243c] to-[#001428] text-white shadow-2xl overflow-hidden`}
+    >
+      {/* BRANDING SECTION */}
+      <div className={`relative px-6 flex items-center justify-between border-b border-white/10 bg-white/5 backdrop-blur-md h-20 transition-all duration-500`}>
+        <div className="transition-all duration-500 transform opacity-100 scale-100">
+          <div className="flex items-center gap-3">
+             <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg">
+                <Image src="/logocrm.png" alt="Logo" width={30} height={30} className="object-contain" />
+             </div>
+             <div>
+                <h1 className="text-white font-black text-lg tracking-tighter leading-none uppercase">Akod</h1>
+                <p className="text-[10px] text-gray-300 font-bold uppercase tracking-widest mt-1">Enterprise ERP</p>
+             </div>
+          </div>
+        </div>
+      </div>
+
+      <nav className="flex-1 overflow-y-auto p-4 no-scrollbar">
+        <div className="space-y-6">
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            const hasSubItems = item.subItems && item.subItems.length > 0;
+            const isExpanded = openSubMenus.includes(item.name);
+            const isChildActive = item.subItems?.some(sub => 
+              pathname === sub.href || 
+              pathname.startsWith(sub.href + '/') ||
+              sub.subItems?.some(child => pathname === child.href || pathname.startsWith(child.href + '/'))
+            );
+            const isDirectActive = item.href === '/' ? pathname === '/' : (item.href && (pathname === item.href || pathname.startsWith(item.href + '/')));
+            
+            // isRouteActive determines if the module should have the active background highlight
+            const isRouteActive = isChildActive || isDirectActive;
+
+            if (hasSubItems) {
+              return (
+                <div key={item.name} className="flex flex-col gap-1">
+                  {isOpen && <p className="px-3 text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">{item.name}</p>}
+                  <button
+                    onClick={() => toggleSubMenu(item.name)}
+                    className={`group w-full flex items-center justify-between px-4 py-3 rounded-2xl transition-all duration-300
+                      ${isRouteActive && isOpen ? 'bg-white text-[#11375d] shadow-lg' : 'hover:bg-white/10 text-gray-100'}`}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className={`p-2 rounded-xl transition-all duration-300 ${isRouteActive ? 'bg-[#cc1518] text-white shadow-md' : 'bg-white/10 text-gray-200 group-hover:bg-white/20'}`}>
+                        <Icon size={18} />
+                      </div>
+                      {isOpen && <span className="text-[14px] font-bold">{item.name}</span>}
+                    </div>
+                    {isOpen && <ChevronRight className={`w-4 h-4 transition-transform duration-300 ${isExpanded ? 'rotate-90' : ''}`} />}
+                  </button>
+                  {isExpanded && isOpen && (
+                    <div className="mt-2 ml-4 flex flex-col gap-1 border-l border-white/10 pl-2 animate-in fade-in slide-in-from-left-2 duration-300">
+                      {item.subItems!.map(sub => renderSubItem(sub))}
+                    </div>
+                  )}
+                </div>
+              );
+            }
+            return (
+              <Link
+                key={item.name}
+                href={item.href!}
+                className={`group flex items-center gap-4 px-4 py-3 rounded-2xl transition-all duration-300
+                  ${isDirectActive && isOpen ? 'bg-white text-[#11375d] shadow-xl' : 'hover:bg-white/10 text-gray-200'}`}
+              >
+                <div className={`p-2 rounded-xl transition-all duration-300 ${isDirectActive ? 'bg-[#cc1518] text-white shadow-md' : 'bg-white/10 text-gray-300 group-hover:bg-white/20'}`}>
+                  <Icon size={18} />
+                </div>
+                {isOpen && <span className="text-[14px] font-bold">{item.name}</span>}
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
+
+      <div className="p-4 border-t border-white/10 bg-white/5 backdrop-blur-3xl">
+        <button onClick={logout} className="w-full flex items-center justify-center gap-3 py-3.5 bg-[#cc1518] hover:bg-red-700 text-white font-black rounded-2xl shadow-xl transition-all uppercase tracking-widest text-xs">
+          <LogOut size={18} />
+          {isOpen && 'Sign Out'}
+        </button>
+      </div>
+    </aside>
+  );
+};
+
+export default Sidebar;

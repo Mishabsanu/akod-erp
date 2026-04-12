@@ -1,0 +1,347 @@
+'use client';
+
+import { InventoryFilterBar } from '@/components/inventory/InventoryFilterBar'; // Use InventoryFilterBar
+import { Column, DataTable } from '@/components/shared/DataTable';
+import { SearchInput } from '@/components/shared/SearchInput'; // Import SearchInput
+import { TableSkeleton } from '@/components/shared/TableSkeleton'; // Import TableSkeleton
+import { useAuth } from '@/contexts/AuthContext';
+import { InventoryFilter, InventoryItem } from '@/lib/types'; // Use InventoryItem type
+import {
+  deleteInventoryItem, // Use Inventory API
+  getInventoryItems, // Use Inventory API
+} from '@/services/inventoryApi';
+import {
+  Edit2,
+  Filter,
+  MoreVertical,
+  Package, // Still appropriate for inventory
+  Plus,
+  Trash2,
+} from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { toast } from 'sonner';
+
+const InventoryPage = () => {
+  // Rename component
+  const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>([]); // State for inventory items
+  const [loading, setLoading] = useState(true);
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [showFilters, setShowFilters] = useState(false); // New state for filter visibility
+
+  // State for filters and pagination
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] =
+    useState<InventoryFilter['status']>(undefined);
+  const [minStock, setMinStock] = useState<number | undefined>(undefined);
+  const [maxStock, setMaxStock] = useState<number | undefined>(undefined);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [totalInventoryCount, setTotalInventoryCount] = useState(0);
+  const [totalInventoryPages, setTotalInventoryPages] = useState(1);
+
+  const router = useRouter();
+  const { can } = useAuth();
+  const toggleActionMenu = (id: string) => {
+    setOpenMenu(openMenu === id ? null : id);
+  };
+
+  const fetchInventory = useCallback(async () => {
+    setLoading(true);
+    try {
+      const filterParams: InventoryFilter = {
+        search: searchTerm || undefined,
+        status: statusFilter,
+        minStock,
+        maxStock,
+      };
+
+      const response = await getInventoryItems(
+        filterParams,
+        currentPage,
+        limit
+      );
+
+      const {
+        inventoryItems: fetchedItems,
+        totalPages: fetchedTotalPages,
+        totalCount: fetchedTotalCount,
+      } = response;
+
+      setInventoryItems(fetchedItems || []);
+      setTotalInventoryPages(fetchedTotalPages || 1);
+      setTotalInventoryCount(fetchedTotalCount || 0);
+    } catch (error) {
+      console.error('Failed to fetch inventory items:', error);
+      toast.error('Failed to load inventory.');
+    } finally {
+      setLoading(false);
+    }
+  }, [
+    searchTerm,
+    statusFilter,
+    minStock, 
+    maxStock, 
+    currentPage,
+    limit,
+  ]);
+
+  useEffect(() => {
+    fetchInventory();
+  }, [fetchInventory]);
+
+  const handleDelete = async (id: string) => {
+    toast.custom((t) => (
+      <div className="flex flex-col gap-2 bg-white p-3 rounded-lg shadow-md border border-gray-200">
+        <p className="font-medium text-gray-800">
+          Are you sure you want to delete this inventory item?
+        </p>
+        <div className="flex justify-end gap-2 mt-2">
+          <button
+            onClick={() => {
+              toast.dismiss(t);
+              toast.info('Inventory item deletion cancelled.', {
+                duration: 2000,
+              });
+            }}
+            className="px-3 py-1 text-sm text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100 transition"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={async () => {
+              toast.dismiss(t);
+              const loadingId = toast.loading('Deleting inventory item...');
+              try {
+                const response = await deleteInventoryItem(id); // Use Inventory API
+                toast.dismiss(loadingId);
+                if (response.success) {
+                  toast.success(
+                    response.message || 'Inventory item deleted successfully!'
+                  );
+                  fetchInventory(); // Re-fetch data
+                } else {
+                  toast.error(
+                    response.message || 'Failed to delete inventory item.'
+                  );
+                }
+              } catch (error: any) {
+                toast.dismiss(loadingId);
+                toast.error(
+                  error.response?.data?.message ||
+                    'Something went wrong while deleting inventory item.'
+                );
+              }
+            }}
+            className="px-3 py-1 text-sm bg-red-600 text-white rounded-md hover:bg-red-700 transition"
+          >
+            Yes, Delete
+          </button>
+        </div>
+      </div>
+    ));
+  };
+
+  const handleAdd = () => router.push('/inventory/add'); // Update path
+  const handleEdit = (id: string) => router.push(`/inventory/edit/${id}`); // Update path
+  const handleRowClick = (item: InventoryItem) => {
+    if (item._id) {
+      router.push(`/inventory/${item._id}`);
+    }
+  };
+
+  const columns: Column<InventoryItem>[] = useMemo(() => {
+    const baseColumns: Column<InventoryItem>[] = [
+      {
+        accessor: 'poNo',
+        header: 'PO Number',
+      },
+      {
+        accessor: 'product',
+        header: 'Product',
+        render: (item) => item.product?.name || '—',
+      },
+      {
+        accessor: 'itemCode',
+        header: 'Item Code',
+      },
+      {
+        accessor: 'orderedQty',
+        header: 'Ordered Qty',
+        render: (item) => item.orderedQty.toLocaleString(),
+      },
+      {
+        accessor: 'availableQty',
+        header: 'Available Qty',
+        render: (item) => item.availableQty.toLocaleString(),
+      },
+      {
+        accessor: 'status',
+        header: 'Status',
+        render: (item) => {
+          const statusStyles: Record<string, string> = {
+            IN_STOCK: 'bg-green-100 text-green-800',
+            LOW_STOCK: 'bg-yellow-100 text-yellow-800',
+            OUT_OF_STOCK: 'bg-red-100 text-red-800',
+          };
+
+          const color =
+            statusStyles[item.status] || 'bg-gray-100 text-gray-800';
+
+          return (
+            <span
+              className={`px-3 py-1 text-xs font-semibold rounded-full ${color}`}
+            >
+              {item.status.replaceAll('_', ' ')}
+            </span>
+          );
+        },
+      },
+    ];
+
+    if (can('inventory', 'update') || can('inventory', 'delete')) {
+      baseColumns.push({
+        accessor: 'actions' as keyof InventoryItem,
+        header: 'Actions',
+        render: (item) => (
+          <div className="relative">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                if (item._id) toggleActionMenu(item._id);
+              }}
+              className="text-gray-600 hover:text-[#11375d]"
+            >
+              <MoreVertical className="w-5 h-5" />
+            </button>
+
+            {openMenu === item._id && (
+              <div className="absolute right-0 mt-2 w-32 bg-white  rounded-lg shadow z-10">
+                {can('inventory', 'update') && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (item._id) handleEdit(item._id);
+                    }}
+                    className="flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50"
+                  >
+                    <Edit2 className="w-4 h-4" /> Edit
+                  </button>
+                )}
+                {can('inventory', 'delete') && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (item._id) handleDelete(item._id);
+                    }}
+                    className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-gray-50"
+                  >
+                    <Trash2 className="w-4 h-4" /> Delete
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        ),
+      });
+    }
+    return baseColumns;
+  }, [openMenu, can]);
+
+  return (
+    <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white p-6 md:p-10">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
+        <div className="flex items-center gap-3 mb-4 sm:mb-0">
+          <Package className="w-7 h-7 text-red-600" />
+          <h1 className="text-3xl font-semibold text-gray-800">
+            Inventory Management
+          </h1>
+        </div>
+        <div className="flex items-center gap-3">
+          {' '}
+          {/* Group Add and Filter buttons */}
+          {can('inventory', 'create') && (
+            <button
+              onClick={handleAdd}
+              className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 px-5 rounded-lg shadow transition-all"
+            >
+              <Plus className="w-4 h-4" />
+              Add
+            </button>
+          )}
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className="flex items-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2.5 px-5 rounded-lg shadow transition-all"
+          >
+            <Filter className="w-4 h-4" />
+            {showFilters ? 'Hide Filters' : 'Show Filters'}
+          </button>
+        </div>
+      </div>
+
+      {showFilters ? (
+        <>
+          {/* Filters */}
+          <InventoryFilterBar
+            onStatusChange={setStatusFilter}
+            onStockRangeChange={(min, max) => {
+              setMinStock(min);
+              setMaxStock(max);
+              setCurrentPage(1); // reset pagination
+            }}
+            onClearFilters={() => {
+              setSearchTerm('');
+              setStatusFilter(undefined);
+              setMinStock(undefined);
+              setMaxStock(undefined);
+              setCurrentPage(1);
+            }}
+            initialStatus={statusFilter}
+          />
+
+          {/* Search Input */}
+          <div className="mb-6">
+            <SearchInput
+              initialSearchTerm={searchTerm}
+              onSearchChange={setSearchTerm}
+              placeholder="Search inventory..."
+            />
+          </div>
+        </>
+      ) : (
+        <>
+          {/* Search Input */}
+          <div className="mb-6">
+            <SearchInput
+              initialSearchTerm={searchTerm}
+              onSearchChange={setSearchTerm}
+              placeholder="Search inventory..."
+            />
+          </div>
+        </>
+      )}
+
+      {/* Inventory Items Display */}
+      {loading ? (
+        <TableSkeleton /> // Replaced LoadingSpinner with TableSkeleton
+      ) : (
+        <DataTable
+          columns={columns}
+          data={inventoryItems}
+          onRowClick={handleRowClick}
+          serverSidePagination={true}
+          totalCount={totalInventoryCount}
+          currentPage={currentPage}
+          limit={limit}
+          totalPages={totalInventoryPages}
+          onPageChange={setCurrentPage}
+          onLimitChange={setLimit}
+        />
+      )}
+    </div>
+  );
+};
+
+export default InventoryPage;
