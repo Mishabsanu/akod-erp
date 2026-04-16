@@ -9,11 +9,18 @@ const config = {
   theme: {
     extend: {
       colors: {
-        primary: '#FF0000', // Red
-        secondary: '#FFFFFF', // White
-        accent: '#FF4500', // A slightly different red for accents
-        background: '#F8F8F8', // Off-white background
-        text: '#333333', // Dark grey for text
+        primary: {
+          DEFAULT: '#0f766e',
+          light: '#14b8a6',
+          dark: '#134e4a',
+        },
+        secondary: '#0ea5e9',
+        accent: '#f59e0b',
+        background: '#f8fafc',
+        text: {
+          main: '#1e293b',
+          muted: '#64748b',
+        },
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',

@@ -107,7 +107,7 @@ const ImportSheetModal: React.FC<Props> = ({ onClose, onImported }) => {
               value={sheetUrl}
               onChange={(e) => setSheetUrl(e.target.value)}
               placeholder="Paste Google Sheet URL..."
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white focus:ring-2 focus:ring-red-500 outline-none"
+              className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white focus:ring-2 focus:ring-teal-500 outline-none"
             />
 
             <button
@@ -115,7 +115,7 @@ const ImportSheetModal: React.FC<Props> = ({ onClose, onImported }) => {
               onClick={handleGoogleImport}
               className={`mt-4 w-full py-2.5 rounded-lg font-semibold transition ${
                 sheetUrl && !loadingGoogle
-                  ? 'bg-red-600 hover:bg-red-700 text-white shadow-md'
+                  ? 'bg-teal-700 hover:bg-teal-800 text-white shadow-md'
                   : 'bg-gray-300 text-gray-500 cursor-not-allowed'
               }`}
             >
@@ -161,7 +161,7 @@ const ImportSheetModal: React.FC<Props> = ({ onClose, onImported }) => {
               onClick={() =>
                 document.getElementById('importFileInput')?.click()
               }
-              className="mt-5 border-2 border-dashed border-gray-300 rounded-xl py-10 bg-white flex flex-col items-center cursor-pointer hover:border-red-500 hover:bg-gray-50 transition"
+              className="mt-5 border-2 border-dashed border-gray-300 rounded-xl py-10 bg-white flex flex-col items-center cursor-pointer hover:border-teal-500 hover:bg-gray-50 transition"
             >
               <Upload className="w-10 h-10 text-gray-400 mb-3" />
               <p className="text-gray-600 text-sm font-medium">
@@ -197,7 +197,7 @@ const ImportSheetModal: React.FC<Props> = ({ onClose, onImported }) => {
 
                 <button
                   onClick={() => setUploadedFile(null)}
-                  className="bg-red-600 text-white text-[10px] uppercase font-bold px-2 py-1 rounded hover:bg-red-700 transition ml-2"
+                  className="bg-teal-700 text-white text-[10px] uppercase font-bold px-2 py-1 rounded hover:bg-teal-800 transition ml-2"
                 >
                   Remove
                 </button>
@@ -210,7 +210,7 @@ const ImportSheetModal: React.FC<Props> = ({ onClose, onImported }) => {
               onClick={handleFileUpload}
               className={`mt-5 w-full py-2.5 rounded-lg font-semibold transition ${
                 uploadedFile && !loadingFile
-                  ? 'bg-red-600 hover:bg-red-700 text-white shadow-md'
+                  ? 'bg-teal-700 hover:bg-teal-800 text-white shadow-md'
                   : 'bg-gray-300 text-gray-500 cursor-not-allowed'
               }`}
             >

@@ -104,8 +104,8 @@ export const SalaryBreakupModal: React.FC<SalaryBreakupModalProps> = ({
       <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-300">
         <div className="flex items-center justify-between px-8 py-6 border-b border-gray-100 bg-gray-50/50">
           <div>
-            <h2 className="text-2xl font-black text-[#11375d] tracking-tight">Salary Breakup</h2>
-            <p className="text-sm text-gray-500 font-medium">Define structure for <span className="text-[#cc1518] font-bold">{user?.name}</span></p>
+            <h2 className="text-2xl font-black text-[#0f766e] tracking-tight">Salary Breakup</h2>
+            <p className="text-sm text-gray-500 font-medium">Define structure for <span className="text-[#0f766e] font-bold">{user?.name}</span></p>
           </div>
           <button onClick={onClose} className="p-2.5 hover:bg-white hover:shadow-md rounded-xl transition-all text-gray-400 hover:text-gray-600 border border-transparent hover:border-gray-100">
             <X size={20} />
@@ -116,8 +116,8 @@ export const SalaryBreakupModal: React.FC<SalaryBreakupModalProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Earnings Column */}
             <div className="space-y-6">
-              <h3 className="text-xs font-black uppercase tracking-[0.2em] text-[#cc1518] flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-[#cc1518]" />
+              <h3 className="text-xs font-black uppercase tracking-[0.2em] text-[#0f766e] flex items-center gap-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-[#0f766e]" />
                 Earnings
               </h3>
               <div className="space-y-4">
@@ -130,7 +130,7 @@ export const SalaryBreakupModal: React.FC<SalaryBreakupModalProps> = ({
                   <div key={field.name}>
                     <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 ml-1">{field.label}</label>
                     <div className="relative group">
-                      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#11375d] transition-colors">
+                      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#0f766e] transition-colors">
                         <IndianRupee size={14} />
                       </div>
                       <input
@@ -138,7 +138,7 @@ export const SalaryBreakupModal: React.FC<SalaryBreakupModalProps> = ({
                         name={field.name}
                         value={formData[field.name as keyof typeof formData]}
                         onChange={handleInputChange}
-                        className="w-full pl-10 pr-4 py-3 bg-gray-50 border-2 border-transparent focus:border-[#11375d]/20 focus:bg-white rounded-2xl text-sm font-bold text-[#11375d] transition-all outline-none"
+                        className="w-full pl-10 pr-4 py-3 bg-gray-50 border-2 border-transparent focus:border-[#0f766e]/20 focus:bg-white rounded-2xl text-sm font-bold text-[#0f766e] transition-all outline-none"
                         placeholder="0.00"
                         required
                       />
@@ -150,8 +150,8 @@ export const SalaryBreakupModal: React.FC<SalaryBreakupModalProps> = ({
 
             {/* Deductions Column */}
             <div className="space-y-6">
-              <h3 className="text-xs font-black uppercase tracking-[0.2em] text-[#11375d] flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-[#11375d]" />
+              <h3 className="text-xs font-black uppercase tracking-[0.2em] text-[#0f766e] flex items-center gap-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-[#0f766e]" />
                 Deductions
               </h3>
               <div className="space-y-4">
@@ -164,7 +164,7 @@ export const SalaryBreakupModal: React.FC<SalaryBreakupModalProps> = ({
                   <div key={field.name}>
                     <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 ml-1">{field.label}</label>
                     <div className="relative group">
-                      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#11375d] transition-colors">
+                      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#0f766e] transition-colors">
                         <IndianRupee size={14} />
                       </div>
                       <input
@@ -172,7 +172,7 @@ export const SalaryBreakupModal: React.FC<SalaryBreakupModalProps> = ({
                         name={field.name}
                         value={formData[field.name as keyof typeof formData]}
                         onChange={handleInputChange}
-                        className="w-full pl-10 pr-4 py-3 bg-gray-50 border-2 border-transparent focus:border-[#11375d]/20 focus:bg-white rounded-2xl text-sm font-bold text-[#11375d] transition-all outline-none"
+                        className="w-full pl-10 pr-4 py-3 bg-gray-50 border-2 border-transparent focus:border-[#0f766e]/20 focus:bg-white rounded-2xl text-sm font-bold text-[#0f766e] transition-all outline-none"
                         placeholder="0.00"
                         required
                       />
@@ -184,7 +184,7 @@ export const SalaryBreakupModal: React.FC<SalaryBreakupModalProps> = ({
           </div>
 
           {/* Summary Section */}
-          <div className="mt-10 p-6 bg-gradient-to-br from-[#11375d] to-[#08243c] rounded-[2rem] text-white shadow-xl shadow-[#11375d]/20">
+          <div className="mt-10 p-6 bg-gradient-to-br from-[#0f766e] to-[#134e4a] rounded-[2rem] text-white shadow-xl shadow-[#0f766e]/20">
             <div className="grid grid-cols-3 gap-6">
               <div className="text-center border-r border-white/10">
                 <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Total Earnings</p>
@@ -195,7 +195,7 @@ export const SalaryBreakupModal: React.FC<SalaryBreakupModalProps> = ({
                 <p className="text-xl font-black">₹{totalDeductions.toLocaleString()}</p>
               </div>
               <div className="text-center">
-                <p className="text-[10px] font-black uppercase tracking-widest text-[#cc1518] mb-1">Net Take Home</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-[#0f766e] mb-1">Net Take Home</p>
                 <p className="text-2xl font-black text-white">₹{netSalary.toLocaleString()}</p>
               </div>
             </div>
@@ -212,7 +212,7 @@ export const SalaryBreakupModal: React.FC<SalaryBreakupModalProps> = ({
             <button
               type="submit"
               disabled={loading}
-              className="flex items-center gap-2 bg-[#cc1518] hover:bg-red-700 text-white font-black py-3.5 px-10 rounded-2xl shadow-xl shadow-red-600/20 active:scale-95 transition-all uppercase tracking-widest text-xs disabled:opacity-50"
+              className="flex items-center gap-2 bg-[#0f766e] hover:bg-teal-800 text-white font-black py-3.5 px-10 rounded-2xl shadow-xl shadow-teal-700/20 active:scale-95 transition-all uppercase tracking-widest text-xs disabled:opacity-50"
             >
               {loading ? (
                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />

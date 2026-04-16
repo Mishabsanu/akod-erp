@@ -52,7 +52,7 @@ export const SalarySlipForm: React.FC<SalarySlipFormProps> = ({
       {/* Header */}
       <div className="flex items-center justify-between mb-8 border-b border-gray-200 pb-4">
         <div className="flex items-center gap-3">
-          <ReceiptText className="text-red-600 w-6 h-6" />
+          <ReceiptText className="text-teal-700 w-6 h-6" />
           <h2 className="text-2xl font-semibold text-gray-800">
             Generate New Payslip
           </h2>
@@ -132,7 +132,7 @@ export const SalarySlipForm: React.FC<SalarySlipFormProps> = ({
                 type="submit"
                 disabled={loading || isSubmitting}
                 className={`flex items-center gap-2 px-8 py-2.5 rounded-lg text-white font-semibold shadow-sm transition ${
-                  loading || isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-red-600 hover:bg-red-700'
+                  loading || isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-teal-700 hover:bg-teal-800'
                 }`}
               >
                 {loading || isSubmitting ? (

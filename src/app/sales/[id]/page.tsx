@@ -80,8 +80,8 @@ const SalesViewPage = ({ params: paramsPromise }: SalesViewPageProps) => {
   if (loading) return <div className="min-h-screen bg-[#f9fafc] flex items-center justify-center"><LoadingSpinner /></div>;
   if (!sale) return (
     <div className="min-h-screen bg-[#f9fafc] flex flex-col items-center justify-center p-6 text-center">
-        <h2 className="text-2xl font-bold text-[#11375d] mb-4">Enquiry not found</h2>
-        <button onClick={() => router.back()} className="text-[#cc1518] font-bold flex items-center gap-2 hover:underline">
+        <h2 className="text-2xl font-bold text-[#0f766e] mb-4">Enquiry not found</h2>
+        <button onClick={() => router.back()} className="text-[#0f766e] font-bold flex items-center gap-2 hover:underline">
             <ArrowLeft size={18} /> Go Back
         </button>
     </div>
@@ -94,19 +94,19 @@ const SalesViewPage = ({ params: paramsPromise }: SalesViewPageProps) => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
         <div className="space-y-2">
             <div className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-widest">
-                <button onClick={() => router.push('/sales')} className="hover:text-[#cc1518] transition-colors">Enquiries</button>
+                <button onClick={() => router.push('/sales')} className="hover:text-[#0f766e] transition-colors">Enquiries</button>
                 <ChevronRight size={12} />
                 <span className="text-gray-600">{sale.ticketNo}</span>
             </div>
             <div className="flex items-center gap-4">
                 <button
                     onClick={() => router.back()}
-                    className="w-10 h-10 rounded-xl bg-white border border-gray-100 flex items-center justify-center text-gray-400 hover:text-[#11375d] hover:border-gray-200 transition-all shadow-sm"
+                    className="w-10 h-10 rounded-xl bg-white border border-gray-100 flex items-center justify-center text-gray-400 hover:text-[#0f766e] hover:border-gray-200 transition-all shadow-sm"
                 >
                     <ArrowLeft size={20} />
                 </button>
-                <h1 className="text-3xl font-black text-[#11375d] tracking-tight">
-                    Enquiry <span className="text-[#cc1518]">#{sale.ticketNo}</span>
+                <h1 className="text-3xl font-black text-[#0f766e] tracking-tight">
+                    Enquiry <span className="text-[#0f766e]">#{sale.ticketNo}</span>
                 </h1>
             </div>
         </div>
@@ -160,7 +160,7 @@ const SalesViewPage = ({ params: paramsPromise }: SalesViewPageProps) => {
             <DetailSection title="Engagement History" icon={Clock}>
                 <div className="overflow-x-auto -mx-8 px-8">
                     {sale.followUpHistory && sale.followUpHistory.length > 0 ? (
-                        <table className="w-full text-left border-collapse min-w-[600px]">
+                        <table className="akod-table text-left min-w-[600px]">
                             <thead>
                                 <tr className="border-b border-gray-100">
                                     <th className="py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Entry</th>
@@ -174,7 +174,7 @@ const SalesViewPage = ({ params: paramsPromise }: SalesViewPageProps) => {
                                 {[...sale.followUpHistory].reverse().map((entry: any, index: number) => (
                                     <tr key={index} className="group hover:bg-gray-50/50 transition-colors">
                                         <td className="py-5 pr-4">
-                                            <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-[10px] font-black text-[#11375d]">
+                                            <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-[10px] font-black text-[#0f766e]">
                                                 {sale.followUpHistory!.length - index}
                                             </div>
                                         </td>
@@ -193,7 +193,7 @@ const SalesViewPage = ({ params: paramsPromise }: SalesViewPageProps) => {
                                         </td>
                                         <td className="py-5 pr-4">
                                             <div className="flex flex-col">
-                                                <span className="text-[13px] font-bold text-[#11375d]">
+                                                <span className="text-[13px] font-bold text-[#0f766e]">
                                                     {entry.followUpDate ? new Date(entry.followUpDate).toLocaleDateString() : 'N/A'}
                                                 </span>
                                                 <span className="text-[10px] text-gray-400 font-bold uppercase whitespace-nowrap">Next Review</span>
@@ -202,10 +202,10 @@ const SalesViewPage = ({ params: paramsPromise }: SalesViewPageProps) => {
                                         <td className="py-5 text-right">
                                             <div className="flex items-center justify-end gap-3 text-right">
                                                 <div className="flex flex-col">
-                                                  <span className="text-[13px] font-bold text-[#11375d]">{entry.updatedBy?.name}</span>
+                                                  <span className="text-[13px] font-bold text-[#0f766e]">{entry.updatedBy?.name}</span>
                                                   <span className="text-[10px] text-gray-400 font-bold uppercase">{entry.updatedAt ? new Date(entry.updatedAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''}</span>
                                                 </div>
-                                                <div className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center text-[10px] font-black text-[#cc1518] shadow-sm">
+                                                <div className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center text-[10px] font-black text-[#0f766e] shadow-sm">
                                                     {entry.updatedBy?.name?.charAt(0) || 'U'}
                                                 </div>
                                             </div>
@@ -235,10 +235,10 @@ const SalesViewPage = ({ params: paramsPromise }: SalesViewPageProps) => {
                                     href={file}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="flex items-center justify-between p-4 rounded-xl border border-gray-100 bg-white hover:border-[#cc1518] hover:shadow-md transition-all group"
+                                    className="flex items-center justify-between p-4 rounded-xl border border-gray-100 bg-white hover:border-[#0f766e] hover:shadow-md transition-all group"
                                 >
                                     <div className="flex items-center gap-4 min-w-0">
-                                        <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-[#cc1518]/10 group-hover:text-[#cc1518] transition-all">
+                                        <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-[#0f766e]/10 group-hover:text-[#0f766e] transition-all">
                                             <FileText size={20} />
                                         </div>
                                         <div className="min-w-0">
@@ -246,7 +246,7 @@ const SalesViewPage = ({ params: paramsPromise }: SalesViewPageProps) => {
                                             <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">View Attachment</p>
                                         </div>
                                     </div>
-                                    <ExternalLink size={16} className="text-gray-300 group-hover:text-[#cc1518]" />
+                                    <ExternalLink size={16} className="text-gray-300 group-hover:text-[#0f766e]" />
                                 </a>
                             );
                         })}
@@ -258,7 +258,7 @@ const SalesViewPage = ({ params: paramsPromise }: SalesViewPageProps) => {
         {/* Sidebar: Record Logistics */}
         <div className="space-y-10">
             {/* Audit Card */}
-            <div className="bg-gradient-to-br from-[#11375d] to-[#0a2339] rounded-xl p-8 text-white shadow-xl">
+            <div className="bg-gradient-to-br from-[#0f766e] to-[#134e4a] rounded-xl p-8 text-white shadow-xl">
                 <h3 className="text-sm font-black uppercase tracking-[0.2em] mb-6 opacity-60">Record Logistics</h3>
                 <div className="space-y-4">
                     <div className="flex justify-between items-center py-2 border-b border-white/10">
@@ -283,7 +283,7 @@ const SalesViewPage = ({ params: paramsPromise }: SalesViewPageProps) => {
                     </div>
                     <div>
                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Compliance Verified</p>
-                        <p className="text-sm font-bold text-[#11375d] mt-1">Lead is active and tracked</p>
+                        <p className="text-sm font-bold text-[#0f766e] mt-1">Lead is active and tracked</p>
                     </div>
                  </div>
             </div>
@@ -298,10 +298,10 @@ const SalesViewPage = ({ params: paramsPromise }: SalesViewPageProps) => {
 const DetailSection: React.FC<{ title: string; icon: any; children: React.ReactNode }> = ({ title, icon: Icon, children }) => (
     <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
         <div className="p-6 border-b border-gray-50 flex items-center gap-4 bg-[#fafafa]/30">
-            <div className="p-2 bg-white rounded-xl shadow-sm border border-gray-100 text-[#cc1518]">
+            <div className="p-2 bg-white rounded-xl shadow-sm border border-gray-100 text-[#0f766e]">
                 <Icon size={20} />
             </div>
-            <h2 className="text-xl font-black text-[#11375d] tracking-tight">{title}</h2>
+            <h2 className="text-xl font-black text-[#0f766e] tracking-tight">{title}</h2>
         </div>
         <div className="p-8">
             {children}
@@ -312,10 +312,10 @@ const DetailSection: React.FC<{ title: string; icon: any; children: React.ReactN
 const InfoItem: React.FC<{ label: string; value: string; icon: any; highlight?: boolean }> = ({ label, value, icon: Icon, highlight }) => (
     <div className="space-y-1.5 group">
         <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.1em] flex items-center gap-2">
-            <Icon size={12} className={highlight ? 'text-[#cc1518]' : 'text-gray-300 group-hover:text-[#cc1518] transition-colors'} />
+            <Icon size={12} className={highlight ? 'text-[#0f766e]' : 'text-gray-300 group-hover:text-[#0f766e] transition-colors'} />
             {label}
         </label>
-        <p className={`text-base font-bold tracking-tight ${highlight ? 'text-[#cc1518]' : 'text-[#11375d]'}`}>
+        <p className={`text-base font-bold tracking-tight ${highlight ? 'text-[#0f766e]' : 'text-[#0f766e]'}`}>
             {value || '--'}
         </p>
     </div>

@@ -2,6 +2,7 @@
 
 import { InventoryFilterBar } from '@/components/inventory/InventoryFilterBar'; // Use InventoryFilterBar
 import { Column, DataTable } from '@/components/shared/DataTable';
+import ListPageHeader from '@/components/shared/ListPageHeader';
 import { SearchInput } from '@/components/shared/SearchInput'; // Import SearchInput
 import { TableSkeleton } from '@/components/shared/TableSkeleton'; // Import TableSkeleton
 import { useAuth } from '@/contexts/AuthContext';
@@ -14,7 +15,6 @@ import {
   Edit2,
   Filter,
   MoreVertical,
-  Package, // Still appropriate for inventory
   Plus,
   Trash2,
 } from 'lucide-react';
@@ -134,7 +134,7 @@ const InventoryPage = () => {
                 );
               }
             }}
-            className="px-3 py-1 text-sm bg-red-600 text-white rounded-md hover:bg-red-700 transition"
+            className="px-3 py-1 text-sm bg-teal-700 text-white rounded-md hover:bg-teal-800 transition"
           >
             Yes, Delete
           </button>
@@ -183,7 +183,7 @@ const InventoryPage = () => {
           const statusStyles: Record<string, string> = {
             IN_STOCK: 'bg-green-100 text-green-800',
             LOW_STOCK: 'bg-yellow-100 text-yellow-800',
-            OUT_OF_STOCK: 'bg-red-100 text-red-800',
+            OUT_OF_STOCK: 'bg-teal-100 text-teal-900',
           };
 
           const color =
@@ -211,7 +211,7 @@ const InventoryPage = () => {
                 e.stopPropagation();
                 if (item._id) toggleActionMenu(item._id);
               }}
-              className="text-gray-600 hover:text-[#11375d]"
+              className="text-gray-600 hover:text-[#0f766e]"
             >
               <MoreVertical className="w-5 h-5" />
             </button>
@@ -235,7 +235,7 @@ const InventoryPage = () => {
                       e.stopPropagation();
                       if (item._id) handleDelete(item._id);
                     }}
-                    className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-gray-50"
+                    className="flex w-full items-center gap-2 px-3 py-2 text-sm text-teal-700 hover:bg-gray-50"
                   >
                     <Trash2 className="w-4 h-4" /> Delete
                   </button>
@@ -251,21 +251,17 @@ const InventoryPage = () => {
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white p-6 md:p-10">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
-        <div className="flex items-center gap-3 mb-4 sm:mb-0">
-          <Package className="w-7 h-7 text-red-600" />
-          <h1 className="text-3xl font-semibold text-gray-800">
-            Inventory Management
-          </h1>
-        </div>
-        <div className="flex items-center gap-3">
-          {' '}
-          {/* Group Add and Filter buttons */}
+      <ListPageHeader
+        eyebrow="Stock Registry"
+        title="Inventory"
+        highlight="Registry"
+        description="Monitor stock status, item movement, and available quantities."
+        actions={
+          <>
           {can('inventory', 'create') && (
             <button
               onClick={handleAdd}
-              className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 px-5 rounded-lg shadow transition-all"
+              className="page-header-button"
             >
               <Plus className="w-4 h-4" />
               Add
@@ -273,13 +269,14 @@ const InventoryPage = () => {
           )}
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2.5 px-5 rounded-lg shadow transition-all"
+            className="page-header-button secondary"
           >
             <Filter className="w-4 h-4" />
             {showFilters ? 'Hide Filters' : 'Show Filters'}
           </button>
-        </div>
-      </div>
+          </>
+        }
+      />
 
       {showFilters ? (
         <>

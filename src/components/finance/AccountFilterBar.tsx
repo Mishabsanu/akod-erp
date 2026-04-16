@@ -5,7 +5,7 @@ import { Select } from '@/components/ui/Select';
 import { Filter, ToggleLeft, Type, XCircle } from 'lucide-react';
 import { FilterChip } from '@/components/shared/FilterChip';
 
-const PRIMARY = '#11375d';
+const PRIMARY = '#0f766e';
 
 const accountTypes = ['Asset', 'Liability', 'Equity', 'Revenue', 'Expense', 'Bank', 'Cash'];
 
@@ -36,7 +36,7 @@ export const AccountFilterBar: React.FC<AccountFilterBarProps> = ({
   return (
     <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-4">
       <div className="flex items-center gap-2 mb-4 text-gray-700">
-        <Filter className="w-5 h-5 text-[#cc1518]" />
+        <Filter className="w-5 h-5 text-[#0f766e]" />
         <h3 className="text-sm font-bold uppercase tracking-wider">Filters</h3>
       </div>
 
@@ -111,9 +111,9 @@ export const AccountFilterBar: React.FC<AccountFilterBarProps> = ({
           <div className="flex items-center pb-0.5 ml-auto">
             <button
               onClick={handleClear}
-              className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest border border-red-100 text-red-600 hover:bg-red-50 transition-all active:scale-95"
+              className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest border border-teal-100 text-teal-700 hover:bg-teal-50 transition-all active:scale-95"
             >
-              <XCircle className="w-4 h-4 text-[#cc1518]" />
+              <XCircle className="w-4 h-4 text-[#0f766e]" />
               Clear Filters
             </button>
           </div>

@@ -58,7 +58,7 @@ const ViewVendorPage = () => {
           onClick={() =>
             router.push(`/master/vendor/edit/${id}`)
           }
-          className="flex items-center gap-2 bg-[#11375d] hover:bg-[#0a2741]
+          className="flex items-center gap-2 bg-[#0f766e] hover:bg-[#134e4a]
             text-white font-semibold py-2.5 px-5 rounded-lg shadow transition"
         >
           <Edit2 className="w-4 h-4" />
@@ -79,7 +79,7 @@ const ViewVendorPage = () => {
               className={`ml-2 px-3 py-1 text-xs font-semibold rounded-full ${
                 vendor.status === 'active'
                   ? 'bg-green-100 text-green-800'
-                  : 'bg-red-100 text-red-800'
+                  : 'bg-teal-100 text-teal-900'
               }`}
             >
               {vendor.status}

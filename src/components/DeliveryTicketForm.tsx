@@ -311,7 +311,7 @@ const DeliveryTicketForm = ({
       {/* Header */}
       <div className="flex items-center justify-between mb-8 border-b border-gray-200 pb-4">
         <div className="flex items-center gap-3">
-          <FilePlus className="text-red-600 w-6 h-6" />
+          <FilePlus className="text-teal-700 w-6 h-6" />
           <h2 className="text-2xl font-semibold text-gray-800">
             {isEditMode ? 'Edit Delivery Ticket' : 'Add Delivery Ticket'}
           </h2>
@@ -398,22 +398,22 @@ const DeliveryTicketForm = ({
             <FieldArray name="items">
               {({ push, remove }) => (
                 <div className="overflow-x-auto">
-                  <table className="w-full border border-gray-300 rounded-lg text-sm whitespace-nowrap">
-                    <thead className="bg-gray-100">
+                  <table className="akod-table whitespace-nowrap">
+                    <thead>
                       <tr>
                         <th className="p-2 border border-gray-200">S.No</th>
                         <th className="p-2 border border-gray-200 min-w-[250px]">
-                          Product <span className="text-red-500">*</span>
+                          Product <span className="text-teal-500">*</span>
                         </th>
                         <th className="p-2 border border-gray-200 min-w-[120px]">
-                          Item Code <span className="text-red-500">*</span>
+                          Item Code <span className="text-teal-500">*</span>
                         </th>
-                        <th className="p-2 border border-gray-200 min-w-[80px]">Unit <span className="text-red-500">*</span></th>
+                        <th className="p-2 border border-gray-200 min-w-[80px]">Unit <span className="text-teal-500">*</span></th>
                         <th className="p-2 border border-gray-200 min-w-[100px]">
-                          Required Qty <span className="text-red-500">*</span>
+                          Required Qty <span className="text-teal-500">*</span>
                         </th>
                         <th className="p-2 border border-gray-200 min-w-[120px]">
-                          Delivery Qty <span className="text-red-500">*</span>
+                          Delivery Qty <span className="text-teal-500">*</span>
                         </th>
                         <th className="p-2 border border-gray-200 min-w-[200px]">
                           Description
@@ -496,7 +496,7 @@ const DeliveryTicketForm = ({
 
                                 {/* Validation */}
                                 {item.quantity > availableQty && (
-                                  <div className="flex items-center gap-1 text-xs text-red-600">
+                                  <div className="flex items-center gap-1 text-xs text-teal-700">
                                     ⚠ Qty exceeds stock
                                   </div>
                                 )}
@@ -514,7 +514,7 @@ const DeliveryTicketForm = ({
                               <button
                                 type="button"
                                 onClick={() => remove(idx)}
-                                className="text-red-600 hover:text-red-800 transition"
+                                className="text-teal-700 hover:text-teal-900 transition"
                               >
                                 <Trash2 className="w-4 h-4 inline-block" />
                               </button>
@@ -551,7 +551,7 @@ const DeliveryTicketForm = ({
                       }}
                       className={`px-4 py-2 text-white rounded-lg transition ${formik.values.items.length >= 15
                           ? 'bg-gray-400 cursor-not-allowed'
-                          : 'bg-blue-600 hover:bg-blue-700'
+                          : 'bg-sky-600 hover:bg-sky-700'
                         }`}
                     >
                       Add Item
@@ -629,7 +629,7 @@ const DeliveryTicketForm = ({
               disabled={isLoading || formik.isSubmitting}
               className={`px-6 py-2.5 rounded-lg text-white font-semibold shadow-sm transition ${isLoading || formik.isSubmitting
                 ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-blue-600 hover:bg-blue-700'
+                : 'bg-sky-600 hover:bg-sky-700'
                 }`}
             >
               Preview Delivery Ticket

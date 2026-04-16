@@ -1,12 +1,12 @@
 'use client';
 
 import { useEffect, useState, useMemo, useCallback } from 'react';
-import { PieChart, Search, Edit3, Filter, MoreVertical, Trash2 } from 'lucide-react';
+import { Edit3, Filter, MoreVertical } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Column, DataTable } from '@/components/shared/DataTable';
+import ListPageHeader from '@/components/shared/ListPageHeader';
 import { SearchInput } from '@/components/shared/SearchInput';
 import { TableSkeleton } from '@/components/shared/TableSkeleton';
-import { useAuth } from '@/contexts/AuthContext';
 import { getUsers } from '@/services/userApi';
 import { getAllBreakups } from '@/services/payrollApi';
 import { toast } from 'sonner';
@@ -20,7 +20,6 @@ export default function SalaryBreakupsPage() {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   
   const router = useRouter();
-  const { can } = useAuth();
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -65,7 +64,7 @@ export default function SalaryBreakupsPage() {
         header: 'Employee',
         render: (user) => (
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600 font-bold text-sm">
+            <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center text-teal-700 font-bold text-sm">
               {user.name?.charAt(0) || '?'}
             </div>
             <div>
@@ -100,7 +99,7 @@ export default function SalaryBreakupsPage() {
           if (!breakup) return '-';
           const gross = (breakup.basic || 0) + (breakup.hra || 0) + (breakup.conveyance || 0) + (breakup.specialAllowance || 0);
           const deductions = (breakup.pf || 0) + (breakup.esi || 0) + (breakup.tds || 0) + (breakup.otherDeductions || 0);
-          return <span className="font-bold text-red-600">₹{(gross - deductions).toLocaleString()}</span>;
+          return <span className="font-bold text-teal-700">₹{(gross - deductions).toLocaleString()}</span>;
         },
       },
       {
@@ -140,7 +139,7 @@ export default function SalaryBreakupsPage() {
                    }}
                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
                 >
-                  <Edit3 size={16} className="text-blue-500" />
+                  <Edit3 size={16} className="text-sky-500" />
                   Configure Salary
                 </button>
               </div>
@@ -154,24 +153,23 @@ export default function SalaryBreakupsPage() {
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white p-6 md:p-10">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
-        <div className="flex items-center gap-3 mb-4 sm:mb-0">
-          <PieChart className="w-7 h-7 text-red-600" />
-          <h1 className="text-3xl font-semibold text-gray-800">
-            Salary Breakups
-          </h1>
-        </div>
-        <div className="flex items-center gap-3">
+      <ListPageHeader
+        eyebrow="Payroll Configuration"
+        title="Salary"
+        highlight="Breakups"
+        description="Review employee salary structures and compensation components."
+        actions={
+          <>
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2.5 px-5 rounded-lg shadow transition-all"
+            className="page-header-button secondary"
           >
             <Filter className="w-4 h-4" />
             {showFilters ? 'Hide Filters' : 'Show Filters'}
           </button>
-        </div>
-      </div>
+          </>
+        }
+      />
 
       {/* Search Input Area */}
       <div className={`space-y-6 transition-all duration-300 ${showFilters ? 'mb-8' : 'mb-6'}`}>

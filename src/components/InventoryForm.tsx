@@ -191,7 +191,7 @@ const InventoryForm: React.FC<InventoryFormProps> = ({
       <form onSubmit={formik.handleSubmit}>
         {/* HEADER */}
         <div className="flex items-center gap-3 mb-6 border-b pb-4">
-          <PackagePlus className="text-red-600 w-6 h-6" />
+          <PackagePlus className="text-teal-700 w-6 h-6" />
           <h2 className="text-2xl font-semibold">
             {isEditMode ? 'Edit Inventory' : 'Add Inventory'}
           </h2>
@@ -230,23 +230,23 @@ const InventoryForm: React.FC<InventoryFormProps> = ({
           <Section title="Inventory Items" className="mt-8">
             <div className="bg-white shadow-sm rounded-lg border border-gray-200 ">
               <div className="overflow-x-auto">
-                <table className="w-full table-fixed">
+                <table className="akod-table table-fixed">
                   {/* HEADER */}
                   <thead>
                     <tr
                       className="text-white text-sm uppercase tracking-wider"
-                      style={{ backgroundColor: '#11375d' }}
+                      style={{ backgroundColor: '#0f766e' }}
                     >
                       <th className="py-3 px-4 text-center w-12">#</th>
                       <th className="w-[260px] py-2 px-3 text-left">
-                        Product <span className="text-red-500">*</span>
+                        Product <span className="text-teal-500">*</span>
                       </th>
                       <th className="w-[160px] py-2 px-3 text-left">
                         Item Code
                       </th>
                       <th className="w-[100px] py-2 px-3 text-left">Unit</th>
                       <th className="w-[120px] py-2 px-3 text-right">
-                        Stock <span className="text-red-500">*</span>
+                        Stock <span className="text-teal-500">*</span>
                       </th>
                       {!isEditMode && (
                         <th className="w-[70px] py-2 px-2 text-center">
@@ -321,7 +321,7 @@ const InventoryForm: React.FC<InventoryFormProps> = ({
                               <button
                                 type="button"
                                 onClick={() => removeRow(idx)}
-                                className="p-1 rounded text-red-600 hover:bg-red-50"
+                                className="p-1 rounded text-teal-700 hover:bg-teal-50"
                               >
                                 <Trash2 className="w-4 h-4" />
                               </button>
@@ -351,7 +351,7 @@ const InventoryForm: React.FC<InventoryFormProps> = ({
                   <button
                     type="button"
                     onClick={addRow}
-                    className="bg-[#11375d] text-white px-3 py-1.5 text-sm rounded-md"
+                    className="bg-[#0f766e] text-white px-3 py-1.5 text-sm rounded-md"
                   >
                     + Add Row
                   </button>
@@ -373,7 +373,7 @@ const InventoryForm: React.FC<InventoryFormProps> = ({
           <button
             type="submit"
             disabled={!formik.isValid || isLoading}
-            className="bg-red-600 text-white px-6 py-2 rounded-lg"
+            className="bg-teal-700 text-white px-6 py-2 rounded-lg"
           >
             Save Inventory
           </button>

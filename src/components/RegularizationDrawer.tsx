@@ -54,7 +54,7 @@ export default function RegularizationDrawer({ isOpen, onClose, request }: Regul
 
                 {/* Header */}
                 <div className="flex items-center justify-between p-6 border-b border-gray-100">
-                    <h2 className="text-lg font-semibold text-[#11375d]">Regularization Request Details</h2>
+                    <h2 className="text-lg font-semibold text-[#0f766e]">Regularization Request Details</h2>
                     <button
                         onClick={onClose}
                         className="p-2 hover:bg-gray-100 rounded-full text-gray-400 hover:text-gray-600 transition-colors"
@@ -68,13 +68,13 @@ export default function RegularizationDrawer({ isOpen, onClose, request }: Regul
 
                     {/* User Info Header matching mockup */}
                     <div className="flex items-center gap-4 border border-gray-100 p-4 rounded-xl shadow-sm bg-white">
-                        <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-blue-50 relative group">
+                        <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-sky-50 relative group">
                             <div className="absolute inset-0 bg-[#5e50d1]/10 flex items-center justify-center text-[#5e50d1] font-bold text-xl">
                                 {request.user?.name?.charAt(0) || 'U'}
                             </div>
                         </div>
                         <div className="flex flex-col">
-                            <h3 className="font-bold text-[#11375d] text-[16px]">{request.user?.name || 'User Name'}</h3>
+                            <h3 className="font-bold text-[#0f766e] text-[16px]">{request.user?.name || 'User Name'}</h3>
                             <p className="text-[12px] text-gray-500">
                                 Requested by {request.user?.name || 'User'} on {format(parseSafeDate(request.requestedOn)!, 'd MMM yyyy hh:mm a')}
                             </p>

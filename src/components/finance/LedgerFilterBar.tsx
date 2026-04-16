@@ -42,7 +42,7 @@ export const LedgerFilterBar: React.FC<LedgerFilterBarProps> = ({
   return (
     <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
       <div className="flex items-center gap-3 mb-6">
-        <Filter className="w-5 h-5 text-red-600" />
+        <Filter className="w-5 h-5 text-teal-700" />
         <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-700">Filter Ledger Entries</h3>
       </div>
 
@@ -101,7 +101,7 @@ export const LedgerFilterBar: React.FC<LedgerFilterBarProps> = ({
              </div>
            </div>
            {hasFilters && (
-             <button onClick={handleClear} className="p-3 bg-gray-100 text-gray-400 rounded-xl hover:text-red-600 transition-all active:scale-95">
+             <button onClick={handleClear} className="p-3 bg-gray-100 text-gray-400 rounded-xl hover:text-teal-700 transition-all active:scale-95">
                 <XCircle size={20} />
              </button>
            )}

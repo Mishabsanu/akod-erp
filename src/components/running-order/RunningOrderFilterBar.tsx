@@ -5,7 +5,7 @@ import { Select } from '@/components/ui/Select';
 import { Filter, ToggleLeft, XCircle } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 
-const PRIMARY = '#11375d';
+const PRIMARY = '#0f766e';
 
 interface RunningOrderFilterBarProps {
   onStatusChange: (status: string | undefined) => void;

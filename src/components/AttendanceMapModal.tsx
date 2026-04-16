@@ -55,9 +55,9 @@ export default function AttendanceMapModal({
                         <div>
                             <div className="text-xs font-bold text-gray-500 uppercase mb-4 tracking-wider">Web Clock Out</div>
                             {sessions?.map((session, idx) => session.endTime && (
-                                <div key={`out-${idx}`} className="mb-6 relative pl-4 border-l-2 border-red-100">
-                                    <div className="absolute -left-[5px] top-0 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white shadow-sm"></div>
-                                    <div className="flex items-center gap-2 text-red-600 font-semibold mb-1">
+                                <div key={`out-${idx}`} className="mb-6 relative pl-4 border-l-2 border-teal-100">
+                                    <div className="absolute -left-[5px] top-0 w-2.5 h-2.5 bg-teal-500 rounded-full border-2 border-white shadow-sm"></div>
+                                    <div className="flex items-center gap-2 text-teal-700 font-semibold mb-1">
                                         <ArrowDownLeft size={14} />
                                         {format(new Date(session.endTime), 'hh:mm aa')}
                                     </div>
@@ -87,8 +87,8 @@ export default function AttendanceMapModal({
                             <MapPin size={40} fill="currentColor" className="text-green-600" />
                         </div>
 
-                        <div className="absolute bottom-1/4 right-1/4 transform -translate-x-1/2 -translate-y-1/2 text-red-500 drop-shadow-lg">
-                            <MapPin size={40} fill="currentColor" className="text-red-500" />
+                        <div className="absolute bottom-1/4 right-1/4 transform -translate-x-1/2 -translate-y-1/2 text-teal-500 drop-shadow-lg">
+                            <MapPin size={40} fill="currentColor" className="text-teal-500" />
                         </div>
 
                         {/* Attributions / Controls Mock */}

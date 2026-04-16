@@ -47,7 +47,7 @@ const DeliveryTicketPreview = ({
                     <button
                         onClick={onConfirm}
                         disabled={isSubmitting}
-                        className={`px-6 py-2 text-white rounded shadow-md transition font-bold flex items-center gap-2 text-sm ${isSubmitting ? 'bg-gray-400' : 'bg-blue-700 hover:bg-blue-800'
+                        className={`px-6 py-2 text-white rounded shadow-md transition font-bold flex items-center gap-2 text-sm ${isSubmitting ? 'bg-gray-400' : 'bg-sky-700 hover:bg-sky-800'
                             }`}
                     >
                         {isSubmitting ? 'Confirming...' : 'Confirm & Create'}
@@ -65,8 +65,8 @@ const DeliveryTicketPreview = ({
                         <p>Tel: +974 44161483</p>
                         <p>+974 55299893</p>
                         <p>Doha - Qatar</p>
-                        <p className="text-blue-900">info@akodgroup.com</p>
-                        <p className="text-blue-900">chooseakod.com</p>
+                        <p className="text-slate-900">info@akodgroup.com</p>
+                        <p className="text-slate-900">chooseakod.com</p>
                     </div>
 
                     {/* Center: Logo */}
@@ -75,12 +75,12 @@ const DeliveryTicketPreview = ({
                         <div className="mb-1">
                             <svg width="60" height="50" viewBox="0 0 100 80">
                                 {/* Triangle Shape - Red */}
-                                <path d="M50 5 L90 75 L10 75 Z" fill="none" stroke="#dc2626" strokeWidth="8" />
-                                <path d="M50 25 L75 65 L25 65 Z" fill="#dc2626" />
+                                <path d="M50 5 L90 75 L10 75 Z" fill="none" stroke="#0f766e" strokeWidth="8" />
+                                <path d="M50 25 L75 65 L25 65 Z" fill="#0f766e" />
                             </svg>
                         </div>
                         <h1 className="text-3xl font-extrabold text-gray-800 tracking-wider">AKOD</h1>
-                        <p className="text-sm font-bold text-gray-500 uppercase tracking-widest text-[#dc2626] -mt-1">Group</p>
+                        <p className="text-sm font-bold text-gray-500 uppercase tracking-widest text-[#0f766e] -mt-1">Group</p>
                         <p className="text-[7pt] text-gray-500 mt-1">The Strongest in the Industry</p>
                         <h2 className="text-lg font-bold uppercase mt-2 text-gray-700">Delivery Note</h2>
                     </div>
@@ -90,8 +90,8 @@ const DeliveryTicketPreview = ({
                         <p>هاتف: ٤٤١٦١٤٨٣ ٩٧٤+</p>
                         <p>٩٧٤ ٥٥٢٩٩٨٩٣+</p>
                         <p>الدوحة، قطر</p>
-                        <p className="text-blue-900">info@akodgroup.com</p>
-                        <p className="text-blue-900">chooseakod.com</p>
+                        <p className="text-slate-900">info@akodgroup.com</p>
+                        <p className="text-slate-900">chooseakod.com</p>
                     </div>
                 </div>
 
@@ -194,7 +194,7 @@ const DeliveryTicketPreview = ({
                     </table>
                     <div className="mt-auto border-t border-gray-400 flex text-xs font-bold h-8 items-center bg-gray-50">
                         <div className="flex-grow text-right pr-4 border-r border-gray-400 h-full flex items-center justify-end">Total</div>
-                        <div className="w-20 text-center h-full flex items-center justify-center bg-white text-red-700 text-sm">{totalQuantity} No</div>
+                        <div className="w-20 text-center h-full flex items-center justify-center bg-white text-teal-800 text-sm">{totalQuantity} No</div>
                         <div className="w-[160px] h-full bg-white"></div>
                     </div>
                 </div>
@@ -208,7 +208,7 @@ const DeliveryTicketPreview = ({
                         <div className="w-1/2 flex flex-col gap-3">
                             <div className="flex items-end">
                                 <span className="w-28 flex-shrink-0">DELIVERED BY:</span>
-                                <span className="flex-grow border-b border-dotted border-gray-600 px-2 text-blue-900">{data.deliveredBy?.deliveredByName}</span>
+                                <span className="flex-grow border-b border-dotted border-gray-600 px-2 text-slate-900">{data.deliveredBy?.deliveredByName}</span>
                             </div>
                             <div className="flex items-end">
                                 <span className="w-28 flex-shrink-0">MOB NO:</span>
@@ -228,7 +228,7 @@ const DeliveryTicketPreview = ({
                         <div className="w-1/2 flex flex-col gap-3">
                             <div className="flex items-end">
                                 <span className="w-28 flex-shrink-0">RECEIVED BY:</span>
-                                <span className="flex-grow border-b border-dotted border-gray-600 px-2 text-blue-900">{data.receivedBy?.receivedByName}</span>
+                                <span className="flex-grow border-b border-dotted border-gray-600 px-2 text-slate-900">{data.receivedBy?.receivedByName}</span>
                             </div>
                             <div className="flex items-end">
                                 <span className="w-28 flex-shrink-0">MOB NO:</span>
@@ -252,12 +252,12 @@ const DeliveryTicketPreview = ({
                 </div>
 
                 {/* 6. Company Footer - Solid Red Bar */}
-                <div className="mt-2 text-center text-white font-sans bg-[#dc2626] py-2 -mx-10 px-10 mb-[-32px]">
+                <div className="mt-2 text-center text-white font-sans bg-[#0f766e] py-2 -mx-10 px-10 mb-[-32px]">
                     <div className="flex flex-col gap-1 text-[8pt] font-medium leading-tight">
                         <div>
                             Mob: +974 5016 4817 | Tel: +974 4416 1483 | E-mail: info@akodgroup.com | chooseakod.com
                         </div>
-                        <div className="border-t border-red-400 pt-1 mt-0.5 opacity-90 text-[7pt]">
+                        <div className="border-t border-teal-400 pt-1 mt-0.5 opacity-90 text-[7pt]">
                             C.R.No: 147701 | P.O.Box: 9044 | Doha - Qatar
                         </div>
                     </div>

@@ -29,7 +29,7 @@ interface ReusableTableProps<T> {
   isView?: boolean;
 }
 
-const NewTable = <T extends { _id?: string; [key: string]: any }>({
+const NewTable = <T extends { _id?: string } & Record<string, unknown>>({
   columns,
   data,
   totalCount,
@@ -39,23 +39,20 @@ const NewTable = <T extends { _id?: string; [key: string]: any }>({
   setLimit,
   totalPages,
   onRowClick,
-  isView = false,
 }: ReusableTableProps<T>) => {
   const from = (page - 1) * limit + 1;
   const to = Math.min(page * limit, totalCount);
 
   return (
-    <div className="overflow-x-auto bg-white shadow-md rounded-lg border border-gray-200">
-      <table className="min-w-full">
+    <div className="akod-table-shell animate-fade-in">
+      <div className="akod-table-scroll">
+      <table className="akod-table">
         <thead>
-          <tr
-            className="text-white text-sm uppercase tracking-wider"
-            style={{ backgroundColor: '#11375d' }}
-          >
+          <tr>
             {columns.map((col) => (
               <th
                 key={String(col.accessor)}
-                className={`py-3 px-4 font-semibold ${
+                className={`${
                   col.nowrap ? 'whitespace-nowrap' : ''
                 } ${
                   col.align === 'center'
@@ -75,7 +72,7 @@ const NewTable = <T extends { _id?: string; [key: string]: any }>({
             <tr>
               <td
                 colSpan={columns.length}
-                className="py-10 text-center text-gray-500 text-sm italic"
+                className="akod-table-empty"
               >
                 No data found.
               </td>
@@ -85,14 +82,12 @@ const NewTable = <T extends { _id?: string; [key: string]: any }>({
               <tr
                 key={item._id}
                 onClick={() => onRowClick && onRowClick(item)}
-                className={`border-b hover:bg-gray-50 transition-all duration-150 ${
-                  onRowClick ? 'cursor-pointer' : ''
-                }`}
+                className={onRowClick ? 'cursor-pointer' : ''}
               >
                 {columns.map((col) => (
                   <td
                     key={String(col.accessor)}
-                    className={`px-4 py-3 text-gray-700 ${
+                    className={`${
                       col.nowrap ? 'whitespace-nowrap' : ''
                     } ${
                       col.align === 'center'
@@ -112,16 +107,16 @@ const NewTable = <T extends { _id?: string; [key: string]: any }>({
           )}
         </tbody>
       </table>
+      </div>
 
       {/* Pagination Controls */}
-      <div className="flex justify-between items-center gap-3 px-6 py-4">
+      <div className="akod-table-footer">
         {/* Left Side: "Showing X to Y of Z" */}
-        <div className="text-sm text-gray-600">
+        <div className="akod-table-footer-text">
           {totalCount > 0 ? (
             <>
-              Showing <span className="font-semibold">{from}</span> to{' '}
-              <span className="font-semibold">{to}</span> of{' '}
-              <span className="font-semibold">{totalCount}</span> entries
+              Catalog results <strong>{from}-{to}</strong> of{' '}
+              <strong>{totalCount}</strong>
             </>
           ) : (
             'No entries'
@@ -132,14 +127,14 @@ const NewTable = <T extends { _id?: string; [key: string]: any }>({
         <div className="flex items-center gap-6">
           {/* Limit Selector */}
           <div className="flex items-center gap-2">
-            <label htmlFor="limit-select" className="text-sm text-gray-600">
-              Rows per page:
+            <label htmlFor="limit-select" className="akod-table-footer-label">
+              Rows displayed
             </label>
             <select
               id="limit-select"
               value={limit}
               onChange={(e) => setLimit(Number(e.target.value))}
-              className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500"
+              className="akod-table-select"
             >
               <option value={10}>10</option>
               <option value={25}>25</option>
@@ -153,33 +148,33 @@ const NewTable = <T extends { _id?: string; [key: string]: any }>({
             <button
               onClick={() => setPage(1)}
               disabled={page === 1}
-              className="p-2 rounded-md text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
+              className="akod-page-button"
             >
               <ChevronsLeft className="w-5 h-5" />
             </button>
             <button
               onClick={() => setPage(page - 1)}
               disabled={page === 1}
-              className="p-2 rounded-md text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
+              className="akod-page-button"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
 
-            <span className="text-sm text-gray-700">
+            <span className="akod-page-current">
               Page {page} of {totalPages}
             </span>
 
             <button
               onClick={() => setPage(page + 1)}
               disabled={page === totalPages}
-              className="p-2 rounded-md text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
+              className="akod-page-button"
             >
               <ChevronRight className="w-5 h-5" />
             </button>
             <button
               onClick={() => setPage(totalPages)}
               disabled={page === totalPages}
-              className="p-2 rounded-md text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
+              className="akod-page-button"
             >
               <ChevronsRight className="w-5 h-5" />
             </button>

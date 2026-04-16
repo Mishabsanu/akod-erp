@@ -50,9 +50,9 @@ export const SalaryBreakupForm: React.FC<SalaryBreakupFormProps> = ({
       {/* Header */}
       <div className="flex items-center justify-between mb-8 border-b border-gray-200 pb-4">
         <div className="flex items-center gap-3">
-          <PieChart className="text-red-600 w-6 h-6" />
+          <PieChart className="text-teal-700 w-6 h-6" />
           <h2 className="text-2xl font-semibold text-gray-800">
-            Configure Salary: <span className="text-red-600">{userName}</span>
+            Configure Salary: <span className="text-teal-700">{userName}</span>
           </h2>
         </div>
         <button 
@@ -109,8 +109,8 @@ export const SalaryBreakupForm: React.FC<SalaryBreakupFormProps> = ({
                     </p>
                   </div>
                   <div className="md:border-l border-gray-200 md:pl-8">
-                    <p className="text-[10px] font-bold text-red-600 uppercase tracking-widest mb-1">Net Monthly Take Home</p>
-                    <p className="text-3xl font-black text-[#11375d]">
+                    <p className="text-[10px] font-bold text-teal-700 uppercase tracking-widest mb-1">Net Monthly Take Home</p>
+                    <p className="text-3xl font-black text-[#0f766e]">
                       ₹{(
                         (Number(values.basic) + Number(values.hra) + Number(values.conveyance) + Number(values.specialAllowance)) -
                         (Number(values.pf) + Number(values.esi) + Number(values.tds) + Number(values.otherDeductions))
@@ -133,7 +133,7 @@ export const SalaryBreakupForm: React.FC<SalaryBreakupFormProps> = ({
                 type="submit"
                 disabled={loading || isSubmitting}
                 className={`flex items-center gap-2 px-8 py-2.5 rounded-lg text-white font-semibold shadow-sm transition ${
-                  loading || isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-red-600 hover:bg-red-700'
+                  loading || isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-teal-700 hover:bg-teal-800'
                 }`}
               >
                 {loading || isSubmitting ? (

@@ -69,9 +69,9 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ initialData, onSubmit, onCanc
       <div className="flex items-center justify-between mb-8 border-b border-gray-200 pb-4">
         <div className="flex items-center gap-3">
           {isEditMode ? (
-            <Edit3 className="text-red-600 w-6 h-6" />
+            <Edit3 className="text-teal-700 w-6 h-6" />
           ) : (
-            <PlusCircle className="text-red-600 w-6 h-6" />
+            <PlusCircle className="text-teal-700 w-6 h-6" />
           )}
           <h2 className="text-2xl font-semibold text-gray-800">
             {isEditMode ? 'Edit Expense' : 'Create New Expense'}
@@ -147,12 +147,12 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ initialData, onSubmit, onCanc
              {/* Calculations Summary */}
              <div className="mt-8 bg-white border border-gray-100 rounded-2xl p-6 flex items-center justify-between shadow-sm">
                 <div className="flex items-center gap-3">
-                   <div className="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center text-red-600 font-bold">
+                   <div className="w-10 h-10 bg-teal-50 rounded-xl flex items-center justify-center text-teal-700 font-bold">
                       <DollarSign size={20} />
                    </div>
                    <span className="text-sm font-bold text-gray-600 uppercase tracking-tight">Net Settlement Amount</span>
                 </div>
-                <span className="text-2xl font-bold text-[#11375d]">
+                <span className="text-2xl font-bold text-[#0f766e]">
                   QAR {(Number(formik.values.amount) + Number(formik.values.taxAmount)).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                 </span>
              </div>
@@ -167,10 +167,10 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ initialData, onSubmit, onCanc
                   rows={4}
                 />
 
-                <div className="p-10 border-2 border-dashed border-gray-200 rounded-3xl bg-white hover:border-red-600 transition-all group relative cursor-pointer"
+                <div className="p-10 border-2 border-dashed border-gray-200 rounded-3xl bg-white hover:border-teal-700 transition-all group relative cursor-pointer"
                      onClick={() => document.getElementById('receipt-upload')?.click()}>
                    <div className="flex flex-col items-center justify-center">
-                      <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-400 group-hover:text-red-600 transition-all mb-4">
+                      <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-400 group-hover:text-teal-700 transition-all mb-4">
                          <Paperclip size={24} />
                       </div>
                       <span className="text-sm font-bold text-gray-700 uppercase tracking-widest">
@@ -200,10 +200,10 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ initialData, onSubmit, onCanc
             <button
               type="submit"
               disabled={formik.isSubmitting || isLoading}
-              className={`px-10 py-2.5 rounded-xl text-white font-bold shadow-lg shadow-red-600/10 transition-all active:scale-95 ${
+              className={`px-10 py-2.5 rounded-xl text-white font-bold shadow-lg shadow-teal-700/10 transition-all active:scale-95 ${
                 formik.isSubmitting || isLoading
                   ? 'bg-gray-400 cursor-not-allowed'
-                  : 'bg-red-600 hover:bg-red-700'
+                  : 'bg-teal-700 hover:bg-teal-800'
               }`}
             >
               {isEditMode ? 'Update Expense' : 'Save Expense'}

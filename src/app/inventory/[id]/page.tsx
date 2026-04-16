@@ -102,7 +102,7 @@ const ViewInventoryPage = () => {
 
           <button
             onClick={() => router.push(`/inventory/edit/${item._id}`)}
-            className="flex items-center gap-2 bg-[#11375d] hover:bg-[#0a2741]
+            className="flex items-center gap-2 bg-[#0f766e] hover:bg-[#134e4a]
               text-white font-semibold px-6 py-2.5 rounded-xl transition"
           >
             <Edit2 className="w-4 h-4" />
@@ -118,14 +118,14 @@ const ViewInventoryPage = () => {
               onClick={() => setActiveTab(key as any)}
               className={`relative flex items-center gap-2 py-4 text-sm font-semibold transition
                 ${activeTab === key
-                  ? 'text-[#11375d]'
+                  ? 'text-[#0f766e]'
                   : 'text-slate-500 hover:text-slate-800'
                 }`}
             >
               {Icon && <Icon className="w-4 h-4" />}
               {label}
               {activeTab === key && (
-                <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#11375d]" />
+                <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#0f766e]" />
               )}
             </button>
           ))}

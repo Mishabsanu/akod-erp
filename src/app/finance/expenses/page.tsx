@@ -2,15 +2,15 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { getExpenses, deleteExpense } from '@/services/financeApi';
-import { Expense, ExpenseFilter, Account } from '@/lib/types';
+import { Expense, ExpenseFilter } from '@/lib/types';
 import { DataTable, Column } from '@/components/shared/DataTable';
+import ListPageHeader from '@/components/shared/ListPageHeader';
 import { SearchInput } from '@/components/shared/SearchInput';
 import { ExpenseFilterBar } from '@/components/finance/ExpenseFilterBar';
 import { TableSkeleton } from '@/components/shared/TableSkeleton';
-import { Wallet, Plus, Filter, MoreVertical, Edit2, Trash2 } from 'lucide-react';
+import { Plus, Filter, MoreVertical, Edit2, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { useAuth } from '@/contexts/AuthContext';
 
 export default function ExpensesPage() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -22,7 +22,6 @@ export default function ExpensesPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const router = useRouter();
-  const { can } = useAuth();
 
   const [filter, setFilter] = useState<ExpenseFilter>({
     search: '',
@@ -59,7 +58,7 @@ export default function ExpensesPage() {
       await deleteExpense(id);
       toast.success('Expense record deleted successfully');
       fetchExpenses();
-    } catch (error) {
+    } catch {
       toast.error('Failed to delete expense record');
     }
   };
@@ -98,7 +97,7 @@ export default function ExpensesPage() {
         header: 'Company', 
         accessor: 'companyName' as keyof Expense,
         render: (item: Expense) => (
-          <span className="text-sm font-semibold text-[#11375d]">{item.companyName || '—'}</span>
+          <span className="text-sm font-semibold text-[#0f766e]">{item.companyName || '—'}</span>
         )
       },
       { 
@@ -115,7 +114,7 @@ export default function ExpensesPage() {
         accessor: 'status' as keyof Expense,
         render: (item: Expense) => (
           <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${
-            item.status === 'paid' ? 'bg-green-50 text-green-700' : item.status === 'pending' ? 'bg-orange-50 text-orange-700' : 'bg-red-50 text-red-700'
+            item.status === 'paid' ? 'bg-green-50 text-green-700' : item.status === 'pending' ? 'bg-orange-50 text-orange-700' : 'bg-teal-50 text-teal-800'
           }`}>
             {item.status}
           </span>
@@ -133,7 +132,7 @@ export default function ExpensesPage() {
               e.stopPropagation();
               if (expense._id) toggleActionMenu(expense._id);
             }}
-            className="text-gray-600 hover:text-[#11375d] transition p-1 hover:bg-gray-100 rounded-lg"
+            className="text-gray-600 hover:text-[#0f766e] transition p-1 hover:bg-gray-100 rounded-lg"
           >
             <MoreVertical className="w-5 h-5" />
           </button>
@@ -146,7 +145,7 @@ export default function ExpensesPage() {
                 }}
                 className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
               >
-                <Edit2 className="w-4 h-4 text-[#11375d]" />
+                <Edit2 className="w-4 h-4 text-[#0f766e]" />
                 Edit
               </button>
               <button
@@ -154,7 +153,7 @@ export default function ExpensesPage() {
                   e.stopPropagation();
                   if (expense._id) handleDelete(expense._id);
                 }}
-                className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-[#cc1518] hover:bg-gray-50"
+                className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-[#0f766e] hover:bg-gray-50"
               >
                 <Trash2 className="w-4 h-4" />
                 Delete
@@ -170,31 +169,30 @@ export default function ExpensesPage() {
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white p-6 md:p-10">
-      {/* Header matching Sales module */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
-        <div className="flex items-center gap-3 mb-4 sm:mb-0">
-          <Wallet className="w-7 h-7 text-red-600" />
-          <h1 className="text-3xl font-semibold text-gray-800">
-            Expense Management
-          </h1>
-        </div>
-        <div className="flex items-center gap-3">
+      <ListPageHeader
+        eyebrow="Expense Ledger"
+        title="Expense"
+        highlight="Management"
+        description="Log, review, and reconcile outgoing company expenses."
+        actions={
+          <>
           <button 
             onClick={() => router.push('/finance/expenses/add')}
-            className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 px-5 rounded-lg shadow transition-all"
+            className="page-header-button"
           >
             <Plus className="w-4 h-4" />
             Add Expense
           </button>
           <button 
             onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2.5 px-5 rounded-lg shadow transition-all"
+            className="page-header-button secondary"
           >
             <Filter size={18} />
             {showFilters ? 'Hide Filters' : 'Show Filters'}
           </button>
-        </div>
-      </div>
+          </>
+        }
+      />
 
       {/* Persistent Filters Section */}
       <div className={showFilters ? 'block mb-6' : 'hidden'}>

@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect, useState, useMemo, useCallback } from 'react';
-import { ReceiptText, Plus, Search, Eye, Trash2, Filter, MoreVertical } from 'lucide-react';
+import { Plus, Eye, Trash2, Filter, MoreVertical } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Column, DataTable } from '@/components/shared/DataTable';
+import ListPageHeader from '@/components/shared/ListPageHeader';
 import { SearchInput } from '@/components/shared/SearchInput';
 import { TableSkeleton } from '@/components/shared/TableSkeleton';
 import { useAuth } from '@/contexts/AuthContext';
@@ -67,10 +68,10 @@ export default function SalarySlipsPage() {
                 await deleteSlip(id);
                 toast.success('Salary slip deleted');
                 fetchData();
-              } catch (error) {
+              } catch {
                 toast.error('Failed to delete slip');
               }
-            }} className="px-3 py-1 text-sm bg-red-600 text-white rounded-md hover:bg-red-700 transition">Yes, Delete</button>
+            }} className="px-3 py-1 text-sm bg-teal-700 text-white rounded-md hover:bg-teal-800 transition">Yes, Delete</button>
           </div>
         </div>
       ));
@@ -82,7 +83,7 @@ export default function SalarySlipsPage() {
       header: 'Employee',
       render: (slip) => (
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-[#11375d] font-bold text-sm">
+          <div className="w-10 h-10 rounded-full bg-sky-50 flex items-center justify-center text-[#0f766e] font-bold text-sm">
             {slip.user?.name?.charAt(0) || '?'}
           </div>
           <div>
@@ -112,7 +113,7 @@ export default function SalarySlipsPage() {
       accessor: 'netSalary',
       header: 'Net Payable',
       render: (slip) => (
-        <span className="font-bold text-red-600">₹{slip.netSalary.toLocaleString()}</span>
+        <span className="font-bold text-teal-700">₹{slip.netSalary.toLocaleString()}</span>
       ),
     },
     {
@@ -120,7 +121,7 @@ export default function SalarySlipsPage() {
       header: 'Status',
       render: (slip) => (
         <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-          slip.status === 'paid' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'
+          slip.status === 'paid' ? 'bg-green-100 text-green-700' : 'bg-sky-100 text-sky-700'
         }`}>
           {slip.status}
         </span>
@@ -151,7 +152,7 @@ export default function SalarySlipsPage() {
                    }}
                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
                 >
-                  <Eye size={16} className="text-blue-500" />
+                  <Eye size={16} className="text-sky-500" />
                   View Slip
                 </button>
                 <button
@@ -160,7 +161,7 @@ export default function SalarySlipsPage() {
                      handleDelete(slip._id);
                      setOpenMenu(null);
                    }}
-                   className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-500 hover:bg-gray-50 transition-colors"
+                   className="w-full flex items-center gap-3 px-4 py-3 text-sm text-teal-500 hover:bg-gray-50 transition-colors"
                 >
                   <Trash2 size={16} />
                   Delete Slip
@@ -174,19 +175,17 @@ export default function SalarySlipsPage() {
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white p-6 md:p-10">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
-        <div className="flex items-center gap-3 mb-4 sm:mb-0">
-          <ReceiptText className="w-7 h-7 text-red-600" />
-          <h1 className="text-3xl font-semibold text-gray-800">
-            Salary Slips
-          </h1>
-        </div>
-        <div className="flex items-center gap-3">
+      <ListPageHeader
+        eyebrow="Payroll Registry"
+        title="Salary"
+        highlight="Slips"
+        description="Generate, review, and maintain monthly payroll slip records."
+        actions={
+          <>
           {can('attendance', 'create') && ( // Assuming similar permission
             <button
               onClick={() => router.push('/hr/payroll/slips/generate')}
-              className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 px-5 rounded-lg shadow transition-all"
+              className="page-header-button"
             >
               <Plus className="w-4 h-4" />
               Add
@@ -194,13 +193,14 @@ export default function SalarySlipsPage() {
           )}
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2.5 px-5 rounded-lg shadow transition-all"
+            className="page-header-button secondary"
           >
             <Filter className="w-4 h-4" />
             {showFilters ? 'Hide Filters' : 'Show Filters'}
           </button>
-        </div>
-      </div>
+          </>
+        }
+      />
 
       {/* Filters Area */}
       {showFilters && (
@@ -211,7 +211,7 @@ export default function SalarySlipsPage() {
                  <select
                     value={monthFilter}
                     onChange={(e) => setMonthFilter(Number(e.target.value))}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl text-sm font-semibold text-gray-700 outline-none focus:border-red-500/20 transition-all"
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl text-sm font-semibold text-gray-700 outline-none focus:border-teal-500/20 transition-all"
                  >
                     {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
                         <option key={m} value={m}>
@@ -225,7 +225,7 @@ export default function SalarySlipsPage() {
                  <select
                     value={yearFilter}
                     onChange={(e) => setYearFilter(Number(e.target.value))}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl text-sm font-semibold text-gray-700 outline-none focus:border-red-500/20 transition-all"
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl text-sm font-semibold text-gray-700 outline-none focus:border-teal-500/20 transition-all"
                  >
                     {[2024, 2025, 2026].map(y => (
                         <option key={y} value={y}>{y}</option>

@@ -2,6 +2,7 @@
 
 import { ReturnTicketFilterBar } from '@/components/return-ticket/ReturnTicketFilterBar';
 import { Column, DataTable } from '@/components/shared/DataTable';
+import ListPageHeader from '@/components/shared/ListPageHeader';
 import { SearchInput } from '@/components/shared/SearchInput'; // Import SearchInput
 import { TableSkeleton } from '@/components/shared/TableSkeleton'; // Import TableSkeleton
 import { useAuth } from '@/contexts/AuthContext';
@@ -15,7 +16,6 @@ import {
   Filter,
   MoreVertical, // Appropriate icon for Return Ticket
   Plus,
-  RotateCcw,
   Trash2,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -133,7 +133,7 @@ const ReturnTicketPage = () => {
                 );
               }
             }}
-            className="px-3 py-1 text-sm bg-red-600 text-white rounded-md hover:bg-red-700 transition"
+            className="px-3 py-1 text-sm bg-teal-700 text-white rounded-md hover:bg-teal-800 transition"
           >
             Yes, Delete
           </button>
@@ -189,7 +189,7 @@ const ReturnTicketPage = () => {
                 e.stopPropagation();
                 if (ticket._id) toggleActionMenu(ticket._id);
               }}
-              className="text-gray-600 hover:text-[#11375d]"
+              className="text-gray-600 hover:text-[#0f766e]"
             >
               <MoreVertical className="w-5 h-5" />
             </button>
@@ -213,7 +213,7 @@ const ReturnTicketPage = () => {
                       e.stopPropagation();
                       if (ticket._id) handleDelete(ticket._id);
                     }}
-                    className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-600 hover:bg-gray-50"
+                    className="flex items-center gap-2 w-full px-3 py-2 text-sm text-teal-700 hover:bg-gray-50"
                   >
                     <Trash2 className="w-4 h-4" /> Delete
                   </button>
@@ -229,21 +229,17 @@ const ReturnTicketPage = () => {
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white p-6 md:p-10">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
-        <div className="flex items-center gap-3 mb-4 sm:mb-0">
-          <RotateCcw className="w-7 h-7 text-red-600" />
-          <h1 className="text-3xl font-semibold text-gray-800">
-            Return Tickets
-          </h1>
-        </div>
-        <div className="flex items-center gap-3">
-          {' '}
-          {/* Group Add and Filter buttons */}
+      <ListPageHeader
+        eyebrow="Return Registry"
+        title="Return"
+        highlight="Tickets"
+        description="Manage returned goods, quantities, and reverse logistics records."
+        actions={
+          <>
           {can('return_ticket', 'create') && (
             <button
               onClick={handleAdd}
-              className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 px-5 rounded-lg shadow transition-all"
+              className="page-header-button"
             >
               <Plus className="w-4 h-4" />
               Add
@@ -251,13 +247,14 @@ const ReturnTicketPage = () => {
           )}
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2.5 px-5 rounded-lg shadow transition-all"
+            className="page-header-button secondary"
           >
             <Filter className="w-4 h-4" />
             {showFilters ? 'Hide Filters' : 'Show Filters'}
           </button>
-        </div>
-      </div>
+          </>
+        }
+      />
 
       {showFilters ? (
         <>

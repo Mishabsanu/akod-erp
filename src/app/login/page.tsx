@@ -8,13 +8,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import Image from 'next/image';
 
-// BRAND COLORS
-const PRIMARY = '#11375d';
-const SECONDARY = '#FFFFFF';
-const BG = '#F8F8F8';
-const TEXT = '#11375d';
-
-// Normal red for validation errors ONLY
+const PRIMARY = '#0f766e';
+const SECONDARY = '#ffffff';
 const ERROR_RED = '#d32f2f';
 
 const validationSchema = Yup.object({
@@ -25,6 +20,25 @@ const validationSchema = Yup.object({
     .min(6, 'Min 6 characters required')
     .required('Password is required'),
 });
+
+const getErrorMessage = (error: unknown) => {
+  if (error instanceof Error) return error.message;
+  if (
+    typeof error === 'object' &&
+    error !== null &&
+    'response' in error &&
+    typeof error.response === 'object' &&
+    error.response !== null &&
+    'data' in error.response &&
+    typeof error.response.data === 'object' &&
+    error.response.data !== null &&
+    'message' in error.response.data &&
+    typeof error.response.data.message === 'string'
+  ) {
+    return error.response.data.message;
+  }
+  return 'Login failed. Try again.';
+};
 
 const LoginPage = () => {
   const { login } = useAuth();
@@ -42,12 +56,8 @@ const LoginPage = () => {
       try {
         await login(values.email, values.password);
         toast.success('Login successful');
-      } catch (err: any) {
-        const msg =
-          err?.response?.data?.message ||
-          err?.message ||
-          'Login failed. Try again.';
-        toast.error(msg);
+      } catch (err: unknown) {
+        toast.error(getErrorMessage(err));
       } finally {
         setSubmitting(false);
       }
@@ -55,94 +65,47 @@ const LoginPage = () => {
   });
 
   return (
-    <div
-      className="min-h-screen w-full relative flex items-center justify-center overflow-hidden"
-      style={{ backgroundColor: BG }}
-    >
-      {/* Background split */}
-      <div className="absolute inset-0 flex">
-        <div className="w-1/2 h-full relative">
-          <div
-            className="absolute inset-0 backdrop-blur-xl opacity-75 clip-left"
-            style={{ backgroundColor: SECONDARY }}
-          />
-        </div>
+    <div className="min-h-screen w-full relative flex items-center justify-center overflow-hidden px-4 bg-[radial-gradient(circle_at_top_right,#f1f5f9,var(--bg-main))]">
+      <div className="absolute inset-y-0 right-0 hidden w-1/2 bg-[var(--bg-sidebar)] md:block" />
 
-        <div className="w-1/2 h-full relative">
-          <div
-            className="absolute inset-0 backdrop-blur-xl opacity-85 clip-right"
-            style={{ backgroundColor: PRIMARY }}
-          />
-        </div>
-      </div>
-
-      {/* Main Card */}
-      <div
-        className="relative z-10 flex w-[90%] max-w-6xl h-[90vh] rounded-3xl overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.3)] border"
-        style={{ borderColor: 'rgba(0,0,0,0.08)' }}
-      >
-        {/* LEFT BRAND SIDE */}
-        <div
-          className="hidden md:flex w-1/2 flex-col items-center justify-center relative overflow-hidden"
-          style={{ color: TEXT }}
-        >
-          <div
-            className="absolute w-72 h-72 blur-[100px] rounded-full"
-            style={{ backgroundColor: PRIMARY, opacity: 0.12 }}
-          />
+      <div className="relative z-10 flex w-full max-w-6xl min-h-[680px] overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-white shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] animate-fade-in">
+        <div className="relative hidden w-1/2 flex-col items-center justify-center overflow-hidden bg-white px-10 md:flex">
+          <div className="absolute left-16 top-16 h-72 w-72 rounded-full bg-[#0f766e]/10 blur-[100px]" />
 
           <Image
             src="/logocrm.png"
             alt="Brand Logo"
             width={260}
             height={70}
-            className="relative z-10 mb-8 drop-shadow-[0_0_12px_rgba(0,0,0,0.3)]"
+            className="relative z-10 mb-8 drop-shadow-[0_10px_20px_rgba(15,118,110,0.12)]"
           />
 
-          <div
-            className="w-48 h-[2px] mb-8 opacity-60"
-            style={{
-              background: `linear-gradient(to right, transparent, ${TEXT}, transparent)`,
-            }}
-          />
+          <div className="mb-8 h-[2px] w-48 bg-gradient-to-r from-transparent via-[#0f766e] to-transparent opacity-60" />
 
-          <h1 className="text-4xl font-extrabold tracking-wide">AKOD CRM</h1>
+          <h1 className="text-4xl font-extrabold tracking-wide text-[var(--text-main)]">
+            AKOD ERP
+          </h1>
 
-          <p className="text-sm mt-4 max-w-sm text-center leading-relaxed opacity-80">
-            Smart. Fast. Reliable CRM built for real business growth.
+          <p className="mt-4 max-w-sm text-center text-sm font-semibold leading-relaxed text-[var(--text-muted)]">
+            Smart. Fast. Reliable enterprise operations built for real business growth.
           </p>
 
-          <div
-            className="w-full max-w-xs mt-12 border-t opacity-40"
-            style={{ borderColor: TEXT }}
-          />
+          <div className="mt-12 w-full max-w-xs border-t border-[var(--border-subtle)]" />
 
-          <p className="mt-6 text-xs opacity-70">Powered with Excellence</p>
+          <p className="mt-6 text-xs font-bold uppercase tracking-widest text-[var(--text-muted)]">
+            Powered with Excellence
+          </p>
         </div>
 
-        {/* RIGHT FORM SIDE */}
-        <div className="flex-1 flex items-center justify-center px-8 md:px-14">
-          <div
-            className="w-full max-w-md p-8 rounded-2xl backdrop-blur-xl shadow-xl"
-            style={{
-              backgroundColor: SECONDARY + 'D9',
-              border: `1px solid rgba(0,0,0,0.08)`,
-            }}
-          >
-            <h2
-              className="text-3xl font-extrabold text-center mb-10"
-              style={{ color: PRIMARY }}
-            >
+        <div className="flex flex-1 items-center justify-center bg-[var(--bg-sidebar)] px-8 md:px-14">
+          <div className="glass-premium w-full max-w-md rounded-[var(--radius-lg)] p-8 shadow-xl">
+            <h2 className="mb-10 text-center text-3xl font-extrabold text-[#0f766e]">
               Welcome Back
             </h2>
 
             <form onSubmit={formik.handleSubmit} className="space-y-7">
-              {/* Email */}
               <div>
-                <label
-                  className="block text-sm font-medium mb-1"
-                  style={{ color: TEXT }}
-                >
+                <label className="label-premium">
                   Email Address <span style={{ color: ERROR_RED }}>*</span>
                 </label>
                 <input
@@ -152,32 +115,26 @@ const LoginPage = () => {
                   placeholder="yourmail@domain.com"
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
-                  // autoComplete="off"
                   value={formik.values.email}
-                  className="w-full px-4 py-3.5 rounded-xl text-sm focus:ring-2 border"
+                  className="input-premium"
                   style={{
                     backgroundColor: SECONDARY,
                     borderColor:
                       formik.touched.email && formik.errors.email
                         ? ERROR_RED
-                        : 'rgba(0,0,0,0.25)',
-                    color: TEXT,
-                    outline: 'none',
+                        : undefined,
+                    color: 'var(--text-main)',
                   }}
                 />
                 {formik.touched.email && formik.errors.email && (
-                  <p className="text-xs mt-1" style={{ color: ERROR_RED }}>
+                  <p className="mt-1 text-xs" style={{ color: ERROR_RED }}>
                     {formik.errors.email}
                   </p>
                 )}
               </div>
 
-              {/* Password */}
               <div>
-                <label
-                  className="block text-sm font-medium mb-1"
-                  style={{ color: TEXT }}
-                >
+                <label className="label-premium">
                   Password <span style={{ color: ERROR_RED }}>*</span>
                 </label>
                 <div className="relative">
@@ -189,68 +146,48 @@ const LoginPage = () => {
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     value={formik.values.password}
-                    className="w-full px-4 py-3.5 rounded-xl text-sm focus:ring-2 border pr-12"
+                    className="input-premium pr-12"
                     style={{
                       backgroundColor: SECONDARY,
                       borderColor:
                         formik.touched.password && formik.errors.password
                           ? ERROR_RED
-                          : 'rgba(0,0,0,0.25)',
-                      color: TEXT,
-                      outline: 'none',
+                          : undefined,
+                      color: 'var(--text-main)',
                     }}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-[14px]"
-                    style={{ color: TEXT }}
+                    className="absolute right-3 top-[14px] text-[var(--text-muted)] transition hover:text-[#0f766e]"
                   >
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
                 {formik.touched.password && formik.errors.password && (
-                  <p className="text-xs mt-1" style={{ color: ERROR_RED }}>
+                  <p className="mt-1 text-xs" style={{ color: ERROR_RED }}>
                     {formik.errors.password}
                   </p>
                 )}
               </div>
 
-              {/* Login Button */}
               <button
                 type="submit"
                 disabled={formik.isSubmitting}
-                className="w-full flex items-center justify-center gap-2 py-3.5 font-semibold rounded-xl shadow-md transition text-sm"
-                style={{
-                  backgroundColor: formik.isSubmitting ? '#999' : PRIMARY,
-                  cursor: formik.isSubmitting ? 'not-allowed' : 'pointer',
-                  color: SECONDARY,
-                }}
+                className="flex w-full items-center justify-center gap-2 rounded-[var(--radius-sm)] py-3.5 text-sm font-semibold text-white shadow-md transition hover:shadow-lg active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
+                style={{ backgroundColor: formik.isSubmitting ? '#94a3b8' : PRIMARY }}
               >
                 <LogIn size={16} />
-                {formik.isSubmitting ? 'Please wait…' : 'Login'}
+                {formik.isSubmitting ? 'Please wait...' : 'Login'}
               </button>
             </form>
 
-            <p
-              className="mt-10 text-center text-[11px]"
-              style={{ color: `${TEXT}B0` }}
-            >
+            <p className="mt-10 text-center text-[11px] text-[var(--text-muted)]">
               © {currentYear} AKOD Group. All Rights Reserved.
             </p>
           </div>
         </div>
       </div>
-
-      {/* Arrow Clipping */}
-      <style jsx>{`
-        .clip-left {
-          clip-path: polygon(0 0, 70% 0, 100% 100%, 0 100%);
-        }
-        .clip-right {
-          clip-path: polygon(30% 0, 100% 0, 100% 100%, 0 100%);
-        }
-      `}</style>
     </div>
   );
 };

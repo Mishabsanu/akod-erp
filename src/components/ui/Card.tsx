@@ -1,17 +1,23 @@
-export function Card({ children }: any) {
+import type { ReactNode } from 'react';
+
+type CardProps = {
+  children: ReactNode;
+};
+
+export function Card({ children }: CardProps) {
   return (
-    <div className="border rounded-xl shadow p-4 bg-white">{children}</div>
+    <div className="card-premium p-4">{children}</div>
   );
 }
 
-export function CardHeader({ children }: any) {
-  return <div className="mb-2">{children}</div>;
+export function CardHeader({ children }: CardProps) {
+  return <div className="mb-3">{children}</div>;
 }
 
-export function CardTitle({ children }: any) {
-  return <h2 className="font-semibold text-lg">{children}</h2>;
+export function CardTitle({ children }: CardProps) {
+  return <h2 className="font-semibold text-lg text-[var(--text-main)]">{children}</h2>;
 }
 
-export function CardContent({ children }: any) {
+export function CardContent({ children }: CardProps) {
   return <div>{children}</div>;
 }

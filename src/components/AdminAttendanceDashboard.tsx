@@ -115,7 +115,7 @@ export default function AdminAttendanceDashboard() {
             header: 'Staff Member',
             render: (row) => (
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#11375d] to-[#2a507d] text-white flex items-center justify-center font-bold text-sm shadow-sm">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#0f766e] to-[#0ea5e9] text-white flex items-center justify-center font-bold text-sm shadow-sm">
                         {row.user?.name?.charAt(0).toUpperCase() || '?'}
                     </div>
                     <div>
@@ -139,7 +139,7 @@ export default function AdminAttendanceDashboard() {
                             Checked Out
                         </span>
                     ) : (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-50 text-red-500 text-[11px] font-black uppercase tracking-wide border border-red-100">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-50 text-teal-500 text-[11px] font-black uppercase tracking-wide border border-teal-100">
                             Absent
                         </span>
                     )}
@@ -214,7 +214,7 @@ export default function AdminAttendanceDashboard() {
                         <button
                             onClick={() => setViewMode('day')}
                             className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${viewMode === 'day'
-                                ? 'bg-white text-[#11375d] shadow-sm'
+                                ? 'bg-white text-[#0f766e] shadow-sm'
                                 : 'text-gray-500 hover:text-gray-700'
                                 }`}
                         >
@@ -223,7 +223,7 @@ export default function AdminAttendanceDashboard() {
                         <button
                             onClick={() => setViewMode('range')}
                             className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${viewMode === 'range'
-                                ? 'bg-white text-[#11375d] shadow-sm'
+                                ? 'bg-white text-[#0f766e] shadow-sm'
                                 : 'text-gray-500 hover:text-gray-700'
                                 }`}
                         >
@@ -244,7 +244,7 @@ export default function AdminAttendanceDashboard() {
                                     type="date"
                                     value={format(selectedDate, 'yyyy-MM-dd')}
                                     onChange={(e) => e.target.valueAsDate && setSelectedDate(e.target.valueAsDate)}
-                                    className="pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-bold text-[#11375d] focus:ring-2 focus:ring-red-500/20 outline-none hover:border-gray-300 transition-all cursor-pointer"
+                                    className="pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-bold text-[#0f766e] focus:ring-2 focus:ring-teal-500/20 outline-none hover:border-gray-300 transition-all cursor-pointer"
                                 />
                             </div>
                         )}
@@ -257,14 +257,14 @@ export default function AdminAttendanceDashboard() {
                                     type="date"
                                     value={format(rangeStart, 'yyyy-MM-dd')}
                                     onChange={(e) => e.target.valueAsDate && setRangeStart(e.target.valueAsDate)}
-                                    className="bg-white border text-xs font-bold rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-red-500"
+                                    className="bg-white border text-xs font-bold rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-teal-500"
                                 />
                                 <span className="text-xs font-bold text-gray-500">TO</span>
                                 <input
                                     type="date"
                                     value={format(rangeEnd, 'yyyy-MM-dd')}
                                     onChange={(e) => e.target.valueAsDate && setRangeEnd(e.target.valueAsDate)}
-                                    className="bg-white border text-xs font-bold rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-red-500 mr-1"
+                                    className="bg-white border text-xs font-bold rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-teal-500 mr-1"
                                 />
                             </div>
                         )}
@@ -280,7 +280,7 @@ export default function AdminAttendanceDashboard() {
                         <button
                             onClick={viewMode === 'day' ? fetchDayReport : fetchRangeReport}
                             disabled={loading}
-                            className="p-2 rounded-lg bg-gray-50 text-gray-400 hover:text-red-600 hover:bg-red-50 transition-all"
+                            className="p-2 rounded-lg bg-gray-50 text-gray-400 hover:text-teal-700 hover:bg-teal-50 transition-all"
                         >
                             <RefreshCw size={18} className={`${loading ? 'animate-spin' : ''}`} />
                         </button>
@@ -318,7 +318,7 @@ export default function AdminAttendanceDashboard() {
                                 <div className="p-8"><TableSkeleton /></div>
                             ) : (
                                 <div className="overflow-auto max-h-[700px]">
-                                    <table className="w-full text-left border-collapse">
+                                    <table className="akod-table text-left">
                                         <thead className="sticky top-0 z-30">
                                             <tr className="bg-[#f9fafc] text-gray-400 border-b border-gray-100">
                                                 <th className="px-6 py-5 text-[11px] font-black uppercase tracking-widest sticky left-0 z-40 bg-[#f9fafc] border-r border-gray-100 w-[240px] shadow-[2px_0_5px_rgba(0,0,0,0.05)] text-gray-400">
@@ -328,7 +328,7 @@ export default function AdminAttendanceDashboard() {
                                                     <th key={dateStr} className="px-3 py-4 text-center border-r border-gray-100 min-w-[60px] hover:bg-gray-50 transition-colors">
                                                         <div className="flex flex-col items-center gap-0.5">
                                                             <span className="text-[10px] font-black opacity-50 uppercase tracking-tighter">{format(new Date(dateStr), 'EEE')}</span>
-                                                            <span className="text-[14px] font-black text-[#11375d]">{format(new Date(dateStr), 'dd')}</span>
+                                                            <span className="text-[14px] font-black text-[#0f766e]">{format(new Date(dateStr), 'dd')}</span>
                                                         </div>
                                                     </th>
                                                 ))}
@@ -342,7 +342,7 @@ export default function AdminAttendanceDashboard() {
                                                     <tr key={row.user._id} className="hover:bg-gray-50/80 transition-all group">
                                                         <td className="px-6 py-4 sticky left-0 z-20 bg-white border-r border-gray-100 group-hover:bg-gray-50 shadow-[2px_0_5px_rgba(0,0,0,0.02)]">
                                                             <div className="flex flex-col">
-                                                                <span className="font-black text-[14px] text-[#11375d] tracking-tight">{row.user.name}</span>
+                                                                <span className="font-black text-[14px] text-[#0f766e] tracking-tight">{row.user.name}</span>
                                                                 <span className="text-[10px] text-gray-400 font-black uppercase tracking-tighter mt-0.5">{row.user.role}</span>
                                                             </div>
                                                         </td>
@@ -363,7 +363,7 @@ export default function AdminAttendanceDashboard() {
                                                                 );
                                                             } else if (cellData.status === 'A') {
                                                                 badge = (
-                                                                    <div className="w-9 h-9 rounded-xl bg-red-50 text-red-500 flex items-center justify-center text-[13px] font-black border border-red-100 shadow-sm">
+                                                                    <div className="w-9 h-9 rounded-xl bg-teal-50 text-teal-500 flex items-center justify-center text-[13px] font-black border border-teal-100 shadow-sm">
                                                                         A
                                                                     </div>
                                                                 );
@@ -407,19 +407,19 @@ export default function AdminAttendanceDashboard() {
 
 const StatsCard = ({ label, value, icon: Icon, color }: any) => {
     const colors: any = {
-        blue: 'bg-blue-50 text-blue-600',
+        blue: 'bg-sky-50 text-sky-600',
         green: 'bg-green-50 text-green-600',
         cyan: 'bg-cyan-50 text-cyan-600',
-        red: 'bg-red-50 text-red-600',
+        red: 'bg-teal-50 text-teal-700',
     };
     return (
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center gap-3 group hover:border-[#cc1518]/20 transition-all hover:shadow-md">
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center gap-3 group hover:border-[#0f766e]/20 transition-all hover:shadow-md">
             <div className={`w-12 h-12 rounded-2xl ${colors[color]} flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform`}>
                 <Icon size={24} />
             </div>
             <div className="text-center">
                 <p className="text-gray-400 text-[10px] font-black uppercase tracking-widest mb-1">{label}</p>
-                <p className="text-3xl font-black text-[#11375d] tracking-tight">{value}</p>
+                <p className="text-3xl font-black text-[#0f766e] tracking-tight">{value}</p>
             </div>
         </div>
     );

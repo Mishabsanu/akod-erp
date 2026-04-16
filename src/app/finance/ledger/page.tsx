@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { getLedger } from '@/services/financeApi';
-import { LedgerEntry, LedgerFilter, Account } from '@/lib/types';
+import { LedgerEntry, LedgerFilter } from '@/lib/types';
 import { DataTable } from '@/components/shared/DataTable';
+import ListPageHeader from '@/components/shared/ListPageHeader';
 import { SearchInput } from '@/components/shared/SearchInput';
 import { LedgerFilterBar } from '@/components/finance/LedgerFilterBar';
 import { Database, Filter, Download, Printer, PieChart } from 'lucide-react';
@@ -67,7 +68,7 @@ export default function LedgerPage() {
       header: 'Company / Project',
       accessor: 'companyName' as keyof LedgerEntry,
       render: (item: LedgerEntry) => (
-        <span className="text-sm font-semibold text-[#11375d]">{item.companyName || '—'}</span>
+        <span className="text-sm font-semibold text-[#0f766e]">{item.companyName || '—'}</span>
       )
     },
     {
@@ -84,7 +85,7 @@ export default function LedgerPage() {
       header: 'Debit',
       accessor: 'debit' as keyof LedgerEntry,
       render: (item: LedgerEntry) => item.debit > 0 ? (
-        <span className="font-semibold text-red-600">
+        <span className="font-semibold text-teal-700">
           QAR {item.debit?.toLocaleString(undefined, { minimumFractionDigits: 2 })}
         </span>
       ) : <span className="text-gray-300">—</span>
@@ -111,32 +112,31 @@ export default function LedgerPage() {
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white p-6 md:p-10">
-      {/* Header matching Sales module */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
-        <div className="flex items-center gap-3 mb-4 sm:mb-0">
-          <Database className="w-7 h-7 text-red-600" />
-          <h1 className="text-3xl font-semibold text-gray-800">
-            General Ledger
-          </h1>
-        </div>
-        <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 bg-gray-800 hover:bg-gray-900 text-white font-semibold py-2.5 px-5 rounded-lg shadow transition-all">
+      <ListPageHeader
+        eyebrow="Finance Audit"
+        title="General"
+        highlight="Ledger"
+        description="Audit debits, credits, references, and closing balance history."
+        actions={
+          <>
+          <button className="page-header-button secondary">
             <Printer className="w-4 h-4" />
             Print
           </button>
-          <button className="flex items-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2.5 px-5 rounded-lg shadow transition-all">
+          <button className="page-header-button secondary">
             <Download className="w-4 h-4" />
             Export
           </button>
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2.5 px-5 rounded-lg shadow transition-all"
+            className="page-header-button secondary"
           >
             <Filter className="w-4 h-4" />
             {showFilters ? 'Hide Filters' : 'Show Filters'}
           </button>
-        </div>
-      </div>
+          </>
+        }
+      />
 
       {/* Persistent Summary Stats */}
       <div className="mb-8 grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -154,19 +154,19 @@ export default function LedgerPage() {
           </div>
           <p className="text-2xl font-bold text-gray-800">QAR {stats.totalCredit.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
         </div>
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm border-t-4 border-t-red-500">
+        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm border-t-4 border-t-teal-500">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-bold text-red-600 uppercase tracking-widest">Total Out (Debit)</span>
-            <div className="p-2 bg-red-50 rounded-lg text-red-600"><PieChart size={16} /></div>
+            <span className="text-[10px] font-bold text-teal-700 uppercase tracking-widest">Total Out (Debit)</span>
+            <div className="p-2 bg-teal-50 rounded-lg text-teal-700"><PieChart size={16} /></div>
           </div>
           <p className="text-2xl font-bold text-gray-800">QAR {stats.totalDebit.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
         </div>
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm border-l-4 border-l-blue-500 bg-blue-50/5">
+        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm border-l-4 border-l-sky-500 bg-sky-50/5">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">Closing Balance</span>
-            <div className="p-2 bg-blue-50 rounded-lg text-blue-600"><Database size={16} /></div>
+            <span className="text-[10px] font-bold text-sky-600 uppercase tracking-widest">Closing Balance</span>
+            <div className="p-2 bg-sky-50 rounded-lg text-sky-600"><Database size={16} /></div>
           </div>
-          <p className={`text-2xl font-bold ${stats.closingBalance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+          <p className={`text-2xl font-bold ${stats.closingBalance >= 0 ? 'text-green-600' : 'text-teal-700'}`}>
             QAR {stats.closingBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })}
           </p>
         </div>

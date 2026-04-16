@@ -47,8 +47,8 @@ export const PaymentFilterBar: React.FC<PaymentFilterBarProps> = ({
   return (
     <div className="bg-white border border-gray-100 rounded-[32px] shadow-sm p-8">
       <div className="flex items-center gap-3 mb-6">
-        <ArrowDownUp className="w-5 h-5 text-[#cc1518]" />
-        <h3 className="text-sm font-black uppercase tracking-widest text-[#11375d]">Payment Registry Filters</h3>
+        <ArrowDownUp className="w-5 h-5 text-[#0f766e]" />
+        <h3 className="text-sm font-black uppercase tracking-widest text-[#0f766e]">Payment Registry Filters</h3>
       </div>
 
       {hasFilters && (
@@ -91,7 +91,7 @@ export const PaymentFilterBar: React.FC<PaymentFilterBarProps> = ({
                     setCompanyName(val);
                     onCompanyNameChange(val === '' ? undefined : val);
                 }} 
-                className="pl-11 h-12 bg-gray-50/50 border-gray-100 rounded-2xl focus:border-red-600/20 shadow-none hover:shadow-none"
+                className="pl-11 h-12 bg-gray-50/50 border-gray-100 rounded-2xl focus:border-teal-700/20 shadow-none hover:shadow-none"
              />
           </div>
         </div>
@@ -125,7 +125,7 @@ export const PaymentFilterBar: React.FC<PaymentFilterBarProps> = ({
            {hasFilters && (
              <button 
                 onClick={handleClear}
-                className="p-3.5 bg-gray-50 text-gray-400 rounded-2xl hover:bg-[#11375d] hover:text-white transition-all active:scale-95 shadow-sm"
+                className="p-3.5 bg-gray-50 text-gray-400 rounded-2xl hover:bg-[#0f766e] hover:text-white transition-all active:scale-95 shadow-sm"
              >
                 <XCircle size={20} />
              </button>

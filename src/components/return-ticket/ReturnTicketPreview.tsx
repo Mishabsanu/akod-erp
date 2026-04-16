@@ -46,7 +46,7 @@ const ReturnTicketPreview = ({
                     <button
                         onClick={onConfirm}
                         disabled={isSubmitting}
-                        className={`px-6 py-2 text-white rounded shadow-md transition font-bold flex items-center gap-2 text-sm ${isSubmitting ? 'bg-gray-400' : 'bg-red-700 hover:bg-red-800'
+                        className={`px-6 py-2 text-white rounded shadow-md transition font-bold flex items-center gap-2 text-sm ${isSubmitting ? 'bg-gray-400' : 'bg-teal-800 hover:bg-teal-900'
                             }`}
                     >
                         {isSubmitting ? 'Confirming...' : 'Confirm & Create'}
@@ -64,8 +64,8 @@ const ReturnTicketPreview = ({
                         <p>Tel: +974 44161483</p>
                         <p>+974 55299893</p>
                         <p>Doha - Qatar</p>
-                        <p className="text-blue-900">info@akodgroup.com</p>
-                        <p className="text-blue-900">chooseakod.com</p>
+                        <p className="text-slate-900">info@akodgroup.com</p>
+                        <p className="text-slate-900">chooseakod.com</p>
                     </div>
 
                     {/* Center: Logo */}
@@ -74,14 +74,14 @@ const ReturnTicketPreview = ({
                         <div className="mb-1">
                             <svg width="60" height="50" viewBox="0 0 100 80">
                                 {/* Triangle Shape - Red */}
-                                <path d="M50 5 L90 75 L10 75 Z" fill="none" stroke="#dc2626" strokeWidth="8" />
-                                <path d="M50 25 L75 65 L25 65 Z" fill="#dc2626" />
+                                <path d="M50 5 L90 75 L10 75 Z" fill="none" stroke="#0f766e" strokeWidth="8" />
+                                <path d="M50 25 L75 65 L25 65 Z" fill="#0f766e" />
                             </svg>
                         </div>
                         <h1 className="text-3xl font-extrabold text-gray-800 tracking-wider">AKOD</h1>
-                        <p className="text-sm font-bold text-gray-500 uppercase tracking-widest text-[#dc2626] -mt-1">Group</p>
+                        <p className="text-sm font-bold text-gray-500 uppercase tracking-widest text-[#0f766e] -mt-1">Group</p>
                         <p className="text-[7pt] text-gray-500 mt-1">The Strongest in the Industry</p>
-                        <h2 className="text-lg font-bold uppercase mt-2 text-red-700 underline decoration-2 underline-offset-4">Return Note</h2>
+                        <h2 className="text-lg font-bold uppercase mt-2 text-teal-800 underline decoration-2 underline-offset-4">Return Note</h2>
                     </div>
 
                     {/* Right: Arabic Contact */}
@@ -89,8 +89,8 @@ const ReturnTicketPreview = ({
                         <p>هاتف: ٤٤١٦١٤٨٣ ٩٧٤+</p>
                         <p>٩٧٤ ٥٥٢٩٩٨٩٣+</p>
                         <p>الدوحة، قطر</p>
-                        <p className="text-blue-900">info@akodgroup.com</p>
-                        <p className="text-blue-900">chooseakod.com</p>
+                        <p className="text-slate-900">info@akodgroup.com</p>
+                        <p className="text-slate-900">chooseakod.com</p>
                     </div>
                 </div>
 
@@ -108,7 +108,7 @@ const ReturnTicketPreview = ({
                         <div className="w-[40%] text-xs">
                             <div className="flex border-b border-gray-400">
                                 <div className="w-24 p-1 border-r border-gray-400 bg-gray-50 font-semibold">Return Note No.</div>
-                                <div className="flex-grow p-1 font-bold pl-2 text-red-700">{data.ticketNo}</div>
+                                <div className="flex-grow p-1 font-bold pl-2 text-teal-800">{data.ticketNo}</div>
                             </div>
                             <div className="flex border-b border-gray-400">
                                 <div className="w-24 p-1 border-r border-gray-400 bg-gray-50 font-semibold">Dated</div>
@@ -178,7 +178,7 @@ const ReturnTicketPreview = ({
                                     </td>
                                     <td className="border-r border-gray-400 text-center text-gray-600 align-middle">{item.itemCode || '-'}</td>
                                     <td className="border-r border-gray-400 text-center text-gray-500 align-middle">{item.totalReturnedQty ?? '-'}</td>
-                                    <td className="border-r border-gray-400 text-center font-bold text-red-700 align-middle">{item.returnQty}</td>
+                                    <td className="border-r border-gray-400 text-center font-bold text-teal-800 align-middle">{item.returnQty}</td>
                                     <td className="border-r border-gray-400 text-center text-gray-600 uppercase align-middle">{item.unit}</td>
                                 </tr>
                             ))}
@@ -197,7 +197,7 @@ const ReturnTicketPreview = ({
                     </table>
                     <div className="mt-auto border-t border-gray-400 flex text-xs font-bold h-8 items-center bg-gray-50">
                         <div className="flex-grow text-right pr-4 border-r border-gray-400 h-full flex items-center justify-end">Total Returned</div>
-                        <div className="w-20 text-center h-full flex items-center justify-center bg-white text-red-700 text-sm">{totalReturnQty}</div>
+                        <div className="w-20 text-center h-full flex items-center justify-center bg-white text-teal-800 text-sm">{totalReturnQty}</div>
                         <div className="w-[160px] h-full bg-white"></div>
                     </div>
                 </div>
@@ -211,7 +211,7 @@ const ReturnTicketPreview = ({
                         <div className="w-1/2 flex flex-col gap-3">
                             <div className="flex items-end">
                                 <span className="w-28 flex-shrink-0">DELIVERED BY:</span>
-                                <span className="flex-grow border-b border-dotted border-gray-600 px-2 text-blue-900">{data.deliveredBy?.deliveredByName}</span>
+                                <span className="flex-grow border-b border-dotted border-gray-600 px-2 text-slate-900">{data.deliveredBy?.deliveredByName}</span>
                             </div>
                             <div className="flex items-end">
                                 <span className="w-28 flex-shrink-0">MOB NO:</span>
@@ -231,7 +231,7 @@ const ReturnTicketPreview = ({
                         <div className="w-1/2 flex flex-col gap-3">
                             <div className="flex items-end">
                                 <span className="w-28 flex-shrink-0">RECEIVED BY:</span>
-                                <span className="flex-grow border-b border-dotted border-gray-600 px-2 text-blue-900">{data.receivedBy?.receivedByName}</span>
+                                <span className="flex-grow border-b border-dotted border-gray-600 px-2 text-slate-900">{data.receivedBy?.receivedByName}</span>
                             </div>
                             <div className="flex items-end">
                                 <span className="w-28 flex-shrink-0">MOB NO:</span>
@@ -255,12 +255,12 @@ const ReturnTicketPreview = ({
                 </div>
 
                 {/* 5. Company Footer - Solid Red Bar */}
-                <div className="mt-2 text-center text-white font-sans bg-[#dc2626] py-2 -mx-10 px-10 mb-[-32px]">
+                <div className="mt-2 text-center text-white font-sans bg-[#0f766e] py-2 -mx-10 px-10 mb-[-32px]">
                     <div className="flex flex-col gap-1 text-[8pt] font-medium leading-tight">
                         <div>
                             Mob: +974 5016 4817 | Tel: +974 4416 1483 | E-mail: info@akodgroup.com | chooseakod.com
                         </div>
-                        <div className="border-t border-red-400 pt-1 mt-0.5 opacity-90 text-[7pt]">
+                        <div className="border-t border-teal-400 pt-1 mt-0.5 opacity-90 text-[7pt]">
                             C.R.No: 147701 | P.O.Box: 9044 | Doha - Qatar
                         </div>
                     </div>

@@ -222,7 +222,7 @@ const QuoteTrackForm: React.FC<any> = ({
     <div className="w-full min-h-screen bg-gray-50 px-8 py-6 rounded-lg font-sans">
       <div className="flex items-center justify-between mb-8 border-b border-gray-200 pb-4">
         <div className="flex items-center gap-3">
-          <Edit3 className="text-red-600 w-6 h-6" />
+          <Edit3 className="text-teal-700 w-6 h-6" />
           <h2 className="text-2xl font-semibold text-gray-800">
             {isEditMode ? 'Edit Quote Track' : 'Create New Quote Track'}
           </h2>
@@ -267,9 +267,9 @@ const QuoteTrackForm: React.FC<any> = ({
                 type="number"
                 required
               />
-              <div className="bg-[#11375d]/5 p-4 rounded-xl border border-[#11375d]/10 flex flex-col justify-center">
-                <span className="text-xs font-bold text-[#11375d] uppercase mb-1">Total Shipping</span>
-                <span className="text-xl font-bold text-[#11375d]">
+              <div className="bg-[#0f766e]/5 p-4 rounded-xl border border-[#0f766e]/10 flex flex-col justify-center">
+                <span className="text-xs font-bold text-[#0f766e] uppercase mb-1">Total Shipping</span>
+                <span className="text-xl font-bold text-[#0f766e]">
                   ₹{totals.totalShippingCost.toLocaleString()}
                 </span>
               </div>
@@ -278,11 +278,11 @@ const QuoteTrackForm: React.FC<any> = ({
 
           <Section title="Quote Items">
             <div className="overflow-x-auto">
-              <table className="w-full border border-gray-200 rounded-xl text-sm whitespace-nowrap overflow-hidden">
-                <thead className="bg-gray-50 text-[#11375d] border-b border-gray-200">
+              <table className="akod-table whitespace-nowrap">
+                <thead>
                   <tr className="text-[11px] font-black uppercase tracking-widest text-center">
                     <th className="p-3 border-r border-gray-100 w-12 text-center">S.No</th>
-                    <th className="p-3 border-r border-gray-100 min-w-[220px] text-left">Product <span className="text-red-500">*</span></th>
+                    <th className="p-3 border-r border-gray-100 min-w-[220px] text-left">Product <span className="text-teal-500">*</span></th>
                     <th className="p-3 border-r border-gray-100 w-24 text-center">WT (kg)</th>
                     <th className="p-3 border-r border-gray-100 w-24 text-center">Qty</th>
                     <th className="p-3 border-r border-gray-100 w-32 text-center">Base Rate ({formik.values.currency})</th>
@@ -300,7 +300,7 @@ const QuoteTrackForm: React.FC<any> = ({
                       </td>
                       <td className="p-3 border-r border-gray-100">
                         <select
-                          className="w-full text-[13px] border-gray-200 rounded-lg focus:ring-[#11375d] focus:border-[#11375d] disabled:bg-gray-50"
+                          className="w-full text-[13px] border-gray-200 rounded-lg focus:ring-[#0f766e] focus:border-[#0f766e] disabled:bg-gray-50"
                           value={item.productId}
                           onChange={(e) => updateLineItem(idx, 'productId', e.target.value)}
                         >
@@ -323,7 +323,7 @@ const QuoteTrackForm: React.FC<any> = ({
                       <td className="p-3 border-r border-gray-100">
                         <input
                           type="number"
-                          className="w-full text-[13px] border-gray-200 rounded-lg text-center font-bold text-[#11375d]"
+                          className="w-full text-[13px] border-gray-200 rounded-lg text-center font-bold text-[#0f766e]"
                           value={item.qty}
                           onChange={(e) => updateLineItem(idx, 'qty', Number(e.target.value))}
                         />
@@ -331,7 +331,7 @@ const QuoteTrackForm: React.FC<any> = ({
                       <td className="p-3 border-r border-gray-100">
                         <input
                           type="number"
-                          className="w-full text-[13px] border-gray-200 rounded-lg text-center font-semibold bg-blue-50/30"
+                          className="w-full text-[13px] border-gray-200 rounded-lg text-center font-semibold bg-sky-50/30"
                           value={item.price}
                           onChange={(e) => updateLineItem(idx, 'price', Number(e.target.value))}
                         />
@@ -353,7 +353,7 @@ const QuoteTrackForm: React.FC<any> = ({
                         </div>
                       </td>
                       <td className="p-3 border-r border-gray-100 text-center bg-gray-50/30">
-                        <span className="text-[13px] font-black text-[#11375d]">
+                        <span className="text-[13px] font-black text-[#0f766e]">
                             {formik.values.currency === 'USD' ? '$' : '₹'}{item.totalSellingPrice?.toLocaleString()}
                         </span>
                       </td>
@@ -364,7 +364,7 @@ const QuoteTrackForm: React.FC<any> = ({
                             const newItems = formik.values.items.filter((_: any, i: number) => i !== idx);
                             formik.setFieldValue('items', newItems.length ? newItems : [emptyItem()]);
                           }}
-                          className="w-8 h-8 rounded-lg text-gray-400 hover:text-white hover:bg-red-500 transition-all flex items-center justify-center mx-auto"
+                          className="w-8 h-8 rounded-lg text-gray-400 hover:text-white hover:bg-teal-500 transition-all flex items-center justify-center mx-auto"
                         >
                           <Trash2 size={16} />
                         </button>
@@ -373,13 +373,13 @@ const QuoteTrackForm: React.FC<any> = ({
                   ))}
                 </tbody>
                 <tfoot className="bg-gray-50/50 border-t-2 border-gray-100">
-                  <tr className="text-sm font-black text-[#11375d]">
+                  <tr className="text-sm font-black text-[#0f766e]">
                     <td colSpan={3} className="py-4 px-3 text-right text-[10px] uppercase tracking-widest text-gray-400">Grand Summary</td>
                     <td className="py-4 px-3 text-center border-r border-gray-100 bg-white">{totals.totalQty} Units</td>
                     <td className="py-4 px-3 text-center border-r border-gray-100 bg-white">--</td>
                     <td className="py-4 px-3 text-center border-r border-gray-100 bg-white">--</td>
                     <td className="py-4 px-3 text-center border-r border-gray-100 bg-white">--</td>
-                    <td className="py-4 px-3 text-center text-red-600 text-lg bg-red-50/30">
+                    <td className="py-4 px-3 text-center text-teal-700 text-lg bg-teal-50/30">
                       {formik.values.currency === 'USD' ? '$' : '₹'}{totals.totalSellingPrice.toLocaleString()}
                     </td>
                     <td></td>
@@ -392,7 +392,7 @@ const QuoteTrackForm: React.FC<any> = ({
                 <button
                     type="button"
                     onClick={() => formik.setFieldValue('items', [...formik.values.items, emptyItem()])}
-                    className="flex items-center gap-2 px-6 py-2 rounded-lg bg-[#11375d] text-white text-xs font-black uppercase tracking-widest hover:bg-[#0a2339] transition-all shadow-md"
+                    className="flex items-center gap-2 px-6 py-2 rounded-lg bg-[#0f766e] text-white text-xs font-black uppercase tracking-widest hover:bg-[#134e4a] transition-all shadow-md"
                 >
                     <PlusCircle size={14} />
                     Add More Item
@@ -400,11 +400,11 @@ const QuoteTrackForm: React.FC<any> = ({
                 <div className="flex gap-8 px-6">
                     <div className="text-right">
                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Gross Weight</p>
-                        <p className="text-sm font-bold text-[#11375d]">{totals.totalWeight.toFixed(2)} KG</p>
+                        <p className="text-sm font-bold text-[#0f766e]">{totals.totalWeight.toFixed(2)} KG</p>
                     </div>
                     <div className="text-right">
                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Inventory Cost</p>
-                        <p className="text-sm font-bold text-[#11375d]">₹{totals.totalItemCost.toLocaleString()}</p>
+                        <p className="text-sm font-bold text-[#0f766e]">₹{totals.totalItemCost.toLocaleString()}</p>
                     </div>
                 </div>
             </div>
@@ -430,7 +430,7 @@ const QuoteTrackForm: React.FC<any> = ({
           {/* Quick Summary Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
             <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
+              <div className="w-12 h-12 rounded-xl bg-sky-50 flex items-center justify-center text-sky-600">
                 <Weight className="w-6 h-6" />
               </div>
               <div>
@@ -456,7 +456,7 @@ const QuoteTrackForm: React.FC<any> = ({
                 <p className="text-lg font-bold text-gray-800">{totals.totalQty} Units</p>
               </div>
             </div>
-            <div className="bg-red-600 p-5 rounded-2xl shadow-lg shadow-red-600/20 flex flex-col justify-center">
+            <div className="bg-teal-700 p-5 rounded-2xl shadow-lg shadow-teal-700/20 flex flex-col justify-center">
               <p className="text-[10px] font-black text-white/70 uppercase tracking-widest mb-1">Final Total Profit</p>
               <p className="text-2xl font-black text-white">₹{totals.totalGrossMargin.toLocaleString()}</p>
             </div>
@@ -473,9 +473,9 @@ const QuoteTrackForm: React.FC<any> = ({
             <button
               type="submit"
               disabled={formik.isSubmitting || isLoading}
-              className={`flex items-center gap-2 px-10 py-2.5 rounded-xl text-white font-bold shadow-lg shadow-red-600/10 transition-all active:scale-95 ${formik.isSubmitting || isLoading
+              className={`flex items-center gap-2 px-10 py-2.5 rounded-xl text-white font-bold shadow-lg shadow-teal-700/10 transition-all active:scale-95 ${formik.isSubmitting || isLoading
                 ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-red-600 hover:bg-red-700'
+                : 'bg-teal-700 hover:bg-teal-800'
                 }`}
             >
               <Save className="w-4 h-4" />

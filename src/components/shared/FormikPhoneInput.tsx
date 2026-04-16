@@ -27,7 +27,7 @@ export const FormikPhoneInput: React.FC<FormikPhoneInputProps> = ({
     <div className="mb-4">
       <Label className="mb-1">
         {label}
-        {required && <span className="text-red-500 ml-1">*</span>}
+        {required && <span className="text-teal-500 ml-1">*</span>}
       </Label>
 
       <PhoneInput
@@ -38,13 +38,13 @@ export const FormikPhoneInput: React.FC<FormikPhoneInputProps> = ({
         placeholder={placeholder}
         containerClass="!w-full"
         inputClass={`!w-full !h-[44px] !pl-14 !pr-3 !rounded-lg !border ${
-          meta.touched && meta.error ? '!border-red-500' : '!border-gray-300'
-        } focus:!border-red-500 focus:!ring-2 focus:!ring-red-500/30`}
+          meta.touched && meta.error ? '!border-teal-500' : '!border-gray-300'
+        } focus:!border-teal-500 focus:!ring-2 focus:!ring-teal-500/30`}
         buttonClass="!border-gray-300 !rounded-l-lg"
       />
 
       {meta.touched && meta.error && (
-        <p className="mt-1 text-xs text-red-500">{meta.error}</p>
+        <p className="mt-1 text-xs text-teal-500">{meta.error}</p>
       )}
     </div>
   );

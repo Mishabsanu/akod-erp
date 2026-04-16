@@ -61,14 +61,14 @@ const RoleViewPage = () => {
 
         <h1 className="text-3xl font-bold text-gray-900">
           Role Details —{' '}
-          <span className="text-red-600">{role.name}</span>
+          <span className="text-teal-700">{role.name}</span>
         </h1>
       </div>
 
       {/* ROLE INFO CARD */}
       <div className="bg-white rounded-xl border p-6 mb-8 shadow-sm">
         <div className="flex items-center gap-2 mb-4">
-          <ShieldCheck className="text-red-600 w-6 h-6" />
+          <ShieldCheck className="text-teal-700 w-6 h-6" />
           <h2 className="text-xl font-semibold text-gray-800">
             Role Information
           </h2>
@@ -86,7 +86,7 @@ const RoleViewPage = () => {
               className={`inline-block px-3 py-1 rounded-full text-white text-sm mt-1 ${
                 role.status === 'active'
                   ? 'bg-green-600'
-                  : 'bg-red-600'
+                  : 'bg-teal-700'
               }`}
             >
               {role.status}
@@ -118,8 +118,8 @@ const RoleViewPage = () => {
         </h2>
 
         <div className="overflow-x-auto">
-          <table className="min-w-full border text-sm">
-            <thead className="bg-gray-100">
+          <table className="akod-table">
+            <thead>
               <tr>
                 <th className="border px-4 py-2 text-left">Module</th>
                 {['View', 'Create', 'Update', 'Delete'].map((action) => (

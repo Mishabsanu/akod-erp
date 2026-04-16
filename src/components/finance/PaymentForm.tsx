@@ -82,9 +82,9 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ initialData, onSubmit, onCanc
       <div className="flex items-center justify-between mb-8 border-b border-gray-200 pb-4">
         <div className="flex items-center gap-3">
           {isEditMode ? (
-            <Edit3 className="text-red-600 w-6 h-6" />
+            <Edit3 className="text-teal-700 w-6 h-6" />
           ) : (
-            <PlusCircle className="text-red-600 w-6 h-6" />
+            <PlusCircle className="text-teal-700 w-6 h-6" />
           )}
           <h2 className="text-2xl font-semibold text-gray-800">
             {isEditMode ? 'Edit Payment' : 'Post New Payment'}
@@ -160,7 +160,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ initialData, onSubmit, onCanc
                     }
                   }}
                 />
-                <span className="text-[10px] text-blue-500 font-bold uppercase tracking-tighter px-2 italic">
+                <span className="text-[10px] text-sky-500 font-bold uppercase tracking-tighter px-2 italic">
                   * Linking pre-fills principal from invoice
                 </span>
               </div>
@@ -187,9 +187,9 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ initialData, onSubmit, onCanc
             <button
               type="submit"
               disabled={formik.isSubmitting || isLoading}
-              className={`px-10 py-2.5 rounded-xl text-white font-bold shadow-lg shadow-red-600/10 transition-all active:scale-95 flex items-center gap-2 ${formik.isSubmitting || isLoading
+              className={`px-10 py-2.5 rounded-xl text-white font-bold shadow-lg shadow-teal-700/10 transition-all active:scale-95 flex items-center gap-2 ${formik.isSubmitting || isLoading
                 ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-red-600 hover:bg-red-700'
+                : 'bg-teal-700 hover:bg-teal-800'
                 }`}
             >
               <CreditCard size={18} />

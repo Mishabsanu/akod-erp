@@ -12,7 +12,7 @@ export default function QuotesPerUserChart({ data }: { data: any[] }) {
 
   // pick a set of colors (will repeat if many)
   const colors = [
-    "#cc1518",
+    "#0f766e",
     "#2563eb",
     "#10b981",
     "#f59e0b",
@@ -24,7 +24,7 @@ export default function QuotesPerUserChart({ data }: { data: any[] }) {
 
   return (
     <div className="bg-white p-6 rounded-xl shadow-md border">
-      <h3 className="text-lg font-semibold text-[#11375d] mb-4">Quotes by Handler</h3>
+      <h3 className="text-lg font-semibold text-[#0f766e] mb-4">Quotes by Handler</h3>
       <div style={{ height: 260 }}>
         <Pie
           data={{

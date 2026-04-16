@@ -123,9 +123,9 @@ const VendorForm: React.FC<VendorFormProps> = ({
     <div className="w-full min-h-[calc(100vh-4rem)] bg-gray-50 px-8 py-6 rounded-lg">
       <div className="flex items-center gap-3 mb-8 border-b pb-4">
         {isEditMode ? (
-          <Edit3 className="text-[#cc1518] w-6 h-6" />
+          <Edit3 className="text-[#0f766e] w-6 h-6" />
         ) : (
-          <UserPlus className="text-[#cc1518] w-6 h-6" />
+          <UserPlus className="text-[#0f766e] w-6 h-6" />
         )}
         <h2 className="text-2xl font-semibold">
           {isEditMode ? 'Edit Vendor' : 'Add New Vendor'}
@@ -243,7 +243,7 @@ const VendorForm: React.FC<VendorFormProps> = ({
             <button
               type="submit"
               disabled={formik.isSubmitting}
-              className="px-6 py-2 bg-[#cc1518] text-white rounded-lg"
+              className="px-6 py-2 bg-[#0f766e] text-white rounded-lg"
             >
               {isEditMode ? 'Update Vendor' : 'Create Vendor'}
             </button>

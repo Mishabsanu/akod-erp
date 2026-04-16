@@ -2,10 +2,10 @@
 
 import { RunningOrderFilterBar } from '@/components/running-order/RunningOrderFilterBar';
 import { Column, DataTable } from '@/components/shared/DataTable';
+import ListPageHeader from '@/components/shared/ListPageHeader';
 import { SearchInput } from '@/components/shared/SearchInput';
 import { TableSkeleton } from '@/components/shared/TableSkeleton';
 import withAuth from '@/components/withAuth';
-import { useAuth } from '@/contexts/AuthContext';
 import { RunningOrder } from '@/lib/types';
 import { deleteRunningOrder, getRunningOrders, updateRunningOrderStatusApi } from '@/services/runningOrderApi';
 import { format } from 'date-fns';
@@ -15,7 +15,6 @@ import {
   MoreVertical,
   Plus,
   Trash2,
-  Truck,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -27,7 +26,7 @@ const getStatusColor = (status: string) => {
         case 'Production': return '#2563eb'; // Blue
         case 'Shipped': return '#8b5cf6'; // Purple
         case 'Delivered': return '#16a34a'; // Green
-        case 'Closed': return '#11375d'; // Navy
+        case 'Closed': return '#0f766e'; // Navy
         default: return '#6b7280';
     }
 };
@@ -49,7 +48,6 @@ const RunningOrdersPage = () => {
     const [totalPages, setTotalPages] = useState(1);
 
     const router = useRouter();
-    const { can } = useAuth();
 
     const toggleActionMenu = (id: string) => {
         setOpenMenu(openMenu === id ? null : id);
@@ -100,12 +98,12 @@ const RunningOrdersPage = () => {
                                 toast.dismiss(loadingId);
                                 toast.success('Deleted successfully!');
                                 fetchOrders();
-                            } catch (error: any) {
+                            } catch {
                                 toast.dismiss(loadingId);
                                 toast.error('Failed to delete.');
                             }
                         }}
-                        className="px-3 py-1 text-sm bg-red-600 text-white rounded-md hover:bg-red-700 transition"
+                        className="px-3 py-1 text-sm bg-teal-700 text-white rounded-md hover:bg-teal-800 transition"
                     >
                         Yes, Delete
                     </button>
@@ -141,11 +139,11 @@ const RunningOrdersPage = () => {
                 header: 'Financials',
                 render: (order) => (
                     <div className="flex flex-col">
-                        <span className="font-bold text-[#11375d]">
+                        <span className="font-bold text-[#0f766e]">
                             {order.currency === 'USD' ? '$' : '₹'}
                             {Number(order.invoice_amount).toLocaleString()}
                         </span>
-                        <span className="text-[9px] font-bold text-red-500 uppercase tracking-widest">
+                        <span className="text-[9px] font-bold text-teal-500 uppercase tracking-widest">
                             Due: {Number(order.balance_due).toLocaleString()}
                         </span>
                     </div>
@@ -213,7 +211,7 @@ const RunningOrdersPage = () => {
                             e.stopPropagation();
                             if ((order as any)._id) toggleActionMenu((order as any)._id);
                         }}
-                        className="text-gray-600 hover:text-[#11375d] transition"
+                        className="text-gray-600 hover:text-[#0f766e] transition"
                     >
                         <MoreVertical className="w-5 h-5" />
                     </button>
@@ -226,14 +224,14 @@ const RunningOrdersPage = () => {
                                 }}
                                 className="flex items-center gap-2 w-full text-left px-3 py-2.5 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
                             >
-                                <Edit2 className="w-4 h-4 text-[#11375d]" /> Edit Order
+                                <Edit2 className="w-4 h-4 text-[#0f766e]" /> Edit Order
                             </button>
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     if ((order as any)._id) handleDelete((order as any)._id);
                                 }}
-                                className="flex items-center gap-2 w-full text-left px-3 py-2.5 text-xs font-semibold text-[#cc1518] hover:bg-red-50 transition-colors border-t border-gray-50"
+                                className="flex items-center gap-2 w-full text-left px-3 py-2.5 text-xs font-semibold text-[#0f766e] hover:bg-teal-50 transition-colors border-t border-gray-50"
                             >
                                 <Trash2 className="w-4 h-4" /> Delete
                             </button>
@@ -248,31 +246,28 @@ const RunningOrdersPage = () => {
 
     return (
         <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white p-6 md:p-10 font-sans">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
-                <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#11375d] to-[#0a2339] flex items-center justify-center text-white shadow-lg">
-                        <Truck className="w-6 h-6" />
-                    </div>
-                    <div>
-                        <h1 className="text-3xl font-semibold text-gray-800 tracking-tight">Active Orders</h1>
-                        <p className="text-gray-400 text-sm font-medium">Track manufacturing & shipping logistics</p>
-                    </div>
-                </div>
-                <div className="flex items-center gap-3 mt-4 sm:mt-0">
+            <ListPageHeader
+                eyebrow="Production Tracker"
+                title="Active"
+                highlight="Orders"
+                description="Track manufacturing status, shipping milestones, and logistics dates."
+                actions={
+                    <>
                     <button
                         onClick={() => router.push('/running-order/add')}
-                        className="flex items-center gap-2 bg-[#cc1518] hover:bg-[#b01215] text-white font-bold py-2.5 px-6 rounded-xl shadow shadow-red-500/20 transition-all active:scale-95 text-xs uppercase tracking-widest"
+                        className="page-header-button"
                     >
                         <Plus className="w-4 h-4" /> New Tracker
                     </button>
                     <button
                         onClick={() => setShowFilters(!showFilters)}
-                        className="flex items-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2.5 px-6 rounded-xl shadow shadow-gray-200/20 transition-all text-xs uppercase tracking-widest"
+                        className="page-header-button secondary"
                     >
                         <Filter className="w-4 h-4" /> {showFilters ? 'Hide' : 'Filter'}
                     </button>
-                </div>
-            </div>
+                    </>
+                }
+            />
 
             {showFilters && (
                 <RunningOrderFilterBar

@@ -7,7 +7,7 @@ type Props = { data: any };
 const StatCard = ({ title, value, color = "bg-white" }: any) => (
   <div className={`p-5 rounded-2xl shadow-sm border ${color}`}>
     <p className="text-sm text-gray-600">{title}</p>
-    <h3 className="text-2xl font-bold text-[#11375d]">{value ?? "-"}</h3>
+    <h3 className="text-2xl font-bold text-[#0f766e]">{value ?? "-"}</h3>
   </div>
 );
 

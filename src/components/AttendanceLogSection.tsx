@@ -168,7 +168,7 @@ export default function AttendanceLogSection() {
             header: 'Status',
             render: (row) => (
                 <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border shadow-sm ${row.status === 'Approved' ? 'bg-green-50 text-green-600 border-green-100' :
-                    row.status === 'Rejected' ? 'bg-red-50 text-red-500 border-red-100' :
+                    row.status === 'Rejected' ? 'bg-teal-50 text-teal-500 border-teal-100' :
                         'bg-yellow-50 text-yellow-600 border-yellow-100'
                     }`}>
                     {row.status}
@@ -194,7 +194,7 @@ export default function AttendanceLogSection() {
                 <div className="flex items-center justify-end">
                     <button
                         onClick={() => handleViewRequest(row)}
-                        className="w-9 h-9 flex items-center justify-center text-gray-400 hover:text-[#cc1518] hover:bg-[#cc1518]/5 rounded-xl transition-all border border-transparent hover:border-[#cc1518]/10"
+                        className="w-9 h-9 flex items-center justify-center text-gray-400 hover:text-[#0f766e] hover:bg-[#0f766e]/5 rounded-xl transition-all border border-transparent hover:border-[#0f766e]/10"
                     >
                         <MessageSquare size={18} strokeWidth={2.5} />
                     </button>
@@ -251,8 +251,8 @@ export default function AttendanceLogSection() {
                                             key={m.toISOString()}
                                             onClick={() => setSelectedMonth(m)}
                                             className={`px-5 py-2.5 rounded-lg text-[10px] font-black uppercase tracking-tight transition-all duration-200 ${isSelected
-                                                ? 'bg-[#11375d] text-white shadow-lg'
-                                                : 'bg-white text-gray-400 hover:text-[#11375d] border border-gray-200 hover:border-gray-300'
+                                                ? 'bg-[#0f766e] text-white shadow-lg'
+                                                : 'bg-white text-gray-400 hover:text-[#0f766e] border border-gray-200 hover:border-gray-300'
                                                 }`}
                                         >
                                             {format(m, 'MMMM yyyy')}
@@ -268,7 +268,7 @@ export default function AttendanceLogSection() {
                                     <h3 className="text-xl font-black text-gray-300 uppercase tracking-widest">No logs found</h3>
                                 </div>
                             ) : (
-                                <table className="w-full text-left border-collapse">
+                                <table className="akod-table text-left">
                                     <thead>
                                         <tr className="bg-[#f9fafc] border-b border-gray-100">
                                             <th className="px-8 py-5 text-[11px] font-black uppercase tracking-widest text-gray-400">Date</th>
@@ -357,16 +357,16 @@ export default function AttendanceLogSection() {
 
                                                     if (sTime <= limit) {
                                                         arrivalContent = (
-                                                            <div className="flex items-center gap-2 justify-center text-[#11375d]">
+                                                            <div className="flex items-center gap-2 justify-center text-[#0f766e]">
                                                                 <CheckCircle size={14} className="text-green-500" />
-                                                                <span className="text-[13px] font-medium text-[#11375d]">On Time</span>
+                                                                <span className="text-[13px] font-medium text-[#0f766e]">On Time</span>
                                                             </div>
                                                         );
                                                     } else {
                                                         arrivalContent = (
                                                             <div className="flex items-center gap-2 justify-center">
-                                                                <AlertCircle size={14} className="text-red-500" />
-                                                                <span className="text-[13px] font-medium text-red-500">Late</span>
+                                                                <AlertCircle size={14} className="text-teal-500" />
+                                                                <span className="text-[13px] font-medium text-teal-500">Late</span>
                                                             </div>
                                                         );
                                                     }
@@ -389,7 +389,7 @@ export default function AttendanceLogSection() {
                                             } else {
                                                 // No Record
                                                 if (!isFuture(day) && !isToday(day) && !isWO && !holiday) {
-                                                    logIcon = <div className="w-5 h-5 rounded-full border border-red-200 flex items-center justify-center"><div className="w-2 h-2 bg-red-400 rounded-full"></div></div>;
+                                                    logIcon = <div className="w-5 h-5 rounded-full border border-teal-200 flex items-center justify-center"><div className="w-2 h-2 bg-teal-400 rounded-full"></div></div>;
                                                     statusLabel = 'Absent';
                                                 } else if (isWO) {
                                                     statusLabel = 'Weekly Off';
@@ -405,7 +405,7 @@ export default function AttendanceLogSection() {
                                                         <span className="text-[13px] text-gray-700 font-medium">
                                                             {format(day, 'EEE, d MMM')}
                                                         </span>
-                                                        {isWO && <span className="ml-2 text-[10px] bg-red-50 text-red-500 px-1 py-0.5 rounded border border-red-100 uppercase tracking-wide">W-Off</span>}
+                                                        {isWO && <span className="ml-2 text-[10px] bg-teal-50 text-teal-500 px-1 py-0.5 rounded border border-teal-100 uppercase tracking-wide">W-Off</span>}
                                                         {holiday && <span className="ml-2 text-[10px] bg-purple-50 text-purple-500 px-1 py-0.5 rounded border border-purple-100 uppercase tracking-wide">Holiday</span>}
                                                     </td>
 
@@ -497,14 +497,14 @@ export default function AttendanceLogSection() {
                                                                         <div className="flex justify-between items-start mb-1">
                                                                             <span className="font-bold text-gray-800 text-sm">General Shift</span>
                                                                             <span className={`text-[10px] border px-1.5 py-0.5 rounded font-bold uppercase ${statusLabel === 'Present' ? 'bg-green-50 text-green-600 border-green-100' :
-                                                                                statusLabel === 'Absent' ? 'bg-red-50 text-red-600 border-red-100' :
+                                                                                statusLabel === 'Absent' ? 'bg-teal-50 text-teal-700 border-teal-100' :
                                                                                     statusLabel === 'Missing Swipe' ? 'bg-amber-50 text-amber-600 border-amber-100' :
                                                                                         'bg-white text-gray-500 border-gray-200'}`}>
                                                                                 {statusLabel}
                                                                             </span>
                                                                         </div>
                                                                         <div className="text-gray-500 text-[11px] font-medium flex items-center gap-1.5">
-                                                                            <div className="w-1.5 h-1.5 rounded-full bg-blue-400"></div>
+                                                                            <div className="w-1.5 h-1.5 rounded-full bg-sky-400"></div>
                                                                             09:00 AM - 06:00 PM
                                                                         </div>
                                                                     </div>
@@ -517,9 +517,9 @@ export default function AttendanceLogSection() {
                                                                                 setSelectedDateForRegularization(day);
                                                                                 setIsRegularizationOpen(true);
                                                                             }}
-                                                                            className="w-full flex items-center gap-3 p-2 hover:bg-[#cc1518]/5 rounded-lg transition-colors group/btn"
+                                                                            className="w-full flex items-center gap-3 p-2 hover:bg-[#0f766e]/5 rounded-lg transition-colors group/btn"
                                                                         >
-                                                                            <div className="w-8 h-8 rounded-lg bg-[#cc1518]/10 flex items-center justify-center text-[#cc1518] group-hover/btn:bg-[#cc1518] group-hover/btn:text-white transition-all">
+                                                                            <div className="w-8 h-8 rounded-lg bg-[#0f766e]/10 flex items-center justify-center text-[#0f766e] group-hover/btn:bg-[#0f766e] group-hover/btn:text-white transition-all">
                                                                                 <Edit3 size={14} />
                                                                             </div>
                                                                             <div className="flex flex-col text-left">

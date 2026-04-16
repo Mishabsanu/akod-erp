@@ -7,7 +7,7 @@ import { DeliveryTicketFilter } from '@/lib/types';
 import { Filter, ToggleLeft, CalendarDays, XCircle } from 'lucide-react';
 import { FilterChip } from '@/components/shared/FilterChip';
 
-const PRIMARY = '#11375d';
+const PRIMARY = '#0f766e';
 
 interface DeliveryTicketFilterBarProps {
   onStatusChange: (status: DeliveryTicketFilter['status']) => void;

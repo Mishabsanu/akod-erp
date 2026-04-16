@@ -75,7 +75,7 @@ export default function AttendanceRegularizationModal({
 
                 {/* Header */}
                 <div className="flex items-center justify-between p-6 border-b border-gray-100">
-                    <h2 className="text-lg font-semibold text-[#11375d]">Request Attendance Regularization</h2>
+                    <h2 className="text-lg font-semibold text-[#0f766e]">Request Attendance Regularization</h2>
                     <button
                         onClick={onClose}
                         className="p-2 hover:bg-gray-100 rounded-full text-gray-400 hover:text-gray-600 transition-colors"
@@ -98,7 +98,7 @@ export default function AttendanceRegularizationModal({
                             <label className="block text-sm font-medium text-gray-500 mb-0.5">
                                 Regularization Date
                             </label>
-                            <div className="font-medium text-[#11375d] text-lg">
+                            <div className="font-medium text-[#0f766e] text-lg">
                                 {format(targetDate, 'd MMMM yyyy')}
                             </div>
                         </div>
@@ -120,7 +120,7 @@ export default function AttendanceRegularizationModal({
                     </div>
 
                     {/* Policy Selection */}
-                    <div className="border border-blue-100 bg-blue-50/30 rounded-xl p-4">
+                    <div className="border border-sky-100 bg-sky-50/30 rounded-xl p-4">
                         <div className="flex items-start gap-3">
                             <div className="mt-1">
                                 <input
@@ -147,7 +147,7 @@ export default function AttendanceRegularizationModal({
                             </div>
                         </div>
                         <span className="text-sm text-gray-600">
-                            Remaining balance: <span className={`font-bold ${isLimitReached ? 'text-red-600' : 'text-gray-900'}`}>{remaining} requests</span>
+                            Remaining balance: <span className={`font-bold ${isLimitReached ? 'text-teal-700' : 'text-gray-900'}`}>{remaining} requests</span>
                         </span>
 
                         <div className="ml-auto relative group">
@@ -189,7 +189,7 @@ export default function AttendanceRegularizationModal({
                             className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#4c35de]/10 focus:border-[#4c35de] outline-none transition-all resize-none h-32 text-sm bg-gray-50 focus:bg-white"
                         />
                         {isLimitReached && (
-                            <p className="text-xs text-red-500 font-bold mt-2">
+                            <p className="text-xs text-teal-500 font-bold mt-2">
                                 You have used all {limit} regularization requests for this month. You cannot submit more.
                             </p>
                         )}

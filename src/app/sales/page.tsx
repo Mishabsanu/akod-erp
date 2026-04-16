@@ -2,6 +2,7 @@
 
 import { SalesFilterBar } from '@/components/sales/SalesFilterBar';
 import { Column, DataTable } from '@/components/shared/DataTable';
+import ListPageHeader from '@/components/shared/ListPageHeader';
 import { SearchInput } from '@/components/shared/SearchInput';
 import { TableSkeleton } from '@/components/shared/TableSkeleton';
 import withAuth from '@/components/withAuth';
@@ -58,7 +59,7 @@ const SalesPage: React.FC = () => {
   const [selectedSale, setSelectedSale] = useState<Sale | null>(null);
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [showImport, setShowImport] = useState(false);
-  const { user, can } = useAuth();
+  const { can } = useAuth();
   const router = useRouter();
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -137,7 +138,7 @@ const SalesPage: React.FC = () => {
                   );
                 }
               }}
-              className="px-3 py-1 text-sm bg-red-600 text-white rounded-md hover:bg-red-700 transition"
+              className="px-3 py-1 text-sm bg-teal-700 text-white rounded-md hover:bg-teal-800 transition"
             >
               Yes, Delete
             </button>
@@ -189,7 +190,7 @@ const SalesPage: React.FC = () => {
                 e.stopPropagation();
                 if (sale._id) toggleActionMenu(sale._id);
               }}
-              className="text-gray-600 hover:text-[#11375d] transition p-1 hover:bg-gray-100 rounded-lg"
+              className="text-gray-600 hover:text-[#0f766e] transition p-1 hover:bg-gray-100 rounded-lg"
             >
               <MoreVertical className="w-5 h-5" />
             </button>
@@ -202,7 +203,7 @@ const SalesPage: React.FC = () => {
                     setShowStatusModal(true);
                     setOpenMenu(null);
                   }}
-                  className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-blue-700 hover:bg-gray-50"
+                  className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-sky-700 hover:bg-gray-50"
                 >
                   <TrendingUp className="w-4 h-4" />
                   Update Status
@@ -215,7 +216,7 @@ const SalesPage: React.FC = () => {
                     }}
                     className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
                   >
-                    <Edit2 className="w-4 h-4 text-[#11375d]" />
+                    <Edit2 className="w-4 h-4 text-[#0f766e]" />
                     Edit
                   </button>
                 )}
@@ -225,7 +226,7 @@ const SalesPage: React.FC = () => {
                       e.stopPropagation();
                       if (sale._id) handleDelete(sale._id);
                     }}
-                    className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-[#cc1518] hover:bg-gray-50"
+                    className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-[#0f766e] hover:bg-gray-50"
                   >
                     <Trash2 className="w-4 h-4" />
                     Delete
@@ -247,18 +248,16 @@ const SalesPage: React.FC = () => {
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white p-6 md:p-10">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
-        <div className="flex items-center gap-3 mb-4 sm:mb-0">
-          <TrendingUp className="w-7 h-7 text-red-600" />
-          <h1 className="text-3xl font-semibold text-gray-800">
-            Enquiry Management
-          </h1>
-        </div>
-        <div className="flex items-center gap-3">
+      <ListPageHeader
+        eyebrow="CRM Pipeline"
+        title="Enquiry"
+        highlight="Management"
+        description="Track leads, follow-ups, enquiry status, and customer conversations."
+        actions={
+          <>
           <button
             onClick={() => setShowImport(true)}
-            className="flex items-center gap-2 bg-gray-800 hover:bg-gray-900 text-white font-semibold py-2.5 px-5 rounded-lg shadow transition-all"
+            className="page-header-button secondary"
           >
             <Upload className="w-4 h-4" />
             Import
@@ -266,7 +265,7 @@ const SalesPage: React.FC = () => {
           {can('sales', 'create') && (
             <button
               onClick={() => router.push('/sales/add')}
-              className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 px-5 rounded-lg shadow transition-all"
+              className="page-header-button"
             >
               <Plus className="w-4 h-4" />
               Add
@@ -274,13 +273,14 @@ const SalesPage: React.FC = () => {
           )}
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2.5 px-5 rounded-lg shadow transition-all"
+            className="page-header-button secondary"
           >
             <Filter className="w-4 h-4" />
             {showFilters ? 'Hide Filters' : 'Show Filters'}
           </button>
-        </div>
-      </div>
+          </>
+        }
+      />
 
       {/* Persistent Filters Section */}
       <div className={showFilters ? 'block mb-6' : 'hidden'}>

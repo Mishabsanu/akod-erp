@@ -17,7 +17,7 @@ export const FilterChip = ({
   color = 'blue',
 }: FilterChipProps) => {
   const styles: Record<FilterChipColor, string> = {
-    blue: 'bg-blue-50 text-blue-700 border-blue-200',
+    blue: 'bg-sky-50 text-sky-700 border-sky-200',
     green: 'bg-green-50 text-green-700 border-green-200',
     purple: 'bg-purple-50 text-purple-700 border-purple-200',
   };

@@ -23,16 +23,16 @@ export const FormikTextarea: React.FC<FormikTextareaProps> = ({
     <div className={`mb-4 ${wrapperClassName}`}>
       <Label htmlFor={name} className="mb-1">
         {label}
-        {required && <span className="text-red-500 ml-1">*</span>}
+        {required && <span className="text-teal-500 ml-1">*</span>}
       </Label>
       <Textarea
         id={name}
         {...field}
         {...props}
-        className={`${meta.touched && meta.error ? 'border-red-500' : ''}`}
+        className={`${meta.touched && meta.error ? 'border-teal-500' : ''}`}
       />
       {meta.touched && meta.error ? (
-        <div className="mt-1 text-xs text-red-500">{meta.error}</div>
+        <div className="mt-1 text-xs text-teal-500">{meta.error}</div>
       ) : null}
     </div>
   );

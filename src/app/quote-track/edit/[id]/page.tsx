@@ -74,8 +74,8 @@ const EditQuoteTrackPage = ({ params: paramsPromise }: EditQuoteTrackPageProps) 
     return (
         <div className="min-h-screen bg-[#f9fafc] flex items-center justify-center p-6 text-center">
              <div className="space-y-4">
-                <h2 className="text-2xl font-bold text-[#11375d]">Quote track not found</h2>
-                <button onClick={handleCancel} className="text-[#cc1518] font-bold hover:underline">Return to list</button>
+                <h2 className="text-2xl font-bold text-[#0f766e]">Quote track not found</h2>
+                <button onClick={handleCancel} className="text-[#0f766e] font-bold hover:underline">Return to list</button>
              </div>
         </div>
     );

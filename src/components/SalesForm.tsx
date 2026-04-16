@@ -175,9 +175,9 @@ const SalesForm: React.FC<SalesFormProps> = ({
       <div className="flex items-center justify-between mb-8 border-b border-gray-200 pb-4">
         <div className="flex items-center gap-3">
           {isEditMode ? (
-            <Edit3 className="text-red-600 w-6 h-6" />
+            <Edit3 className="text-teal-700 w-6 h-6" />
           ) : (
-            <UserPlus className="text-red-600 w-6 h-6" />
+            <UserPlus className="text-teal-700 w-6 h-6" />
           )}
           <h2 className="text-2xl font-semibold text-gray-800">
             {isEditMode ? 'Edit Enquiry' : 'Create New Enquiry'}
@@ -336,11 +336,11 @@ const SalesForm: React.FC<SalesFormProps> = ({
           <Section title="Attachments">
             <div
               className="border-2 border-dashed border-gray-300 rounded-xl p-8 bg-white/50 backdrop-blur-sm 
-                     flex flex-col items-center justify-center cursor-pointer hover:border-red-400 
-                     hover:bg-red-50/5 transition-all group"
+                     flex flex-col items-center justify-center cursor-pointer hover:border-teal-400 
+                     hover:bg-teal-50/5 transition-all group"
               onClick={() => document.getElementById('attachmentsInput')?.click()}
             >
-              <div className="w-12 h-12 bg-white rounded-xl shadow-sm border border-gray-100 flex items-center justify-center text-gray-400 group-hover:text-red-500 transition-colors mb-2">
+              <div className="w-12 h-12 bg-white rounded-xl shadow-sm border border-gray-100 flex items-center justify-center text-gray-400 group-hover:text-teal-500 transition-colors mb-2">
                 <Upload className="w-6 h-6" />
               </div>
               <p className="text-gray-700 text-sm font-bold tracking-tight">
@@ -394,18 +394,18 @@ const SalesForm: React.FC<SalesFormProps> = ({
                       <div
                         key={idx}
                         className="flex items-center justify-between bg-white rounded-xl px-4 py-3 
-                                 border border-gray-100 shadow-sm hover:border-red-100 transition"
+                                 border border-gray-100 shadow-sm hover:border-teal-100 transition"
                       >
                         <div className="flex items-center gap-3 min-w-0">
-                          <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center flex-shrink-0">
-                            <ClipboardList className="w-5 h-5 text-red-500" />
+                          <div className="w-10 h-10 rounded-xl bg-teal-50 flex items-center justify-center flex-shrink-0">
+                            <ClipboardList className="w-5 h-5 text-teal-500" />
                           </div>
                           <div className="min-w-0">
                             <a
                               href={file.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-sm font-bold text-gray-800 hover:text-red-600 truncate block"
+                              className="text-sm font-bold text-gray-800 hover:text-teal-700 truncate block"
                             >
                               {file.name}
                             </a>
@@ -433,7 +433,7 @@ const SalesForm: React.FC<SalesFormProps> = ({
                               formik.setFieldValue('attachments', updatedFiles);
                             }
                           }}
-                          className="p-2 hover:bg-red-50 rounded-lg text-gray-300 hover:text-red-500 transition-colors flex-shrink-0"
+                          className="p-2 hover:bg-teal-50 rounded-lg text-gray-300 hover:text-teal-500 transition-colors flex-shrink-0"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -456,9 +456,9 @@ const SalesForm: React.FC<SalesFormProps> = ({
             <button
               type="submit"
               disabled={formik.isSubmitting || isLoading}
-              className={`px-10 py-2.5 rounded-xl text-white font-bold shadow-lg shadow-red-600/10 transition-all active:scale-95 ${formik.isSubmitting || isLoading
+              className={`px-10 py-2.5 rounded-xl text-white font-bold shadow-lg shadow-teal-700/10 transition-all active:scale-95 ${formik.isSubmitting || isLoading
                 ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-red-600 hover:bg-red-700'
+                : 'bg-teal-700 hover:bg-teal-800'
                 }`}
             >
               {isEditMode ? 'Update Enquiry' : 'Save Enquiry'}
@@ -470,7 +470,7 @@ const SalesForm: React.FC<SalesFormProps> = ({
       {!isEditMode && (
         <div className="mt-16 bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
           <div className="flex items-center gap-3 mb-6">
-            <ClipboardList className="w-6 h-6 text-red-600" />
+            <ClipboardList className="w-6 h-6 text-teal-700" />
             <h3 className="text-xl font-bold text-gray-800 tracking-tight">
               Last Enquiry Details
             </h3>
@@ -481,8 +481,8 @@ const SalesForm: React.FC<SalesFormProps> = ({
             </p>
           ) : lastEnquiries.length > 0 ? (
             <div className="overflow-x-auto rounded-xl border border-gray-100">
-              <table className="min-w-full text-left">
-                <thead className="bg-[#11375d] text-white">
+              <table className="akod-table text-left">
+                <thead>
                   <tr className="text-[11px] font-bold uppercase tracking-widest text-center">
                     <th className="py-4 px-4">Client</th>
                     <th className="py-4 px-4">Company</th>
@@ -502,16 +502,16 @@ const SalesForm: React.FC<SalesFormProps> = ({
                     >
                       <td className="py-4 px-4 font-bold text-gray-900">{enq.name}</td>
                       <td className="py-4 px-4">{enq.companyName}</td>
-                      <td className="py-4 px-4 text-blue-600 font-medium">{enq.email}</td>
+                      <td className="py-4 px-4 text-sky-600 font-medium">{enq.email}</td>
                       <td className="py-4 px-4 font-mono">{enq.contactPersonMobile}</td>
-                      <td className="py-4 px-4 group-hover:text-red-600 font-bold transition-colors">{enq.referenceNo}</td>
+                      <td className="py-4 px-4 group-hover:text-teal-700 font-bold transition-colors">{enq.referenceNo}</td>
                       <td className="py-4 px-4">
                         <span className="px-2 py-0.5 rounded bg-gray-100 text-[10px] font-black uppercase text-gray-600 border border-gray-200">
                           {enq.platform}
                         </span>
                       </td>
                       <td className="py-4 px-4">
-                        <span className="font-bold text-[11px] px-2 py-0.5 rounded border border-blue-100 bg-blue-50 text-blue-600">
+                        <span className="font-bold text-[11px] px-2 py-0.5 rounded border border-sky-100 bg-sky-50 text-sky-600">
                           {enq.status}
                         </span>
                       </td>

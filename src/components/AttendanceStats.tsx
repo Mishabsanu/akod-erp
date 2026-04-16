@@ -145,7 +145,7 @@ export default function AttendanceStats() {
                         <div className="text-sm font-bold uppercase tracking-widest mb-3 flex items-center gap-2 text-gray-400 opacity-70">
                             <Calendar size={14} /> {format(currentTime, 'EEEE, d MMMM yyyy')}
                         </div>
-                        <h2 className="text-4xl md:text-5xl font-black text-[#11375d] tracking-tight mb-3">
+                        <h2 className="text-4xl md:text-5xl font-black text-[#0f766e] tracking-tight mb-3">
                             {greeting}, {user?.name?.split(' ')[0] || 'User'}
                         </h2>
                         <p className="font-bold text-xl text-gray-400">
@@ -157,7 +157,7 @@ export default function AttendanceStats() {
                                 <button
                                     onClick={handleSignIn}
                                     disabled={actionLoading}
-                                    className="px-10 py-4 bg-[#11375d] text-white rounded-xl font-black text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all flex items-center gap-4 active:scale-95 disabled:opacity-70 disabled:pointer-events-none"
+                                    className="px-10 py-4 bg-[#0f766e] text-white rounded-xl font-black text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all flex items-center gap-4 active:scale-95 disabled:opacity-70 disabled:pointer-events-none"
                                 >
                                     {actionLoading ? <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <LogIn size={24} />}
                                     Clock In Now
@@ -166,7 +166,7 @@ export default function AttendanceStats() {
                                 !confirmSignOut ? (
                                     <button
                                         onClick={() => setConfirmSignOut(true)}
-                                        className="px-10 py-4 bg-[#cc1518] text-white rounded-xl font-black text-lg shadow-lg hover:bg-[#a51214] transition-all flex items-center gap-4 active:scale-95"
+                                        className="px-10 py-4 bg-[#0f766e] text-white rounded-xl font-black text-lg shadow-lg hover:bg-[#a51214] transition-all flex items-center gap-4 active:scale-95"
                                     >
                                         <LogOut size={24} />
                                         Clock Out
@@ -182,7 +182,7 @@ export default function AttendanceStats() {
                                         <button
                                             onClick={handleSignOut}
                                             disabled={actionLoading}
-                                            className="px-8 py-4 bg-[#cc1518] text-white rounded-xl font-black text-sm shadow-lg transition-all flex items-center gap-2 active:scale-95"
+                                            className="px-8 py-4 bg-[#0f766e] text-white rounded-xl font-black text-sm shadow-lg transition-all flex items-center gap-2 active:scale-95"
                                         >
                                             {actionLoading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <LogOut size={18} />}
                                             Confirm Sign Out
@@ -194,7 +194,7 @@ export default function AttendanceStats() {
                     </div>
 
                     <div className="flex flex-col items-center md:items-end justify-center">
-                        <div className="text-7xl font-black text-[#11375d] tracking-tighter mb-4 tabular-nums flex items-baseline gap-1">
+                        <div className="text-7xl font-black text-[#0f766e] tracking-tighter mb-4 tabular-nums flex items-baseline gap-1">
                             {format(currentTime, 'h:mm')}
                             <span className="text-4xl text-gray-300 ml-1 font-bold">{format(currentTime, ':ss')}</span>
                             <span className="text-2xl text-gray-400 ml-2 font-black uppercase">{format(currentTime, 'aa')}</span>
@@ -202,9 +202,9 @@ export default function AttendanceStats() {
 
                         {/* Live Timer if Online */}
                         {isOnline && (
-                            <div className="bg-[#cc1518]/5 px-6 py-3 rounded-xl border border-[#cc1518]/10 flex items-center gap-3 animate-pulse">
-                                <Timer size={20} className="text-[#cc1518]" />
-                                <span className="font-mono font-black tracking-widest tabular-nums text-2xl text-[#cc1518]">{formatDuration(liveDuration)}</span>
+                            <div className="bg-[#0f766e]/5 px-6 py-3 rounded-xl border border-[#0f766e]/10 flex items-center gap-3 animate-pulse">
+                                <Timer size={20} className="text-[#0f766e]" />
+                                <span className="font-mono font-black tracking-widest tabular-nums text-2xl text-[#0f766e]">{formatDuration(liveDuration)}</span>
                             </div>
                         )}
                     </div>
@@ -214,7 +214,7 @@ export default function AttendanceStats() {
             {/* RIGHT: WEEKLY SUMMARY CHART */}
             <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 flex flex-col min-h-[280px]">
                 <div className="flex items-center justify-between mb-8">
-                    <h3 className="font-black text-[#11375d] uppercase tracking-widest text-xs flex items-center gap-2 opacity-60">
+                    <h3 className="font-black text-[#0f766e] uppercase tracking-widest text-xs flex items-center gap-2 opacity-60">
                         <Briefcase size={16} />
                         This Week
                     </h3>
@@ -246,11 +246,11 @@ export default function AttendanceStats() {
                                 <div key={day.toISOString()} className="flex-1 flex flex-col items-center gap-2 group cursor-pointer" title={`${hours.toFixed(1)} hrs`}>
                                     <div className="w-full bg-gray-50 rounded-lg relative flex items-end overflow-hidden h-full">
                                         <div
-                                            className={`w-full rounded-lg transition-all duration-500 ${isToday ? (isOnline ? 'bg-[#6ccac9]' : (percentage > 0 ? 'bg-[#11375d]' : 'bg-gray-200')) : (percentage > 0 ? 'bg-[#11375d]' : 'bg-gray-200')}`}
+                                            className={`w-full rounded-lg transition-all duration-500 ${isToday ? (isOnline ? 'bg-[#6ccac9]' : (percentage > 0 ? 'bg-[#0f766e]' : 'bg-gray-200')) : (percentage > 0 ? 'bg-[#0f766e]' : 'bg-gray-200')}`}
                                             style={{ height: `${Math.max(percentage, 5)}%`, opacity: percentage > 0 ? 1 : 0.3 }}
                                         />
                                     </div>
-                                    <span className={`text-[10px] font-bold uppercase ${isToday ? 'text-[#11375d]' : 'text-gray-300'}`}>
+                                    <span className={`text-[10px] font-bold uppercase ${isToday ? 'text-[#0f766e]' : 'text-gray-300'}`}>
                                         {format(day, 'EEE')}
                                     </span>
                                 </div>
@@ -261,7 +261,7 @@ export default function AttendanceStats() {
 
                 <div className="mt-8 pt-6 border-t border-gray-50 flex items-center justify-start gap-8 text-[11px] font-black uppercase tracking-widest text-gray-400">
                     <div className="flex items-center gap-2 text-gray-500">
-                        <div className="w-2.5 h-2.5 rounded-full bg-[#11375d]" />
+                        <div className="w-2.5 h-2.5 rounded-full bg-[#0f766e]" />
                         Present
                     </div>
                     <div className="flex items-center gap-2 text-gray-300">

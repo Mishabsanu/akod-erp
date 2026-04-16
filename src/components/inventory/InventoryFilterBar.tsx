@@ -6,7 +6,7 @@ import { InventoryFilter } from '@/lib/types';
 import { Filter, ToggleLeft, XCircle, Hash } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 
-const PRIMARY = '#11375d';
+const PRIMARY = '#0f766e';
 interface InventoryFilterBarProps {
   onStatusChange: (status: InventoryFilter['status']) => void;
   onStockRangeChange: (min?: number, max?: number) => void;
@@ -125,7 +125,7 @@ export const InventoryFilterBar: React.FC<InventoryFilterBarProps> = ({
                 value={minStock}
                 onChange={(e) => setMinStock(e.target.value)}
                 placeholder="0"
-                className="w-full pl-9 pr-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                className="w-full pl-9 pr-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none"
               />
             </div>
           </div>
@@ -143,7 +143,7 @@ export const InventoryFilterBar: React.FC<InventoryFilterBarProps> = ({
                 value={maxStock}
                 onChange={(e) => setMaxStock(e.target.value)}
                 placeholder="100"
-                className="w-full pl-9 pr-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                className="w-full pl-9 pr-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none"
               />
             </div>
           </div>

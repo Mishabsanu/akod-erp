@@ -60,7 +60,7 @@ export const ExpenseFilterBar: React.FC<ExpenseFilterBarProps> = ({
   return (
     <div className="bg-white border border-gray-100 rounded-3xl shadow-sm p-6 overflow-hidden">
       <div className="flex items-center gap-2 mb-6">
-        <div className="w-8 h-8 bg-red-50 rounded-lg flex items-center justify-center text-red-600">
+        <div className="w-8 h-8 bg-teal-50 rounded-lg flex items-center justify-center text-teal-700">
            <Filter size={16} />
         </div>
         <h3 className="text-xs font-black uppercase tracking-[0.2em] text-gray-400">Transaction Filters</h3>
@@ -86,7 +86,7 @@ export const ExpenseFilterBar: React.FC<ExpenseFilterBarProps> = ({
                const val = e.target.value;
                setCategory(val);
                onCategoryChange(val === '' ? undefined : val);
-             }} className="pl-9 h-12 rounded-xl border-gray-100 focus:border-red-600/20">
+             }} className="pl-9 h-12 rounded-xl border-gray-100 focus:border-teal-700/20">
                <option value="">All Categories</option>
                {expenseCategories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
              </Select>
@@ -102,7 +102,7 @@ export const ExpenseFilterBar: React.FC<ExpenseFilterBarProps> = ({
                const val = e.target.value;
                setStatus(val);
                onStatusChange(val === '' ? undefined : val);
-             }} className="pl-9 h-12 rounded-xl border-gray-100 focus:border-red-600/20">
+             }} className="pl-9 h-12 rounded-xl border-gray-100 focus:border-teal-700/20">
                <option value="">All Statuses</option>
                <option value="paid">Paid</option>
                <option value="pending">Pending</option>
@@ -123,7 +123,7 @@ export const ExpenseFilterBar: React.FC<ExpenseFilterBarProps> = ({
                     setCompanyName(val);
                     onCompanyNameChange(val === '' ? undefined : val);
                 }} 
-                className="pl-9 h-12 rounded-xl border-gray-100 focus:border-red-600/20 shadow-none hover:shadow-none"
+                className="pl-9 h-12 rounded-xl border-gray-100 focus:border-teal-700/20 shadow-none hover:shadow-none"
              />
           </div>
         </div>
@@ -157,7 +157,7 @@ export const ExpenseFilterBar: React.FC<ExpenseFilterBarProps> = ({
            {hasFilters && (
              <button 
                onClick={handleClear}
-               className="p-3 bg-gray-50 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all active:scale-95"
+               className="p-3 bg-gray-50 text-gray-400 hover:text-teal-700 hover:bg-teal-50 rounded-xl transition-all active:scale-95"
                title="Clear All Filters"
              >
                 <XCircle size={20} />

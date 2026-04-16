@@ -76,9 +76,9 @@ const RoleForm: React.FC<RoleFormProps> = ({
       <div className="flex items-center justify-between mb-10 border-b border-gray-300 pb-5">
         <div className="flex items-center gap-3">
           {isEditMode ? (
-            <Edit3 className="text-red-600 w-7 h-7" />
+            <Edit3 className="text-teal-700 w-7 h-7" />
           ) : (
-            <ShieldPlus className="text-red-600 w-7 h-7" />
+            <ShieldPlus className="text-teal-700 w-7 h-7" />
           )}
           <div>
             <h2 className="text-2xl font-bold text-gray-900">
@@ -216,7 +216,7 @@ const RoleForm: React.FC<RoleFormProps> = ({
             <button
               type="submit"
               disabled={formik.isSubmitting}
-              className="px-6 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold shadow"
+              className="px-6 py-2.5 rounded-lg bg-teal-700 hover:bg-teal-800 text-white font-semibold shadow"
             >
               {isEditMode ? 'Update Role' : 'Create Role'}
             </button>

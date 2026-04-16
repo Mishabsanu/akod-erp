@@ -53,7 +53,7 @@ const Pagination = ({
             id="limit-select"
             value={limit}
             onChange={(e) => setLimit(Number(e.target.value))}
-            className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500"
+            className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:ring-2 focus:ring-teal-500"
           >
             <option value={10}>10</option>
             <option value={25}>25</option>

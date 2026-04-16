@@ -6,7 +6,7 @@ import { Select } from '@/components/ui/Select';
 import { Filter, ToggleLeft, CalendarDays, XCircle } from 'lucide-react';
 import { FilterChip } from '@/components/shared/FilterChip';
 
-const PRIMARY = '#11375d';
+const PRIMARY = '#0f766e';
 
 const statuses = [
   'New Lead',

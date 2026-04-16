@@ -2,6 +2,7 @@
 
 import { ProductFilterBar } from '@/components/catalog/ProductFilterBar';
 import { Column, DataTable } from '@/components/shared/DataTable';
+import ListPageHeader from '@/components/shared/ListPageHeader';
 import { SearchInput } from '@/components/shared/SearchInput'; // Import SearchInput
 import { TableSkeleton } from '@/components/shared/TableSkeleton'; // Import TableSkeleton
 import { useAuth } from '@/contexts/AuthContext';
@@ -11,7 +12,6 @@ import {
   Edit2,
   Filter,
   MoreVertical,
-  Package,
   Plus,
   Trash2,
 } from 'lucide-react';
@@ -112,7 +112,7 @@ const CatalogPage = () => {
                   );
                 }
               }}
-              className="px-3 py-1 text-sm bg-red-600 text-white rounded-md hover:bg-red-700 transition"
+              className="px-3 py-1 text-sm bg-teal-700 text-white rounded-md hover:bg-teal-800 transition"
             >
               Yes, Delete
             </button>
@@ -148,7 +148,7 @@ const CatalogPage = () => {
             className={`px-3 py-1 text-xs font-semibold rounded-full ${
               product.status === 'active'
                 ? 'bg-green-100 text-green-800'
-                : 'bg-red-100 text-red-800'
+                : 'bg-teal-100 text-teal-900'
             }`}
           >
             {product.status}
@@ -168,7 +168,7 @@ const CatalogPage = () => {
                 e.stopPropagation();
                 if (product._id) toggleActionMenu(product._id);
               }}
-              className="text-gray-600 hover:text-[#11375d] transition"
+              className="text-gray-600 hover:text-[#0f766e] transition"
             >
               <MoreVertical className="w-5 h-5" />
             </button>
@@ -182,7 +182,7 @@ const CatalogPage = () => {
                     }}
                     className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
                   >
-                    <Edit2 className="w-4 h-4 text-[#11375d]" />
+                    <Edit2 className="w-4 h-4 text-[#0f766e]" />
                     Edit
                   </button>
                 )}
@@ -192,7 +192,7 @@ const CatalogPage = () => {
                       e.stopPropagation();
                       if (product._id) handleDelete(product._id);
                     }}
-                    className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-[#cc1518] hover:bg-gray-50"
+                    className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-[#0f766e] hover:bg-gray-50"
                   >
                     <Trash2 className="w-4 h-4" />
                     Delete
@@ -210,21 +210,17 @@ const CatalogPage = () => {
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white p-6 md:p-10">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
-        <div className="flex items-center gap-3 mb-4 sm:mb-0">
-          <Package className="w-7 h-7 text-red-600" />
-          <h1 className="text-3xl font-semibold text-gray-800">
-            Product Catalog
-          </h1>
-        </div>
-        <div className="flex items-center gap-3">
-          {' '}
-          {/* Group Add and Filter buttons */}
+      <ListPageHeader
+        eyebrow="Product Registry"
+        title="Product"
+        highlight="Catalog"
+        description="Manage product definitions, specifications, and catalog status."
+        actions={
+          <>
           {can('product', 'create') && (
             <button
               onClick={handleAdd}
-              className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 px-5 rounded-lg shadow transition-all"
+              className="page-header-button"
             >
               <Plus className="w-4 h-4" />
               Add
@@ -232,13 +228,14 @@ const CatalogPage = () => {
           )}
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2.5 px-5 rounded-lg shadow transition-all"
+            className="page-header-button secondary"
           >
             <Filter className="w-4 h-4" />
             {showFilters ? 'Hide Filters' : 'Show Filters'}
           </button>
-        </div>
-      </div>
+          </>
+        }
+      />
 
       {showFilters ? (
         <>

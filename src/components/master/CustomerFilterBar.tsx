@@ -6,7 +6,7 @@ import { CustomerFilter } from '@/lib/types';
 import { Filter, Users, XCircle } from 'lucide-react';
 import { FilterChip } from '@/components/shared/FilterChip';
 
-const PRIMARY = '#11375d';
+const PRIMARY = '#0f766e';
 
 interface CustomerFilterBarProps {
   onStatusChange: (status: CustomerFilter['status']) => void;

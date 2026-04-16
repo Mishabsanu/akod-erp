@@ -55,15 +55,15 @@ export default function ImportDialog({ isOpen, onClose, onImport, title }: Impor
                 {/* Header */}
                 <div className="p-8 border-b border-gray-50 bg-gradient-to-r from-gray-50 to-white flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-2xl bg-[#cc1518]/10 flex items-center justify-center text-[#cc1518] shadow-inner">
+                        <div className="w-12 h-12 rounded-2xl bg-[#0f766e]/10 flex items-center justify-center text-[#0f766e] shadow-inner">
                             <FileSpreadsheet size={24} />
                         </div>
                         <div>
-                            <h2 className="text-xl font-black text-[#11375d] tracking-tight">{title}</h2>
+                            <h2 className="text-xl font-black text-[#0f766e] tracking-tight">{title}</h2>
                             <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">Bulk Management Wizard</p>
                         </div>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-red-50 text-gray-400 hover:text-red-500 rounded-xl transition-all">
+                    <button onClick={onClose} className="p-2 hover:bg-teal-50 text-gray-400 hover:text-teal-500 rounded-xl transition-all">
                         <X size={20} />
                     </button>
                 </div>
@@ -72,13 +72,13 @@ export default function ImportDialog({ isOpen, onClose, onImport, title }: Impor
                 <div className="flex p-2 bg-gray-50/50 border-b border-gray-50">
                     <button 
                         onClick={() => setActiveTab('sheet')}
-                        className={`flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl text-xs font-black transition-all ${activeTab === 'sheet' ? 'bg-white text-[#cc1518] shadow-md shadow-gray-200/50' : 'text-gray-400 hover:text-gray-600'}`}
+                        className={`flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl text-xs font-black transition-all ${activeTab === 'sheet' ? 'bg-white text-[#0f766e] shadow-md shadow-gray-200/50' : 'text-gray-400 hover:text-gray-600'}`}
                     >
                         <Link size={16} /> GOOGLE SHEET
                     </button>
                     <button 
                         onClick={() => setActiveTab('csv')}
-                        className={`flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl text-xs font-black transition-all ${activeTab === 'csv' ? 'bg-white text-[#cc1518] shadow-md shadow-gray-200/50' : 'text-gray-400 hover:text-gray-600'}`}
+                        className={`flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl text-xs font-black transition-all ${activeTab === 'csv' ? 'bg-white text-[#0f766e] shadow-md shadow-gray-200/50' : 'text-gray-400 hover:text-gray-600'}`}
                     >
                         <Upload size={16} /> CSV UPLOAD
                     </button>
@@ -96,7 +96,7 @@ export default function ImportDialog({ isOpen, onClose, onImport, title }: Impor
                                     placeholder="https://docs.google.com/spreadsheets/d/..."
                                     value={sheetUrl}
                                     onChange={(e) => setSheetUrl(e.target.value)}
-                                    className="w-full h-14 pl-12 pr-4 bg-[#f9fafb] border-2 border-transparent rounded-2xl text-sm font-bold text-gray-800 focus:bg-white focus:border-[#cc1518] focus:shadow-lg transition-all outline-none"
+                                    className="w-full h-14 pl-12 pr-4 bg-[#f9fafb] border-2 border-transparent rounded-2xl text-sm font-bold text-gray-800 focus:bg-white focus:border-[#0f766e] focus:shadow-lg transition-all outline-none"
                                 />
                             </div>
                             <p className="text-[10px] text-amber-500 font-bold ml-1 italic">* Ensure your sheet is shared with "Anyone with the link can view"</p>
@@ -106,9 +106,9 @@ export default function ImportDialog({ isOpen, onClose, onImport, title }: Impor
                              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Upload Data File</label>
                              <div 
                                 onClick={() => document.getElementById('csv-file')?.click()}
-                                className="border-2 border-dashed border-gray-200 rounded-3xl p-10 bg-gray-50/50 flex flex-col items-center justify-center gap-4 cursor-pointer hover:border-[#cc1518] hover:bg-red-50/5 transition-all group"
+                                className="border-2 border-dashed border-gray-200 rounded-3xl p-10 bg-gray-50/50 flex flex-col items-center justify-center gap-4 cursor-pointer hover:border-[#0f766e] hover:bg-teal-50/5 transition-all group"
                              >
-                                <div className="w-16 h-16 bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center text-gray-400 group-hover:text-[#cc1518] group-hover:scale-110 transition-all">
+                                <div className="w-16 h-16 bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center text-gray-400 group-hover:text-[#0f766e] group-hover:scale-110 transition-all">
                                     <Upload size={28} />
                                 </div>
                                 <div className="text-center">
@@ -121,7 +121,7 @@ export default function ImportDialog({ isOpen, onClose, onImport, title }: Impor
                     )}
 
                     {status && (
-                        <div className={`p-4 rounded-2xl flex items-center gap-3 animate-in slide-in-from-top-2 ${status.type === 'success' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-red-50 text-red-600 border border-red-100'}`}>
+                        <div className={`p-4 rounded-2xl flex items-center gap-3 animate-in slide-in-from-top-2 ${status.type === 'success' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-teal-50 text-teal-700 border border-teal-100'}`}>
                             {status.type === 'success' ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
                             <p className="text-xs font-black tracking-tight">{status.msg}</p>
                         </div>
@@ -137,7 +137,7 @@ export default function ImportDialog({ isOpen, onClose, onImport, title }: Impor
                         <button 
                             onClick={handleImport}
                             disabled={loading}
-                            className="flex-[1.5] py-4 px-6 rounded-2xl bg-[#cc1518] text-white font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-[#cc1518]/20 hover:bg-[#b01215] active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                            className="flex-[1.5] py-4 px-6 rounded-2xl bg-[#0f766e] text-white font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-[#0f766e]/20 hover:bg-[#134e4a] active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                         >
                             {loading ? (
                                 <>

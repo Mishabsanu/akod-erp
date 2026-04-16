@@ -19,11 +19,11 @@ export default function SalesPerUserChart({ data }: { data: any[] }) {
   const values = data.map((d) => d.total || 0);
 
   // color: default and highlight logged user
-  const background = data.map((d) => (d.isMe ? "#f59e0b" : "#cc1518"));
+  const background = data.map((d) => (d.isMe ? "#f59e0b" : "#0f766e"));
 
   return (
     <div className="bg-white p-6 rounded-xl shadow-md border">
-      <h3 className="text-lg font-semibold text-[#11375d] mb-4">Sales Entries by Salesperson</h3>
+      <h3 className="text-lg font-semibold text-[#0f766e] mb-4">Sales Entries by Salesperson</h3>
       <Bar
         data={{
           labels,

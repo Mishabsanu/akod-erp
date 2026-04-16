@@ -64,8 +64,8 @@ const EditRunningOrderPage = ({ params: paramsPromise }: EditRunningOrderPagePro
 
     if (!order) return (
          <div className="min-h-screen bg-[#f9fafc] flex flex-col items-center justify-center text-center p-6">
-            <h2 className="text-2xl font-bold text-[#11375d] mb-4">Order record not found</h2>
-            <button onClick={() => router.push('/running-order')} className="text-[#cc1518] font-bold hover:underline">Return to list</button>
+            <h2 className="text-2xl font-bold text-[#0f766e] mb-4">Order record not found</h2>
+            <button onClick={() => router.push('/running-order')} className="text-[#0f766e] font-bold hover:underline">Return to list</button>
         </div>
     );
 

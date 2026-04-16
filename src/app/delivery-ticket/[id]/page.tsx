@@ -101,8 +101,8 @@ const ViewDeliveryTicketPage = () => {
           {/* ITEMS TABLE */}
           <Section title="Items" className="border-none shadow-sm ring-1 ring-gray-900/5">
             <div className="overflow-hidden rounded-lg">
-              <table className="w-full text-sm">
-                <thead className="bg-[#f8fafc] border-b border-gray-200">
+              <table className="akod-table">
+                <thead>
                   <tr>
                     <th className="py-3 px-4 text-left font-semibold text-gray-900">Product</th>
                     <th className="py-3 px-4 text-left font-semibold text-gray-900">Code</th>

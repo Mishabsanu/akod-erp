@@ -9,11 +9,9 @@ import {
   Truck,
   RotateCcw,
   Clock,
-  BadgeDollarSign,
   FileText,
   Users,
   ShieldCheck,
-  PackageSearch,
   Users2,
   UserPlus,
   IndianRupee,
@@ -28,25 +26,23 @@ import {
   PieChart,
   ReceiptText,
   ChevronRight,
+  type LucideIcon,
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState, useMemo } from 'react';
 
-const PRIMARY_NAVY = '#11375d';
-const PRIMARY_RED = '#cc1518';
-
 type SubMenuItem = {
   name: string;
   href: string;
-  icon?: any;
+  icon?: LucideIcon;
   subItems?: SubMenuItem[];
 };
 
 type MenuItem = {
   name: string;
-  icon: any;
+  icon: LucideIcon;
   href?: string;
   subItems?: SubMenuItem[];
 };
@@ -167,11 +163,11 @@ export const Sidebar = () => {
     const findAndOpenSubMenus = (items: (MenuItem | SubMenuItem)[], currentPath: string): boolean => {
       for (const item of items) {
         // Precise matching for the auto-open check
-        const itemHref = (item as any).href;
+        const itemHref = item.href;
         const isMatch = itemHref && (itemHref === '/' ? currentPath === '/' : (currentPath === itemHref || currentPath.startsWith(itemHref + '/')));
-        
+
         if (isMatch) return true;
-        
+
         if (item.subItems) {
           const isChildActive = findAndOpenSubMenus(item.subItems, currentPath);
           if (isChildActive) {
@@ -204,7 +200,7 @@ export const Sidebar = () => {
               ${isExpanded ? 'text-white' : 'text-gray-300 hover:text-white hover:bg-white/5'}`}
           >
             <div className="flex items-center gap-2">
-              <span className={`w-1 h-1 rounded-full ${isRouteActive ? 'bg-[#cc1518]' : 'bg-gray-500'}`} />
+              <span className={`w-1 h-1 rounded-full ${isRouteActive ? 'bg-[#14b8a6]' : 'bg-gray-500'}`} />
               {sub.name}
             </div>
             <ChevronDown className={`w-3 h-3 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
@@ -213,9 +209,9 @@ export const Sidebar = () => {
           <Link
             href={sub.href}
             className={`flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-300
-              ${isRouteActive ? 'bg-white text-[#11375d] shadow-sm' : 'text-gray-300 hover:text-white hover:bg-white/5'}`}
+              ${isRouteActive ? 'bg-[#0f766e] text-white shadow-sm' : 'text-gray-300 hover:text-white hover:bg-white/5'}`}
           >
-             <span className={`w-1 h-1 rounded-full ${isRouteActive ? 'bg-[#cc1518]' : 'bg-gray-500'}`} />
+            <span className={`w-1 h-1 rounded-full ${isRouteActive ? 'bg-[#14b8a6]' : 'bg-gray-500'}`} />
             <span>{sub.name}</span>
           </Link>
         )}
@@ -231,19 +227,19 @@ export const Sidebar = () => {
   return (
     <aside
       className={`${isOpen ? 'w-80' : 'w-24'} h-screen fixed md:relative z-50 flex flex-col transition-all duration-500
-      bg-gradient-to-b from-[#11375d] via-[#08243c] to-[#001428] text-white shadow-2xl overflow-hidden`}
+      bg-[#0f172a] text-white shadow-2xl overflow-hidden`}
     >
       {/* BRANDING SECTION */}
       <div className={`relative px-6 flex items-center justify-between border-b border-white/10 bg-white/5 backdrop-blur-md h-20 transition-all duration-500`}>
         <div className="transition-all duration-500 transform opacity-100 scale-100">
           <div className="flex items-center gap-3">
-             <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg">
-                <Image src="/logocrm.png" alt="Logo" width={30} height={30} className="object-contain" />
-             </div>
-             <div>
-                <h1 className="text-white font-black text-lg tracking-tighter leading-none uppercase">Akod</h1>
-                <p className="text-[10px] text-gray-300 font-bold uppercase tracking-widest mt-1">Enterprise ERP</p>
-             </div>
+            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg">
+              <Image src="/logocrm.png" alt="Logo" width={30} height={30} className="object-contain" />
+            </div>
+            <div>
+              <h1 className="text-white font-black text-lg tracking-tighter leading-none uppercase">Akod</h1>
+              <p className="text-[10px] text-gray-300 font-bold uppercase tracking-widest mt-1">Enterprise ERP</p>
+            </div>
           </div>
         </div>
       </div>
@@ -254,13 +250,13 @@ export const Sidebar = () => {
             const Icon = item.icon;
             const hasSubItems = item.subItems && item.subItems.length > 0;
             const isExpanded = openSubMenus.includes(item.name);
-            const isChildActive = item.subItems?.some(sub => 
-              pathname === sub.href || 
+            const isChildActive = item.subItems?.some(sub =>
+              pathname === sub.href ||
               pathname.startsWith(sub.href + '/') ||
               sub.subItems?.some(child => pathname === child.href || pathname.startsWith(child.href + '/'))
             );
             const isDirectActive = item.href === '/' ? pathname === '/' : (item.href && (pathname === item.href || pathname.startsWith(item.href + '/')));
-            
+
             // isRouteActive determines if the module should have the active background highlight
             const isRouteActive = isChildActive || isDirectActive;
 
@@ -271,10 +267,10 @@ export const Sidebar = () => {
                   <button
                     onClick={() => toggleSubMenu(item.name)}
                     className={`group w-full flex items-center justify-between px-4 py-3 rounded-2xl transition-all duration-300
-                      ${isRouteActive && isOpen ? 'bg-white text-[#11375d] shadow-lg' : 'hover:bg-white/10 text-gray-100'}`}
+                      ${isRouteActive && isOpen ? 'bg-[#0f766e] text-white shadow-lg' : 'hover:bg-white/10 text-gray-100'}`}
                   >
                     <div className="flex items-center gap-4">
-                      <div className={`p-2 rounded-xl transition-all duration-300 ${isRouteActive ? 'bg-[#cc1518] text-white shadow-md' : 'bg-white/10 text-gray-200 group-hover:bg-white/20'}`}>
+                      <div className={`p-2 rounded-xl transition-all duration-300 ${isRouteActive ? 'bg-[#14b8a6] text-white shadow-md' : 'bg-white/10 text-gray-200 group-hover:bg-white/20'}`}>
                         <Icon size={18} />
                       </div>
                       {isOpen && <span className="text-[14px] font-bold">{item.name}</span>}
@@ -294,9 +290,9 @@ export const Sidebar = () => {
                 key={item.name}
                 href={item.href!}
                 className={`group flex items-center gap-4 px-4 py-3 rounded-2xl transition-all duration-300
-                  ${isDirectActive && isOpen ? 'bg-white text-[#11375d] shadow-xl' : 'hover:bg-white/10 text-gray-200'}`}
+                  ${isDirectActive && isOpen ? 'bg-[#0f766e] text-white shadow-xl' : 'hover:bg-white/10 text-gray-200'}`}
               >
-                <div className={`p-2 rounded-xl transition-all duration-300 ${isDirectActive ? 'bg-[#cc1518] text-white shadow-md' : 'bg-white/10 text-gray-300 group-hover:bg-white/20'}`}>
+                <div className={`p-2 rounded-xl transition-all duration-300 ${isDirectActive ? 'bg-[#14b8a6] text-white shadow-md' : 'bg-white/10 text-gray-300 group-hover:bg-white/20'}`}>
                   <Icon size={18} />
                 </div>
                 {isOpen && <span className="text-[14px] font-bold">{item.name}</span>}
@@ -307,7 +303,7 @@ export const Sidebar = () => {
       </nav>
 
       <div className="p-4 border-t border-white/10 bg-white/5 backdrop-blur-3xl">
-        <button onClick={logout} className="w-full flex items-center justify-center gap-3 py-3.5 bg-[#cc1518] hover:bg-red-700 text-white font-black rounded-2xl shadow-xl transition-all uppercase tracking-widest text-xs">
+        <button onClick={logout} className="w-full flex items-center justify-center gap-3 py-3.5 bg-[#0f766e] hover:bg-[#134e4a] text-white font-black rounded-2xl shadow-xl transition-all uppercase tracking-widest text-xs">
           <LogOut size={18} />
           {isOpen && 'Sign Out'}
         </button>

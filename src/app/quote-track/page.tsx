@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { FileText, Plus, MoreVertical, Edit2, Trash2, Filter } from 'lucide-react';
+import { Plus, MoreVertical, Edit2, Trash2, Filter } from 'lucide-react';
 
 import withAuth from '@/components/withAuth';
 import { updateQuoteStatus } from '@/services/catalogApi';
@@ -12,6 +12,7 @@ import { QuoteTrack, QuoteTrackFilter } from '@/lib/types';
 import { useDebounce } from '@/hooks/useDebounce';
 
 import { DataTable } from '@/components/shared/DataTable';
+import ListPageHeader from '@/components/shared/ListPageHeader';
 import { SearchInput } from '@/components/shared/SearchInput';
 import { QuoteTrackFilterBar } from '@/components/quote-track/QuoteTrackFilterBar';
 import { TableSkeleton } from '@/components/shared/TableSkeleton';
@@ -100,7 +101,7 @@ const QuoteTracksPage: React.FC = () => {
                 toast.error(error.response?.data?.message || 'Something went wrong while deleting.');
               }
             }}
-            className="px-3 py-1 text-sm bg-red-600 text-white rounded-md hover:bg-red-700 transition"
+            className="px-3 py-1 text-sm bg-teal-700 text-white rounded-md hover:bg-teal-800 transition"
           >
             Yes, Delete
           </button>
@@ -124,7 +125,7 @@ const QuoteTracksPage: React.FC = () => {
       accessor: 'createdAt' as keyof QuoteTrack,
       render: (track: QuoteTrack) => (
         <div className="flex flex-col">
-          <span className="text-xs font-bold text-[#11375d]">
+          <span className="text-xs font-bold text-[#0f766e]">
             {track.createdAt ? new Date(track.createdAt).toLocaleDateString() : 'N/A'}
           </span>
           <span className="text-[9px] text-gray-400 font-bold uppercase">Logged At</span>
@@ -149,7 +150,7 @@ const QuoteTracksPage: React.FC = () => {
       render: (track: QuoteTrack) => (
         <div className="flex flex-col text-center">
           <span className="text-gray-700 font-bold">{track.totalQty} Units</span>
-          <span className="text-[10px] text-red-600 font-black uppercase tracking-widest">
+          <span className="text-[10px] text-teal-700 font-black uppercase tracking-widest">
             {track.totalWeight?.toFixed(2)} KG
           </span>
         </div>
@@ -161,7 +162,7 @@ const QuoteTracksPage: React.FC = () => {
       render: (track: QuoteTrack) => (
         <div className="flex flex-col">
           <div className="flex items-center gap-1.5">
-            <span className="font-black text-[#11375d]">
+            <span className="font-black text-[#0f766e]">
               {track.currency === 'USD' ? '$' : '₹'}{track.totalSellingPrice?.toLocaleString()}
             </span>
             <span className="text-[9px] px-1 bg-gray-100 text-gray-500 rounded uppercase font-bold">{track.currency}</span>
@@ -194,8 +195,8 @@ const QuoteTracksPage: React.FC = () => {
           }}
           className={`px-3 py-1 rounded-lg text-xs font-bold border cursor-pointer bg-white transition-colors ${
             track.status === 'Accepted' ? 'border-green-200 text-green-700 bg-green-50' :
-            track.status === 'Rejected' ? 'border-red-200 text-red-700 bg-red-50' :
-            track.status === 'Quoted' ? 'border-blue-200 text-blue-700 bg-blue-50' :
+            track.status === 'Rejected' ? 'border-teal-200 text-teal-800 bg-teal-50' :
+            track.status === 'Quoted' ? 'border-sky-200 text-sky-700 bg-sky-50' :
             'border-gray-200 text-gray-700 bg-gray-50'
           }`}
         >
@@ -216,7 +217,7 @@ const QuoteTracksPage: React.FC = () => {
               e.stopPropagation();
               setOpenMenu(openMenu === track._id ? null : track._id!);
             }}
-            className="text-gray-600 hover:text-[#11375d] transition p-1 hover:bg-gray-100 rounded-lg"
+            className="text-gray-600 hover:text-[#0f766e] transition p-1 hover:bg-gray-100 rounded-lg"
           >
             <MoreVertical size={20} />
           </button>
@@ -226,12 +227,12 @@ const QuoteTracksPage: React.FC = () => {
                 onClick={(e) => { e.stopPropagation(); router.push(`/quote-track/edit/${track._id}`); }}
                 className="flex items-center gap-2 w-full text-left px-3 py-2.5 text-xs font-bold text-gray-700 hover:bg-gray-50 border-b border-gray-50"
               >
-                <Edit2 size={14} className="text-[#11375d]" />
+                <Edit2 size={14} className="text-[#0f766e]" />
                 Edit Quote
               </button>
               <button
                 onClick={(e) => { e.stopPropagation(); handleDelete(track._id!); }}
-                className="flex items-center gap-2 w-full text-left px-3 py-2.5 text-xs font-bold text-[#cc1518] hover:bg-gray-50"
+                className="flex items-center gap-2 w-full text-left px-3 py-2.5 text-xs font-bold text-[#0f766e] hover:bg-gray-50"
               >
                 <Trash2 size={14} />
                 Remove
@@ -245,20 +246,17 @@ const QuoteTracksPage: React.FC = () => {
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white p-6 md:p-10">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
-        <div className="flex items-center gap-3 mb-4 sm:mb-0">
-          <FileText className="w-7 h-7 text-red-600" />
-          <h1 className="text-3xl font-semibold text-gray-800">
-            Quote Tracking
-          </h1>
-        </div>
-
-        <div className="flex items-center gap-3">
+      <ListPageHeader
+        eyebrow="Quotation Registry"
+        title="Quote"
+        highlight="Tracking"
+        description="Monitor quote progress, currency, value, and approval movement."
+        actions={
+          <>
           {can('quote_track', 'create') && (
             <button
               onClick={() => router.push('/quote-track/add')}
-              className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 px-5 rounded-lg shadow transition-all"
+              className="page-header-button"
             >
               <Plus className="w-4 h-4" />
               Add
@@ -266,13 +264,14 @@ const QuoteTracksPage: React.FC = () => {
           )}
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2.5 px-5 rounded-lg shadow transition-all"
+            className="page-header-button secondary"
           >
             <Filter className="w-4 h-4" />
             {showFilters ? 'Hide Filters' : 'Show Filters'}
           </button>
-        </div>
-      </div>
+          </>
+        }
+      />
 
       {/* Persistent Filters Section */}
       <div className={showFilters ? 'block mb-6' : 'hidden'}>

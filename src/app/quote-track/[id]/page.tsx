@@ -47,7 +47,7 @@ const QuoteTrackViewPage = ({ params: paramsPromise }: QuoteTrackViewPageProps) 
   if (!quoteTrack) return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-6 text-center">
         <h2 className="text-2xl font-bold text-gray-800 mb-4">Quote not found</h2>
-        <button onClick={() => router.back()} className="text-red-600 font-bold flex items-center gap-2 hover:underline">
+        <button onClick={() => router.back()} className="text-teal-700 font-bold flex items-center gap-2 hover:underline">
             <ArrowLeft size={18} /> Go Back
         </button>
     </div>
@@ -72,8 +72,8 @@ const QuoteTrackViewPage = ({ params: paramsPromise }: QuoteTrackViewPageProps) 
           {/* Header */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-5">
             <div className="flex items-center gap-4">
-              <div className="bg-red-50 p-3 rounded-full border border-red-100">
-                <FileText className="w-8 h-8 text-red-600" />
+              <div className="bg-teal-50 p-3 rounded-full border border-teal-100">
+                <FileText className="w-8 h-8 text-teal-700" />
               </div>
               <div>
                 <h1 className="text-3xl font-bold text-gray-800">
@@ -83,8 +83,8 @@ const QuoteTrackViewPage = ({ params: paramsPromise }: QuoteTrackViewPageProps) 
                   <span
                     className={`px-3 py-0.5 text-xs font-bold rounded-full ${
                       quoteTrack.status === 'Rejected'
-                        ? 'bg-red-100 text-red-700 border border-red-200'
-                        : 'bg-blue-100 text-blue-700 border border-blue-200'
+                        ? 'bg-teal-100 text-teal-800 border border-teal-200'
+                        : 'bg-sky-100 text-sky-700 border border-sky-200'
                     }`}
                   >
                     {quoteTrack.status}
@@ -117,8 +117,8 @@ const QuoteTrackViewPage = ({ params: paramsPromise }: QuoteTrackViewPageProps) 
 
             {/* Reject only view */}
             {quoteTrack.status === 'Rejected' ? (
-              <div className="w-full bg-red-50 text-red-700 border border-red-200 p-6 rounded-lg text-center font-bold text-lg flex items-center justify-center gap-3">
-                <X size={24} className="text-red-600" /> Quote Rejected
+              <div className="w-full bg-teal-50 text-teal-800 border border-teal-200 p-6 rounded-lg text-center font-bold text-lg flex items-center justify-center gap-3">
+                <X size={24} className="text-teal-700" /> Quote Rejected
               </div>
             ) : (
               <div className="relative flex justify-between w-full mt-6 px-10">
@@ -165,8 +165,8 @@ const QuoteTrackViewPage = ({ params: paramsPromise }: QuoteTrackViewPageProps) 
             </div>
 
             <div className="overflow-x-auto w-full">
-              <table className="w-full text-left">
-                <thead className="bg-[#11375d] text-white text-xs uppercase tracking-wider">
+              <table className="akod-table text-left">
+                <thead>
                   <tr>
                     <th className="px-6 py-4">Product Detail</th>
                     <th className="px-4 py-4 text-center">Qty</th>
@@ -201,9 +201,9 @@ const QuoteTrackViewPage = ({ params: paramsPromise }: QuoteTrackViewPageProps) 
           </div>
           
           {quoteTrack.remarks && (
-            <div className="mt-8 p-6 bg-blue-50 border border-blue-100 rounded-xl">
-                 <h4 className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-2">Remarks</h4>
-                 <p className="text-sm font-medium text-blue-900 leading-relaxed italic">"{quoteTrack.remarks}"</p>
+            <div className="mt-8 p-6 bg-sky-50 border border-sky-100 rounded-xl">
+                 <h4 className="text-xs font-bold text-sky-400 uppercase tracking-widest mb-2">Remarks</h4>
+                 <p className="text-sm font-medium text-slate-900 leading-relaxed italic">"{quoteTrack.remarks}"</p>
             </div>
           )}
         </div>
@@ -215,11 +215,11 @@ const QuoteTrackViewPage = ({ params: paramsPromise }: QuoteTrackViewPageProps) 
 /* Reusable Summary Box */
 const InfoWide = ({ label, value, money, currency, highlight, isMargin }: any) => (
   <div className={`p-6 rounded-xl border shadow-sm transition-all ${
-      highlight ? 'bg-[#11375d] text-white border-[#11375d]' : 
+      highlight ? 'bg-[#0f766e] text-white border-[#0f766e]' : 
       isMargin ? 'bg-emerald-50 text-emerald-900 border-emerald-100' :
       'bg-white text-gray-800 border-gray-100'
   }`}>
-    <p className={`text-[10px] uppercase font-bold tracking-widest mb-2 ${highlight ? 'text-blue-200' : isMargin ? 'text-emerald-400' : 'text-gray-400'}`}>{label}</p>
+    <p className={`text-[10px] uppercase font-bold tracking-widest mb-2 ${highlight ? 'text-sky-200' : isMargin ? 'text-emerald-400' : 'text-gray-400'}`}>{label}</p>
     <p className={`text-2xl font-black ${highlight ? 'text-white' : 'text-gray-800'}`}>
       {money ? `${currency === 'INR' ? '₹' : '$'} ${Number(value).toLocaleString(undefined, { minimumFractionDigits: 2 })}` : value}
     </p>

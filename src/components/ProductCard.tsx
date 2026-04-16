@@ -70,7 +70,7 @@ const ProductCard = ({
                 }}
                 className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
               >
-                <Package className="w-4 h-4 text-[#11375d]" />
+                <Package className="w-4 h-4 text-[#0f766e]" />
                 View
               </button>
               <button
@@ -82,7 +82,7 @@ const ProductCard = ({
                 }}
                 className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
               >
-                <Edit2 className="w-4 h-4 text-[#11375d]" />
+                <Edit2 className="w-4 h-4 text-[#0f766e]" />
                 Edit
               </button>
               <button
@@ -92,7 +92,7 @@ const ProductCard = ({
                   }
                   setMenuOpen(false);
                 }}
-                className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-gray-50"
+                className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-teal-700 hover:bg-gray-50"
               >
                 <Trash2 className="w-4 h-4" />
                 Delete

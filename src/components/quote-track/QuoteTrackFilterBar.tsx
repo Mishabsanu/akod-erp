@@ -6,7 +6,7 @@ import { QuoteTrackFilter } from '@/lib/types';
 import { Filter, ToggleLeft, CircleDollarSign, XCircle } from 'lucide-react';
 import { FilterChip } from '@/components/shared/FilterChip';
 
-const PRIMARY = '#11375d';
+const PRIMARY = '#0f766e';
 
 const statuses = ['Pending', 'Quoted', 'Accepted', 'Rejected'];
 const currencies = ['INR', 'USD'];

@@ -130,9 +130,9 @@ const UserForm: React.FC<UserFormProps> = ({
       <div className="flex items-center justify-between mb-10 border-b border-gray-300 pb-5">
         <div className="flex items-center gap-3">
           {isEditMode && can('user', 'update') ? (
-            <Edit3 className="text-[#cc1518] w-6 h-6" />
+            <Edit3 className="text-[#0f766e] w-6 h-6" />
           ) : (
-            <UserPlus className="text-[#cc1518] w-6 h-6" />
+            <UserPlus className="text-[#0f766e] w-6 h-6" />
           )}
 
           <h2 className="text-2xl font-semibold text-gray-800">
@@ -193,7 +193,7 @@ const UserForm: React.FC<UserFormProps> = ({
                   <button
                     type="button"
                     onClick={() => setShowPasswordDrawer(true)}
-                    className="text-sm font-semibold text-blue-600 hover:underline"
+                    className="text-sm font-semibold text-sky-600 hover:underline"
                   >
                     Update
                   </button>
@@ -236,7 +236,7 @@ const UserForm: React.FC<UserFormProps> = ({
               disabled={formik.isSubmitting}
               className={`px-6 py-2.5 rounded-lg text-white font-semibold shadow-sm transition ${formik.isSubmitting
                   ? 'bg-gray-400 cursor-not-allowed'
-                  : 'bg-[#cc1518] hover:bg-red-700'
+                  : 'bg-[#0f766e] hover:bg-teal-800'
                 }`}
             >
               {isEditMode ? 'Update User' : 'Create User'}

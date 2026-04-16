@@ -100,15 +100,15 @@ function Dashboard() {
             {/* HEADER SECTION */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
                 <div className="flex items-center gap-4">
-                    <div className="p-4 bg-white rounded-3xl shadow-xl shadow-red-600/5 border border-gray-100">
-                        <ShieldCheck size={32} className="text-[#cc1518]" />
+                    <div className="p-4 bg-white rounded-3xl shadow-xl shadow-teal-700/5 border border-gray-100">
+                        <ShieldCheck size={32} className="text-[#0f766e]" />
                     </div>
                     <div>
                         <div className="flex items-center gap-2 mb-1">
                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Corporate Intelligence Hub</p>
-                            <span className="px-2 py-0.5 bg-blue-50 text-[8px] font-black text-blue-600 rounded-full uppercase tracking-tighter">Live v2.1</span>
+                            <span className="px-2 py-0.5 bg-sky-50 text-[8px] font-black text-sky-600 rounded-full uppercase tracking-tighter">Live v2.1</span>
                         </div>
-                        <h1 className="text-4xl font-black text-[#11375d] tracking-tight">
+                        <h1 className="text-4xl font-black text-[#0f766e] tracking-tight">
                             Welcome back, {data.role?.charAt(0).toUpperCase() || ''}{data.role?.slice(1) || ''}
                         </h1>
                     </div>
@@ -116,7 +116,7 @@ function Dashboard() {
                 <div className="flex items-center gap-4">
                     <div className="flex flex-col items-end">
                         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Active Workforce</p>
-                        <p className="text-sm font-black text-[#11375d]">{data.stats.hr.attendanceToday} / {data.stats.users.totalStaff} Present Today</p>
+                        <p className="text-sm font-black text-[#0f766e]">{data.stats.hr.attendanceToday} / {data.stats.users.totalStaff} Present Today</p>
                     </div>
                     <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center border border-gray-100 shadow-sm">
                         <div role="progressbar" aria-valuenow={attendanceRatio} className="relative w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black text-green-600" style={{ background: `conic-gradient(#10b981 ${attendanceRatio * 3.6}deg, #f1f5f9 0deg)` }}>
@@ -131,12 +131,12 @@ function Dashboard() {
                 <section>
                     <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-3">
-                            <Activity className="w-5 h-5 text-blue-600" />
+                            <Activity className="w-5 h-5 text-sky-600" />
                             <h2 className="text-sm font-black uppercase tracking-[0.2em] text-gray-400 font-bold">Lead Pipeline Matrix</h2>
                         </div>
                         <button
                             onClick={() => router.push('/quote-track')}
-                            className="text-[10px] font-black text-blue-600 uppercase tracking-widest hover:underline"
+                            className="text-[10px] font-black text-sky-600 uppercase tracking-widest hover:underline"
                         >
                             View Full Funnel →
                         </button>
@@ -152,10 +152,10 @@ function Dashboard() {
                 {/* CORE ANALYTICS: FINANCE & CONVERSION */}
                 <section className="grid grid-cols-1 lg:grid-cols-3 gap-10">
                     {/* FINANCIAL TRENDS */}
-                    <div className="lg:col-span-2 bg-white p-10 rounded-[3rem] shadow-2xl shadow-blue-900/5 border border-gray-100">
+                    <div className="lg:col-span-2 bg-white p-10 rounded-[3rem] shadow-2xl shadow-slate-900/5 border border-gray-100">
                         <div className="flex items-center justify-between mb-10">
                             <div>
-                                <h3 className="text-2xl font-black text-[#11375d]">Financial Flux Intelligence</h3>
+                                <h3 className="text-2xl font-black text-[#0f766e]">Financial Flux Intelligence</h3>
                                 <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Cross-Module Movement Trends</p>
                             </div>
                             <div className="flex items-center gap-6">
@@ -180,17 +180,17 @@ function Dashboard() {
                                     <Tooltip content={<CustomTooltip />} />
                                     <Area type="monotone" dataKey="income" fill="url(#fluxIn)" stroke="#3b82f6" strokeWidth={4} />
                                     <Bar dataKey="expenses" fill="#ef4444" radius={[6, 6, 0, 0]} barSize={20} />
-                                    <Line type="monotone" dataKey="income" stroke="#11375d" strokeWidth={2} dot={false} strokeDasharray="5 5" />
+                                    <Line type="monotone" dataKey="income" stroke="#0f766e" strokeWidth={2} dot={false} strokeDasharray="5 5" />
                                 </ComposedChart>
                             </ResponsiveContainer>
                         </div>
                     </div>
 
                     {/* QUOTE STATUS & APPROVALS */}
-                    <div className="bg-[#11375d] p-10 rounded-[3rem] shadow-2xl text-white flex flex-col justify-between">
+                    <div className="bg-[#0f766e] p-10 rounded-[3rem] shadow-2xl text-white flex flex-col justify-between">
                         <div>
                             <h3 className="text-2xl font-black mb-1">Sales Conversion</h3>
-                            <p className="text-xs font-bold text-blue-200 uppercase tracking-widest">Approval Metrics</p>
+                            <p className="text-xs font-bold text-sky-200 uppercase tracking-widest">Approval Metrics</p>
                         </div>
 
                         <div className="space-y-8 my-10">
@@ -200,7 +200,7 @@ function Dashboard() {
                                         <Clock size={24} />
                                     </div>
                                     <div>
-                                        <p className="text-[10px] font-black text-blue-200 uppercase tracking-widest">Waiting Action</p>
+                                        <p className="text-[10px] font-black text-sky-200 uppercase tracking-widest">Waiting Action</p>
                                         <p className="text-2xl font-black">Pending leads: {data.stats.sales.pendingCount}</p>
                                     </div>
                                 </div>
@@ -211,7 +211,7 @@ function Dashboard() {
                                         <ShieldCheck size={24} />
                                     </div>
                                     <div>
-                                        <p className="text-[10px] font-black text-blue-200 uppercase tracking-widest">Revenue secured</p>
+                                        <p className="text-[10px] font-black text-sky-200 uppercase tracking-widest">Revenue secured</p>
                                         <p className="text-2xl font-black">Approved leads: {data.stats.sales.approvalCount}</p>
                                     </div>
                                 </div>
@@ -219,7 +219,7 @@ function Dashboard() {
                         </div>
 
                         <div className="pt-6 border-t border-white/10">
-                            <p className="text-[10px] font-black text-blue-200 uppercase tracking-widest mb-2 text-center">Conversion Velocity</p>
+                            <p className="text-[10px] font-black text-sky-200 uppercase tracking-widest mb-2 text-center">Conversion Velocity</p>
                             <div className="w-full h-3 bg-white/10 rounded-full overflow-hidden">
                                 <div
                                     className="h-full bg-green-400 shadow-[0_0_15px_rgba(74,222,128,0.5)] transition-all duration-1000"
@@ -236,7 +236,7 @@ function Dashboard() {
                     <div className="bg-white p-10 rounded-[3rem] shadow-xl border border-gray-100">
                         <div className="flex items-center justify-between mb-10">
                             <div>
-                                <h3 className="text-xl font-black text-[#11375d]">Stock Intelligence</h3>
+                                <h3 className="text-xl font-black text-[#0f766e]">Stock Intelligence</h3>
                                 <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Operational Health Status</p>
                             </div>
                             <div className="p-3 bg-orange-50 text-orange-600 rounded-2full">
@@ -262,11 +262,11 @@ function Dashboard() {
                             <div className="grid grid-cols-3 gap-4 pt-6 border-t border-gray-50">
                                 <div className="text-center">
                                     <p className="text-[8px] font-black text-gray-400 uppercase mb-1">Total SKUs</p>
-                                    <p className="text-lg font-black text-[#11375d]">{data.stats.inventory.totalProducts}</p>
+                                    <p className="text-lg font-black text-[#0f766e]">{data.stats.inventory.totalProducts}</p>
                                 </div>
                                 <div className="text-center border-x border-gray-100">
                                     <p className="text-[8px] font-black text-gray-400 uppercase mb-1">Tickets</p>
-                                    <p className="text-lg font-black text-[#11375d]">{data.stats.inventory.totalDeliveryTickets}</p>
+                                    <p className="text-lg font-black text-[#0f766e]">{data.stats.inventory.totalDeliveryTickets}</p>
                                 </div>
                                 <div className="text-center">
                                     <p className="text-[8px] font-black text-orange-600 uppercase mb-1">Wait Alert</p>
@@ -280,7 +280,7 @@ function Dashboard() {
                     <div className="bg-white p-10 rounded-[3rem] shadow-xl border border-gray-100">
                         <div className="flex items-center justify-between mb-10">
                             <div>
-                                <h3 className="text-xl font-black text-[#11375d]">Workforce Pulse</h3>
+                                <h3 className="text-xl font-black text-[#0f766e]">Workforce Pulse</h3>
                                 <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Human Capital Deployment</p>
                             </div>
                             <Users className="text-purple-500" />
@@ -294,11 +294,11 @@ function Dashboard() {
                                     </div>
                                     <div className="w-full h-8 flex rounded-xl overflow-hidden shadow-inner bg-gray-50">
                                         <div className="h-full bg-indigo-500" style={{ width: '75%' }} />
-                                        <div className="h-full bg-red-400" style={{ width: '25%' }} />
+                                        <div className="h-full bg-teal-400" style={{ width: '25%' }} />
                                     </div>
                                     <div className="flex items-center gap-4 mt-2">
                                         <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-indigo-500" /><span className="text-[8px] font-bold text-gray-400 uppercase">Gross</span></div>
-                                        <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-red-400" /><span className="text-[8px] font-bold text-gray-400 uppercase">PF/ESI/TDS</span></div>
+                                        <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-teal-400" /><span className="text-[8px] font-bold text-gray-400 uppercase">PF/ESI/TDS</span></div>
                                     </div>
                                 </div>
                                 <div className="px-6 py-4 bg-indigo-50/50 rounded-2xl border border-indigo-100">
@@ -312,13 +312,13 @@ function Dashboard() {
 
                 {/* LIVE RECORD STREAM */}
                 <section className="pb-20">
-                    <div className="bg-white p-10 rounded-[3rem] shadow-2xl shadow-blue-900/5 border border-gray-100 lg:col-span-2">
+                    <div className="bg-white p-10 rounded-[3rem] shadow-2xl shadow-slate-900/5 border border-gray-100 lg:col-span-2">
                         <div className="flex items-center justify-between mb-10">
                             <div>
-                                <h3 className="text-2xl font-black text-[#11375d]">Live Operations Stream</h3>
+                                <h3 className="text-2xl font-black text-[#0f766e]">Live Operations Stream</h3>
                                 <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Global Record Monitoring</p>
                             </div>
-                            <div className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-full">
+                            <div className="flex items-center gap-2 px-4 py-2 bg-teal-50 text-teal-700 rounded-full">
                                 <Activity size={16} className="animate-pulse" />
                                 <span className="text-[10px] font-black uppercase">Monitoring Live...</span>
                             </div>
@@ -327,7 +327,7 @@ function Dashboard() {
                             {(data.stats.sales.recentActivity || []).map((activity, idx) => (
                                 <div key={idx} className="flex flex-col justify-between p-6 bg-gray-50/50 hover:bg-gray-50 transition-all hover:-translate-y-1 rounded-3xl border border-transparent hover:border-gray-200 group">
                                     <div className="flex items-start justify-between mb-4">
-                                        <div className={`p-3 rounded-2xl ${activity.type.includes('Expense') ? 'bg-red-50 text-red-500' : 'bg-green-50 text-green-500'
+                                        <div className={`p-3 rounded-2xl ${activity.type.includes('Expense') ? 'bg-teal-50 text-teal-500' : 'bg-green-50 text-green-500'
                                             } group-hover:scale-110 transition-transform`}>
                                             {activity.type.includes('Expense') || activity.type.includes('Payment Paid') ? <TrendingDown size={18} /> : <TrendingUp size={18} />}
                                         </div>
@@ -335,8 +335,8 @@ function Dashboard() {
                                     </div>
                                     <div>
                                         <p className="text-[9px] font-black text-gray-400 uppercase tracking-[0.1em] mb-1">{activity.type}</p>
-                                        <p className="text-sm font-black text-[#11375d] line-clamp-1">{activity.desc}</p>
-                                        <p className={`text-lg font-black mt-2 ${activity.type.includes('Expense') || activity.type.includes('Payment Paid') ? 'text-red-500' : 'text-green-500'
+                                        <p className="text-sm font-black text-[#0f766e] line-clamp-1">{activity.desc}</p>
+                                        <p className={`text-lg font-black mt-2 ${activity.type.includes('Expense') || activity.type.includes('Payment Paid') ? 'text-teal-500' : 'text-green-500'
                                             }`}>
                                             QAR {activity.amount?.toLocaleString() || 0}
                                         </p>
@@ -357,7 +357,7 @@ function Dashboard() {
 
 const TrendCard = ({ title, value, label, color, icon }: any) => {
     const themes = {
-        blue: 'text-blue-600 bg-blue-50 border-blue-100',
+        blue: 'text-sky-600 bg-sky-50 border-sky-100',
         indigo: 'text-indigo-600 bg-indigo-50 border-indigo-100',
         purple: 'text-purple-600 bg-purple-50 border-purple-100',
         slate: 'text-slate-600 bg-slate-50 border-slate-100',
@@ -373,7 +373,7 @@ const TrendCard = ({ title, value, label, color, icon }: any) => {
                 </div>
             </div>
             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{title}</p>
-            <h4 className="text-3xl font-black text-[#11375d]">{value || 0}</h4>
+            <h4 className="text-3xl font-black text-[#0f766e]">{value || 0}</h4>
             <p className="text-[9px] font-bold text-gray-400 mt-2 uppercase tracking-tighter">{label}</p>
         </div>
     );
@@ -382,14 +382,14 @@ const TrendCard = ({ title, value, label, color, icon }: any) => {
 const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
         return (
-            <div className="bg-[#11375d] p-4 rounded-2xl shadow-2xl border border-white/10">
-                <p className="text-[10px] font-black text-blue-200 uppercase tracking-widest mb-2">{label}</p>
+            <div className="bg-[#0f766e] p-4 rounded-2xl shadow-2xl border border-white/10">
+                <p className="text-[10px] font-black text-sky-200 uppercase tracking-widest mb-2">{label}</p>
                 <div className="space-y-1">
-                    <p className="text-sm font-bold text-blue-400 flex items-center justify-between gap-6">
+                    <p className="text-sm font-bold text-sky-400 flex items-center justify-between gap-6">
                         <span className="uppercase text-[9px] tracking-tighter">Inflow:</span>
                         QAR {payload[0]?.value?.toLocaleString() || 0}
                     </p>
-                    <p className="text-sm font-bold text-red-400 flex items-center justify-between gap-6">
+                    <p className="text-sm font-bold text-teal-400 flex items-center justify-between gap-6">
                         <span className="uppercase text-[9px] tracking-tighter">Outflow:</span>
                         QAR {payload[1]?.value?.toLocaleString() || 0}
                     </p>

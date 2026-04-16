@@ -79,13 +79,13 @@ const PasswordDrawer: React.FC<PasswordDrawerProps> = ({
         <div className="flex-1 px-6 py-5 space-y-4 overflow-y-auto">
           <div>
             <label className="text-sm font-medium text-gray-700">
-              New Password <span className="text-red-500">*</span>
+              New Password <span className="text-teal-500">*</span>
             </label>
 
             <div
               className={`relative mt-1 rounded-xl bg-gray-50 border transition overflow-hidden ${
                 passwordError
-                  ? 'border-red-500'
+                  ? 'border-teal-500'
                   : 'border-gray-300 hover:border-gray-400'
               }`}
             >
@@ -107,19 +107,19 @@ const PasswordDrawer: React.FC<PasswordDrawerProps> = ({
             </div>
 
             {passwordError && (
-              <p className="text-red-500 text-xs mt-1">{passwordError}</p>
+              <p className="text-teal-500 text-xs mt-1">{passwordError}</p>
             )}
           </div>
 
           <div>
             <label className="text-sm font-medium text-gray-700">
-              Confirm Password <span className="text-red-500">*</span>
+              Confirm Password <span className="text-teal-500">*</span>
             </label>
 
             <div
               className={`relative mt-1 rounded-xl bg-gray-50 border transition overflow-hidden ${
                 confirmError
-                  ? 'border-red-500'
+                  ? 'border-teal-500'
                   : 'border-gray-300 hover:border-gray-400'
               }`}
             >
@@ -141,7 +141,7 @@ const PasswordDrawer: React.FC<PasswordDrawerProps> = ({
             </div>
 
             {confirmError && (
-              <p className="text-red-500 text-xs mt-1">{confirmError}</p>
+              <p className="text-teal-500 text-xs mt-1">{confirmError}</p>
             )}
           </div>
         </div>
@@ -153,7 +153,7 @@ const PasswordDrawer: React.FC<PasswordDrawerProps> = ({
             className={`w-full py-2.5 rounded-xl font-medium text-white transition ${
               loading
                 ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-[#11375d] hover:opacity-90'
+                : 'bg-[#0f766e] hover:opacity-90'
             }`}
           >
             {loading ? 'Saving...' : 'Save Password'}

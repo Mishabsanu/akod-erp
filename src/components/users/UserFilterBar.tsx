@@ -7,7 +7,7 @@ import { getRoleDropdown } from '@/services/roleApi';
 import { FilterChip } from '@/components/shared/FilterChip';
 import { Filter, ToggleLeft, UserCog, XCircle } from 'lucide-react';
 
-const PRIMARY = '#11375d';
+const PRIMARY = '#0f766e';
 
 interface UserFilterBarProps {
   onRoleChange: (role: UserFilter['role']) => void;

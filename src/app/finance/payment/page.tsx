@@ -2,15 +2,15 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { getPayments, deletePayment } from '@/services/financeApi';
-import { Payment, PaymentFilter, Account } from '@/lib/types';
+import { Payment, PaymentFilter } from '@/lib/types';
 import { DataTable, Column } from '@/components/shared/DataTable';
+import ListPageHeader from '@/components/shared/ListPageHeader';
 import { SearchInput } from '@/components/shared/SearchInput';
 import { PaymentFilterBar } from '@/components/finance/PaymentFilterBar';
 import { TableSkeleton } from '@/components/shared/TableSkeleton';
-import { CreditCard, Plus, Filter, MoreVertical, Edit2, Trash2, ArrowDownCircle, ArrowUpCircle } from 'lucide-react';
+import { Plus, Filter, MoreVertical, Edit2, Trash2, ArrowDownCircle, ArrowUpCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { useAuth } from '@/contexts/AuthContext';
 
 export default function PaymentsPage() {
   const [payments, setPayments] = useState<Payment[]>([]);
@@ -22,7 +22,6 @@ export default function PaymentsPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const router = useRouter();
-  const { can } = useAuth();
 
   const [filter, setFilter] = useState<PaymentFilter>({
     search: '',
@@ -58,7 +57,7 @@ export default function PaymentsPage() {
       await deletePayment(id);
       toast.success('Payment record deleted successfully');
       fetchPayments();
-    } catch (error) {
+    } catch {
       toast.error('Failed to delete payment record');
     }
   };
@@ -79,7 +78,7 @@ export default function PaymentsPage() {
         accessor: 'type' as keyof Payment,
         render: (item: Payment) => (
           <div className={`flex items-center gap-2 px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest border ${
-            item.type === 'Received' ? 'bg-green-50 text-green-700 border-green-100' : 'bg-red-50 text-red-700 border-red-100'
+            item.type === 'Received' ? 'bg-green-50 text-green-700 border-green-100' : 'bg-teal-50 text-teal-800 border-teal-100'
           }`}>
             {item.type === 'Received' ? <ArrowDownCircle size={10} /> : <ArrowUpCircle size={10} />}
             {item.type}
@@ -95,14 +94,14 @@ export default function PaymentsPage() {
         header: 'Company', 
         accessor: 'companyName' as keyof Payment,
         render: (item: Payment) => (
-          <span className="text-sm font-semibold text-[#11375d]">{item.companyName || '—'}</span>
+          <span className="text-sm font-semibold text-[#0f766e]">{item.companyName || '—'}</span>
         )
       },
       { 
         header: 'Amount', 
         accessor: 'amount' as keyof Payment,
         render: (item: Payment) => (
-          <span className={`text-sm font-bold ${item.type === 'Received' ? 'text-green-600' : 'text-red-600'}`}>
+          <span className={`text-sm font-bold ${item.type === 'Received' ? 'text-green-600' : 'text-teal-700'}`}>
             {item.type === 'Received' ? '+' : '-'} QAR {item.amount?.toLocaleString(undefined, { minimumFractionDigits: 2 })}
           </span>
         )
@@ -124,7 +123,7 @@ export default function PaymentsPage() {
               e.stopPropagation();
               if (payment._id) toggleActionMenu(payment._id);
             }}
-            className="text-gray-600 hover:text-[#11375d] transition p-1 hover:bg-gray-100 rounded-lg"
+            className="text-gray-600 hover:text-[#0f766e] transition p-1 hover:bg-gray-100 rounded-lg"
           >
             <MoreVertical className="w-5 h-5" />
           </button>
@@ -137,7 +136,7 @@ export default function PaymentsPage() {
                 }}
                 className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
               >
-                <Edit2 className="w-4 h-4 text-[#11375d]" />
+                <Edit2 className="w-4 h-4 text-[#0f766e]" />
                 Edit
               </button>
               <button
@@ -145,7 +144,7 @@ export default function PaymentsPage() {
                   e.stopPropagation();
                   if (payment._id) handleDelete(payment._id);
                 }}
-                className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-[#cc1518] hover:bg-gray-50"
+                className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-[#0f766e] hover:bg-gray-50"
               >
                 <Trash2 className="w-4 h-4" />
                 Delete
@@ -161,31 +160,30 @@ export default function PaymentsPage() {
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white p-6 md:p-10">
-      {/* Header matching Sales module */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
-        <div className="flex items-center gap-3 mb-4 sm:mb-0">
-          <CreditCard className="w-7 h-7 text-red-600" />
-          <h1 className="text-3xl font-semibold text-gray-800">
-            Payment Registry
-          </h1>
-        </div>
-        <div className="flex items-center gap-3">
+      <ListPageHeader
+        eyebrow="Payment Registry"
+        title="Payment"
+        highlight="Registry"
+        description="Review received and paid transactions across accounts."
+        actions={
+          <>
           <button 
             onClick={() => router.push('/finance/payment/add')}
-            className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 px-5 rounded-lg shadow transition-all"
+            className="page-header-button"
           >
             <Plus className="w-4 h-4" />
             Post Payment
           </button>
           <button 
             onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2.5 px-5 rounded-lg shadow transition-all"
+            className="page-header-button secondary"
           >
             <Filter size={18} />
             {showFilters ? 'Hide Filters' : 'Show Filters'}
           </button>
-        </div>
-      </div>
+          </>
+        }
+      />
 
       {/* Persistent Filters Section */}
       <div className={showFilters ? 'block mb-6' : 'hidden'}>
@@ -233,5 +231,3 @@ export default function PaymentsPage() {
     </div>
   );
 }
-
-

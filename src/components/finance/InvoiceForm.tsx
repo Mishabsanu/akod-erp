@@ -94,9 +94,9 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ initialData, onSubmit, onCanc
       <div className="flex items-center justify-between mb-8 border-b border-gray-200 pb-4">
         <div className="flex items-center gap-3">
           {isEditMode ? (
-            <Edit3 className="text-red-600 w-6 h-6" />
+            <Edit3 className="text-teal-700 w-6 h-6" />
           ) : (
-            <PlusCircle className="text-red-600 w-6 h-6" />
+            <PlusCircle className="text-teal-700 w-6 h-6" />
           )}
           <h2 className="text-2xl font-semibold text-gray-800">
             {isEditMode ? 'Edit Invoice' : 'Create New Invoice'}
@@ -136,7 +136,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ initialData, onSubmit, onCanc
           <Section title="Invoice Line Items">
              <div className="bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm">
                 <div className="p-0 overflow-x-auto">
-                   <table className="w-full text-left border-collapse">
+                   <table className="akod-table text-left">
                     <thead>
                       <tr className="bg-gray-50/50">
                         <th className="px-6 py-5 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Description / SKU</th>
@@ -221,7 +221,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ initialData, onSubmit, onCanc
                                  </div>
                               </td>
                               <td className="px-6 py-4">
-                                 <span className="text-sm font-bold text-red-600">
+                                 <span className="text-sm font-bold text-teal-700">
                                    QAR {item.total?.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                  </span>
                               </td>
@@ -229,7 +229,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ initialData, onSubmit, onCanc
                                 <button
                                   type="button"
                                   onClick={() => arrayHelpers.remove(index)}
-                                  className="text-gray-300 hover:text-red-600 transition-all opacity-0 group-hover:opacity-100"
+                                  className="text-gray-300 hover:text-teal-700 transition-all opacity-0 group-hover:opacity-100"
                                 >
                                   <Trash2 size={16} />
                                 </button>
@@ -243,7 +243,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ initialData, onSubmit, onCanc
                                   onClick={() => arrayHelpers.push({ 
                                     productId: '', name: '', quantity: 1, unitPrice: 0, taxPercentage: 0, taxAmount: 0, total: 0 
                                   })}
-                                  className="flex items-center gap-2 text-xs font-bold text-[#11375d] hover:text-red-600 transition-all uppercase tracking-widest"
+                                  className="flex items-center gap-2 text-xs font-bold text-[#0f766e] hover:text-teal-700 transition-all uppercase tracking-widest"
                                >
                                   <PlusCircle size={16} /> Add Product Row
                                </button>
@@ -278,7 +278,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ initialData, onSubmit, onCanc
                 </div>
                 <div className="flex justify-between items-center pt-2">
                   <span className="text-sm font-bold text-gray-800 uppercase tracking-widest">Grand Total</span>
-                  <span className="text-3xl font-bold text-red-600 tracking-tighter">
+                  <span className="text-3xl font-bold text-teal-700 tracking-tighter">
                      QAR {calculateTotals(formik.values.items).totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                   </span>
                 </div>
@@ -296,10 +296,10 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ initialData, onSubmit, onCanc
             <button
               type="submit"
               disabled={formik.isSubmitting || isLoading}
-              className={`px-10 py-2.5 rounded-xl text-white font-bold shadow-lg shadow-red-600/10 transition-all active:scale-95 flex items-center gap-2 ${
+              className={`px-10 py-2.5 rounded-xl text-white font-bold shadow-lg shadow-teal-700/10 transition-all active:scale-95 flex items-center gap-2 ${
                 formik.isSubmitting || isLoading
                   ? 'bg-gray-400 cursor-not-allowed'
-                  : 'bg-red-600 hover:bg-red-700'
+                  : 'bg-teal-700 hover:bg-teal-800'
               }`}
             >
               <Receipt size={18} />

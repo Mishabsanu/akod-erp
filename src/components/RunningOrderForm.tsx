@@ -81,13 +81,13 @@ const RunningOrderForm: React.FC<RunningOrderFormProps> = ({
             
             {/* Header Card */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10 overflow-hidden relative">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-[#cc1518]/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl pointer-events-none"></div>
+                <div className="absolute top-0 right-0 w-64 h-64 bg-[#0f766e]/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl pointer-events-none"></div>
                 <div className="flex items-center gap-6 relative z-10">
-                    <div className="w-16 h-16 rounded-2xl bg-[#11375d] flex items-center justify-center text-white shadow-lg rotate-3">
+                    <div className="w-16 h-16 rounded-2xl bg-[#0f766e] flex items-center justify-center text-white shadow-lg rotate-3">
                         <Truck size={32} />
                     </div>
                     <div>
-                        <h1 className="text-3xl font-black text-[#11375d] tracking-tight">
+                        <h1 className="text-3xl font-black text-[#0f766e] tracking-tight">
                             {isEditMode ? 'Edit Tracking' : 'New Order Tracking'}
                         </h1>
                         <p className="text-gray-400 font-medium text-sm mt-1">Manage manufacturing & delivery timelines</p>
@@ -101,7 +101,7 @@ const RunningOrderForm: React.FC<RunningOrderFormProps> = ({
                     <button
                         onClick={() => formik.handleSubmit()}
                         disabled={isLoading}
-                        className="px-8 py-3 rounded-xl bg-[#cc1518] text-white font-bold shadow-lg shadow-[#cc1518]/20 hover:bg-[#b01215] transition-all active:scale-95 disabled:opacity-50 text-sm flex items-center gap-2"
+                        className="px-8 py-3 rounded-xl bg-[#0f766e] text-white font-bold shadow-lg shadow-[#0f766e]/20 hover:bg-[#134e4a] transition-all active:scale-95 disabled:opacity-50 text-sm flex items-center gap-2"
                     >
                         {isLoading ? 'Saving...' : isEditMode ? 'Update Record' : 'Create Record'}
                         {!isLoading && <ArrowRight size={16} />}
@@ -114,7 +114,7 @@ const RunningOrderForm: React.FC<RunningOrderFormProps> = ({
                 {/* General Info */}
                 <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-10 overflow-hidden">
                     <h2 className="text-xs font-black text-gray-300 uppercase tracking-[0.2em] mb-10 flex items-center gap-2">
-                        <Briefcase size={14} className="text-[#cc1518]" />
+                        <Briefcase size={14} className="text-[#0f766e]" />
                         Client & Assignment
                     </h2>
                     
@@ -161,7 +161,7 @@ const RunningOrderForm: React.FC<RunningOrderFormProps> = ({
                 {/* Logistics & Timelines */}
                 <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm p-10 overflow-hidden">
                     <h2 className="text-xs font-black text-gray-300 uppercase tracking-[0.2em] mb-10 flex items-center gap-2">
-                        <Calendar size={14} className="text-[#cc1518]" />
+                        <Calendar size={14} className="text-[#0f766e]" />
                         Logistics & Timelines
                     </h2>
                     
@@ -197,7 +197,7 @@ const RunningOrderForm: React.FC<RunningOrderFormProps> = ({
                 {/* Financial Tracking */}
                 <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm p-10 overflow-hidden">
                     <h2 className="text-xs font-black text-gray-300 uppercase tracking-[0.2em] mb-10 flex items-center gap-2">
-                        <IndianRupee size={14} className="text-[#cc1518]" />
+                        <IndianRupee size={14} className="text-[#0f766e]" />
                         Financial Tracking
                     </h2>
                     
@@ -205,8 +205,8 @@ const RunningOrderForm: React.FC<RunningOrderFormProps> = ({
                          <div className="space-y-4">
                             <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Currency</label>
                             <div className="flex bg-[#f9fafb] rounded-2xl p-1 border-2 border-[#f9fafb]">
-                                <button type="button" onClick={() => formik.setFieldValue('currency', 'INR')} className={`flex-1 py-3 rounded-xl text-xs font-black transition-all ${formik.values.currency === 'INR' ? 'bg-[#11375d] text-white shadow-md' : 'text-gray-400'}`}>INR (₹)</button>
-                                <button type="button" onClick={() => formik.setFieldValue('currency', 'USD')} className={`flex-1 py-3 rounded-xl text-xs font-black transition-all ${formik.values.currency === 'USD' ? 'bg-[#cc1518] text-white shadow-md' : 'text-gray-400'}`}>USD ($)</button>
+                                <button type="button" onClick={() => formik.setFieldValue('currency', 'INR')} className={`flex-1 py-3 rounded-xl text-xs font-black transition-all ${formik.values.currency === 'INR' ? 'bg-[#0f766e] text-white shadow-md' : 'text-gray-400'}`}>INR (₹)</button>
+                                <button type="button" onClick={() => formik.setFieldValue('currency', 'USD')} className={`flex-1 py-3 rounded-xl text-xs font-black transition-all ${formik.values.currency === 'USD' ? 'bg-[#0f766e] text-white shadow-md' : 'text-gray-400'}`}>USD ($)</button>
                             </div>
                         </div>
 
@@ -233,14 +233,14 @@ const RunningOrderForm: React.FC<RunningOrderFormProps> = ({
                     <div className="mt-8 pt-8 border-t border-gray-50 flex flex-col md:flex-row items-center justify-between gap-6">
                         <div>
                              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Calculated Balance Due</p>
-                             <p className={`text-4xl font-black tracking-tighter ${balanceDue > 0 ? 'text-[#cc1518]' : 'text-emerald-500'}`}>
+                             <p className={`text-4xl font-black tracking-tighter ${balanceDue > 0 ? 'text-[#0f766e]' : 'text-emerald-500'}`}>
                                 {formik.values.currency === 'USD' ? '$' : '₹'}{balanceDue.toLocaleString()}
                              </p>
                         </div>
                         
                         <div className="flex-1 w-full md:w-auto">
                             <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 flex items-center gap-2 mb-2">
-                                <Info size={12} className="text-[#11375d]" />
+                                <Info size={12} className="text-[#0f766e]" />
                                 Remarks / Notes
                             </label>
                             <textarea
@@ -248,7 +248,7 @@ const RunningOrderForm: React.FC<RunningOrderFormProps> = ({
                                 value={formik.values.remarks}
                                 onChange={formik.handleChange}
                                 placeholder="Any additional details..."
-                                className="w-full h-24 px-5 py-4 bg-[#f9fafb] border-2 border-[#f9fafb] rounded-2xl text-[#11375d] font-bold transition-all outline-none focus:bg-white focus:border-[#11375d] focus:shadow-md resize-none"
+                                className="w-full h-24 px-5 py-4 bg-[#f9fafb] border-2 border-[#f9fafb] rounded-2xl text-[#0f766e] font-bold transition-all outline-none focus:bg-white focus:border-[#0f766e] focus:shadow-md resize-none"
                             />
                         </div>
                     </div>
@@ -263,7 +263,7 @@ const RunningOrderForm: React.FC<RunningOrderFormProps> = ({
                                 key={st}
                                 type="button"
                                 onClick={() => formik.setFieldValue('status', st)}
-                                className={`px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border-2 ${formik.values.status === st ? 'bg-[#11375d] text-white border-[#11375d] shadow-lg shadow-[#11375d]/20' : 'bg-white text-gray-400 border-gray-100 hover:border-gray-200'}`}
+                                className={`px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border-2 ${formik.values.status === st ? 'bg-[#0f766e] text-white border-[#0f766e] shadow-lg shadow-[#0f766e]/20' : 'bg-white text-gray-400 border-gray-100 hover:border-gray-200'}`}
                             >
                                 {st}
                             </button>
@@ -279,7 +279,7 @@ const RunningOrderForm: React.FC<RunningOrderFormProps> = ({
 const InputField: React.FC<{ label: string; name: string; value: any; onChange: any; placeholder?: string; required?: boolean; error?: any; type?: string; icon?: any }> = ({ label, name, value, onChange, placeholder, error, type = 'text', icon: Icon }) => (
     <div className="space-y-4">
         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 flex items-center gap-2">
-            {Icon && <Icon size={12} className="text-[#cc1518]" />}
+            {Icon && <Icon size={12} className="text-[#0f766e]" />}
             {label}
         </label>
         <div className="relative group">
@@ -289,11 +289,11 @@ const InputField: React.FC<{ label: string; name: string; value: any; onChange: 
                 value={value}
                 onChange={onChange}
                 placeholder={placeholder}
-                className={`w-full h-[56px] px-5 py-4 bg-[#f9fafb] border-2 rounded-2xl text-[#11375d] font-bold transition-all outline-none 
-                            ${error ? 'border-red-100 bg-red-50/5 focus:border-[#cc1518]' : 'border-[#f9fafb] focus:bg-white focus:border-[#11375d] focus:shadow-md'}`}
+                className={`w-full h-[56px] px-5 py-4 bg-[#f9fafb] border-2 rounded-2xl text-[#0f766e] font-bold transition-all outline-none 
+                            ${error ? 'border-teal-100 bg-teal-50/5 focus:border-[#0f766e]' : 'border-[#f9fafb] focus:bg-white focus:border-[#0f766e] focus:shadow-md'}`}
             />
         </div>
-        {error && <p className="text-[#cc1518] text-[9px] font-black mt-1 ml-1 uppercase">{error}</p>}
+        {error && <p className="text-[#0f766e] text-[9px] font-black mt-1 ml-1 uppercase">{error}</p>}
     </div>
 );
 

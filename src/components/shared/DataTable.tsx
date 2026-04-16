@@ -29,7 +29,7 @@ interface DataTableProps<T> {
   onLimitChange?: (limit: number) => void;
 }
 
-export function DataTable<T extends { _id?: string; [key: string]: any }>({
+export function DataTable<T extends { _id?: string } & Record<string, unknown>>({
   columns,
   data,
   onRowClick,
@@ -83,18 +83,14 @@ export function DataTable<T extends { _id?: string; [key: string]: any }>({
 
 
   return (
-    <div className="bg-white shadow-md rounded-lg border border-gray-200">
-      <div className="overflow-x-auto">
-        <table className="min-w-full">
+    <div className="akod-table-shell animate-fade-in">
+      <div className="akod-table-scroll">
+        <table className="akod-table">
           <thead>
-            <tr
-              className="text-white text-sm uppercase tracking-wider"
-              style={{ backgroundColor: '#11375d' }}
-            >
+            <tr>
               {columns.map((col) => (
                 <th
                   key={String(col.accessor)}
-                  className="py-3 px-4 text-left font-semibold"
                 >
                   {col.header}
                 </th>
@@ -106,7 +102,7 @@ export function DataTable<T extends { _id?: string; [key: string]: any }>({
               <tr>
                 <td
                   colSpan={columns.length}
-                  className="py-10 text-center text-gray-500 text-sm italic"
+                  className="akod-table-empty"
                 >
                   No data found.
                 </td>
@@ -116,18 +112,15 @@ export function DataTable<T extends { _id?: string; [key: string]: any }>({
                 <tr
                   key={item._id || index}
                   onClick={() => onRowClick && onRowClick(item)}
-                  className={`border-b hover:bg-gray-50 transition-all duration-150 ${
-                    onRowClick ? 'cursor-pointer' : ''
-                  }`}
+                  className={onRowClick ? 'cursor-pointer' : ''}
                 >
                   {columns.map((col) => (
                     <td
                       key={String(col.accessor)}
-                      className="px-4 py-3 text-gray-700"
                     >
                       {col.render
                         ? col.render(item)
-                        : (item[col.accessor] as any)}
+                        : (item[col.accessor] as React.ReactNode)}
                     </td>
                   ))}
                 </tr>
@@ -138,13 +131,12 @@ export function DataTable<T extends { _id?: string; [key: string]: any }>({
       </div>
 
       {/* Pagination Controls */}
-      <div className="flex justify-between items-center gap-3 px-6 py-4">
-        <div className="text-sm text-gray-600">
+      <div className="akod-table-footer">
+        <div className="akod-table-footer-text">
           {displayTotalCount > 0 ? (
             <>
-              Showing <span className="font-semibold">{displayFrom}</span> to{' '}
-              <span className="font-semibold">{displayTo}</span> of{' '}
-              <span className="font-semibold">{displayTotalCount}</span> entries
+              Catalog results <strong>{displayFrom}-{displayTo}</strong> of{' '}
+              <strong>{displayTotalCount}</strong>
             </>
           ) : (
             'No entries'
@@ -153,14 +145,14 @@ export function DataTable<T extends { _id?: string; [key: string]: any }>({
 
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
-            <label htmlFor="limit-select" className="text-sm text-gray-600">
-              Rows per page:
+            <label htmlFor="limit-select" className="akod-table-footer-label">
+              Rows displayed
             </label>
             <select
               id="limit-select"
               value={actualLimit}
               onChange={(e) => handleLimitChange(Number(e.target.value))}
-              className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500"
+              className="akod-table-select"
             >
               <option value={10}>10</option>
               <option value={25}>25</option>
@@ -173,33 +165,33 @@ export function DataTable<T extends { _id?: string; [key: string]: any }>({
             <button
               onClick={() => handlePageChange(1)}
               disabled={actualPage === 1}
-              className="p-2 rounded-md text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
+              className="akod-page-button"
             >
               <ChevronsLeft className="w-5 h-5" />
             </button>
             <button
               onClick={() => handlePageChange(actualPage - 1)}
               disabled={actualPage === 1}
-              className="p-2 rounded-md text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
+              className="akod-page-button"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
 
-            <span className="text-sm text-gray-700">
+            <span className="akod-page-current">
               Page {actualPage || 0} of {displayTotalPages || 0}
             </span>
 
             <button
               onClick={() => handlePageChange(actualPage + 1)}
               disabled={actualPage === displayTotalPages || displayTotalPages === 0}
-              className="p-2 rounded-md text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
+              className="akod-page-button"
             >
               <ChevronRight className="w-5 h-5" />
             </button>
             <button
               onClick={() => handlePageChange(displayTotalPages)}
               disabled={actualPage === displayTotalPages || displayTotalPages === 0}
-              className="p-2 rounded-md text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
+              className="akod-page-button"
             >
               <ChevronsRight className="w-5 h-5" />
             </button>

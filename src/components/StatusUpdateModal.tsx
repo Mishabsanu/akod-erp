@@ -58,7 +58,7 @@ export default function StatusUpdateModal({ sale, onClose, onUpdated }: any) {
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50 p-4">
       <div className="bg-white w-full max-w-md rounded-2xl shadow-xl p-6">
         <h2 className="text-xl font-semibold text-gray-800 mb-6 flex items-center gap-2">
-          <TrendingUp className="w-5 h-5 text-[#cc1518]" />
+          <TrendingUp className="w-5 h-5 text-[#0f766e]" />
           Update Follow-Up
         </h2>
 
@@ -66,7 +66,7 @@ export default function StatusUpdateModal({ sale, onClose, onUpdated }: any) {
         <div className="space-y-1 mb-4">
           <label className="text-sm font-medium text-gray-700">Status</label>
           <select
-            className="w-full border px-3 py-2 rounded-lg focus:ring-2 focus:ring-[#cc1518]/10 focus:border-[#cc1518] outline-none"
+            className="w-full border px-3 py-2 rounded-lg focus:ring-2 focus:ring-[#0f766e]/10 focus:border-[#0f766e] outline-none"
             value={status}
             onChange={(e) => setStatus(e.target.value)}
           >
@@ -87,7 +87,7 @@ export default function StatusUpdateModal({ sale, onClose, onUpdated }: any) {
             type="date"
             value={nextFollowUpDate}
             onChange={(e) => setNextFollowUpDate(e.target.value)}
-            className="w-full border px-3 py-2 rounded-lg focus:ring-2 focus:ring-[#cc1518]/10 focus:border-[#cc1518] outline-none"
+            className="w-full border px-3 py-2 rounded-lg focus:ring-2 focus:ring-[#0f766e]/10 focus:border-[#0f766e] outline-none"
             min={new Date().toISOString().split("T")[0]}
           />
         </div>
@@ -99,7 +99,7 @@ export default function StatusUpdateModal({ sale, onClose, onUpdated }: any) {
             rows={3}
             value={remarks}
             onChange={(e) => setRemarks(e.target.value)}
-            className="w-full border px-3 py-2 rounded-lg focus:ring-2 focus:ring-[#cc1518]/10 focus:border-[#cc1518] outline-none"
+            className="w-full border px-3 py-2 rounded-lg focus:ring-2 focus:ring-[#0f766e]/10 focus:border-[#0f766e] outline-none"
             placeholder="Write notes..."
           ></textarea>
         </div>
@@ -114,7 +114,7 @@ export default function StatusUpdateModal({ sale, onClose, onUpdated }: any) {
           </button>
           <button
             onClick={handleSubmit}
-            className="px-4 py-2 bg-[#11375d] text-white rounded-lg hover:bg-[#0a2339] shadow-md transition-all active:scale-95"
+            className="px-4 py-2 bg-[#0f766e] text-white rounded-lg hover:bg-[#134e4a] shadow-md transition-all active:scale-95"
           >
             Save
           </button>

@@ -4,15 +4,13 @@ import { useState } from 'react';
 import AttendanceStats from '@/components/AttendanceStats';
 import AttendanceLogSection from '@/components/AttendanceLogSection';
 import AdminAttendanceDashboard from '@/components/AdminAttendanceDashboard';
+import ListPageHeader from '@/components/shared/ListPageHeader';
 import withAuth from '@/components/withAuth';
 import { useAuth } from '@/contexts/AuthContext';
-import { LayoutGrid, RefreshCw,
-    Users,
-    UserCheck
-} from 'lucide-react';
+import { LayoutGrid, UserCheck } from 'lucide-react';
 
 function AttendancePage() {
-    const { user, can } = useAuth();
+    const { user } = useAuth();
     const [view, setView] = useState<'my' | 'admin'>('my');
 
     // Only allow admin view if user has permission
@@ -20,45 +18,30 @@ function AttendancePage() {
 
     return (
         <div className="min-h-screen w-full p-6 md:p-10 bg-[#f8f9fc]">
-            {/* Header Area */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-10">
-                <div className="flex items-center gap-4">
-                    <div className="w-[5px] h-12 bg-[#cc1518] rounded-full shadow-sm" />
-                    <div>
-                        <h1 className="text-4xl font-extrabold text-[#11375d] tracking-tight">
-                            {view === 'my' ? 'My Attendance' : 'Team Report'}
-                        </h1>
-                        <p className="text-gray-400 font-medium text-sm mt-1">
-                            {view === 'my' ? 'Manage your daily logs and requests' : 'Overview of staff presence and activity'}
-                        </p>
-                    </div>
-                </div>
-
-                {canViewAll && (
-                    <div className="flex p-1.5 bg-white border border-gray-100 rounded-xl shadow-sm self-start md:self-auto ring-1 ring-black/5">
+            <ListPageHeader
+                eyebrow="Attendance Control"
+                title={view === 'my' ? 'My' : 'Team'}
+                highlight={view === 'my' ? 'Attendance' : 'Report'}
+                description={view === 'my' ? 'Manage your daily logs and requests.' : 'Overview of staff presence and activity.'}
+                actions={canViewAll && (
+                    <>
                         <button
                             onClick={() => setView('my')}
-                            className={`flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-black tracking-tight transition-all duration-300 ${view === 'my'
-                                ? 'bg-[#11375d] text-white shadow-lg'
-                                : 'text-gray-400 hover:text-gray-600'
-                                }`}
+                            className={`page-header-button ${view === 'my' ? '' : 'secondary'}`}
                         >
-                            <UserCheck size={18} />
+                            <UserCheck className="w-4 h-4" />
                             My Space
                         </button>
                         <button
                             onClick={() => setView('admin')}
-                            className={`flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-black tracking-tight transition-all duration-300 ${view === 'admin'
-                                ? 'bg-[#11375d] text-white shadow-lg'
-                                : 'text-gray-400 hover:text-gray-600'
-                                }`}
+                            className={`page-header-button ${view === 'admin' ? '' : 'secondary'}`}
                         >
-                            <LayoutGrid size={18} />
+                            <LayoutGrid className="w-4 h-4" />
                             Team Report
                         </button>
-                    </div>
+                    </>
                 )}
-            </div>
+            />
 
             <div className="relative">
                 {view === 'my' ? (

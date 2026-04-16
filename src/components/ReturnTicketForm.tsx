@@ -402,7 +402,7 @@ const ReturnTicketForm = ({
     <div className="w-full min-h-[calc(100vh-4rem)] bg-gray-50 px-8 py-6 rounded-lg">
       <div className="flex items-center justify-between mb-8 border-b border-gray-200 pb-4">
         <div className="flex items-center gap-3">
-          <FilePlus className="text-red-600 w-6 h-6" />
+          <FilePlus className="text-teal-700 w-6 h-6" />
           <h2 className="text-2xl font-semibold text-gray-800">
             {isEditMode ? 'Edit Return Ticket' : 'Add Return Ticket'}
           </h2>
@@ -487,8 +487,8 @@ const ReturnTicketForm = ({
             <FieldArray name="items">
               {({ push, remove }) => (
                 <div className="overflow-x-auto">
-                  <table className="w-full border border-gray-300 rounded-lg text-sm">
-                    <thead className="bg-gray-100">
+                  <table className="akod-table">
+                    <thead>
                       <tr>
                         <th className="p-2 border border-gray-200">S.No</th>
                         <th className="p-2 border border-gray-200">Product</th>
@@ -548,13 +548,13 @@ const ReturnTicketForm = ({
                                 readOnly
                               />
                             </td>
-                            <td className="p-2 border border-gray-200 bg-blue-50">
+                            <td className="p-2 border border-gray-200 bg-sky-50">
                               <FormikInput
                                 label=""
                                 name={`items.${idx}.totalReturnedQty`}
                                 type="number"
                                 readOnly
-                                className="text-blue-700 font-semibold text-center"
+                                className="text-sky-700 font-semibold text-center"
                               />
                             </td>
 
@@ -651,7 +651,7 @@ const ReturnTicketForm = ({
               disabled={isLoading || formik.isSubmitting}
               className={`px-6 py-2.5 rounded-lg text-white font-semibold shadow-sm transition ${isLoading || formik.isSubmitting
                 ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-blue-600 hover:bg-blue-700'
+                : 'bg-sky-600 hover:bg-sky-700'
                 }`}
             >
               Preview Return Ticket
