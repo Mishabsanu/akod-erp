@@ -29,7 +29,7 @@ interface DataTableProps<T> {
   onLimitChange?: (limit: number) => void;
 }
 
-export function DataTable<T extends { _id?: string } & Record<string, unknown>>({
+export function DataTable<T extends { _id?: string }>({
   columns,
   data,
   onRowClick,

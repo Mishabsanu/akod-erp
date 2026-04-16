@@ -99,7 +99,7 @@ const NewTable = <T extends { _id?: string } & Record<string, unknown>>({
                   >
                     {col.render
                       ? col.render(item)
-                      : item[col.accessor] ?? '-'}
+                      : (item[col.accessor] as React.ReactNode) ?? '-'}
                   </td>
                 ))}
               </tr>
