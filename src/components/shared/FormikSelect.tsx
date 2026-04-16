@@ -27,7 +27,7 @@ export const FormikSelect: React.FC<FormikSelectProps> = ({
     <div className="mb-4">
       <Label htmlFor={name} className="mb-1 block text-sm font-medium">
         {label}
-        {required && <span className="text-teal-500 ml-1">*</span>}
+        {required && <span className="text-red-500 ml-1">*</span>}
       </Label>
 
       <Select
@@ -41,7 +41,7 @@ export const FormikSelect: React.FC<FormikSelectProps> = ({
     px-3
     ${
       meta.touched && meta.error
-        ? 'border-teal-500 focus:border-teal-500 focus:ring-teal-500'
+        ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
         : ''
     }
   `}
@@ -55,7 +55,7 @@ export const FormikSelect: React.FC<FormikSelectProps> = ({
       </Select>
 
       {meta.touched && meta.error && (
-        <div className="mt-1 text-xs text-teal-500">{meta.error}</div>
+        <div className="mt-1 text-xs text-red-600">{meta.error}</div>
       )}
     </div>
   );

@@ -239,14 +239,14 @@ const InventoryForm: React.FC<InventoryFormProps> = ({
                     >
                       <th className="py-3 px-4 text-center w-12">#</th>
                       <th className="w-[260px] py-2 px-3 text-left">
-                        Product <span className="text-teal-500">*</span>
+                        Product <span className="text-red-500">*</span>
                       </th>
                       <th className="w-[160px] py-2 px-3 text-left">
                         Item Code
                       </th>
                       <th className="w-[100px] py-2 px-3 text-left">Unit</th>
                       <th className="w-[120px] py-2 px-3 text-right">
-                        Stock <span className="text-teal-500">*</span>
+                        Stock <span className="text-red-500">*</span>
                       </th>
                       {!isEditMode && (
                         <th className="w-[70px] py-2 px-2 text-center">

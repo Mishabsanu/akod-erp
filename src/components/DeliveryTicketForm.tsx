@@ -403,17 +403,17 @@ const DeliveryTicketForm = ({
                       <tr>
                         <th className="p-2 border border-gray-200">S.No</th>
                         <th className="p-2 border border-gray-200 min-w-[250px]">
-                          Product <span className="text-teal-500">*</span>
+                          Product <span className="text-red-500">*</span>
                         </th>
                         <th className="p-2 border border-gray-200 min-w-[120px]">
-                          Item Code <span className="text-teal-500">*</span>
+                          Item Code <span className="text-red-500">*</span>
                         </th>
-                        <th className="p-2 border border-gray-200 min-w-[80px]">Unit <span className="text-teal-500">*</span></th>
+                        <th className="p-2 border border-gray-200 min-w-[80px]">Unit <span className="text-red-500">*</span></th>
                         <th className="p-2 border border-gray-200 min-w-[100px]">
-                          Required Qty <span className="text-teal-500">*</span>
+                          Required Qty <span className="text-red-500">*</span>
                         </th>
                         <th className="p-2 border border-gray-200 min-w-[120px]">
-                          Delivery Qty <span className="text-teal-500">*</span>
+                          Delivery Qty <span className="text-red-500">*</span>
                         </th>
                         <th className="p-2 border border-gray-200 min-w-[200px]">
                           Description
@@ -496,7 +496,7 @@ const DeliveryTicketForm = ({
 
                                 {/* Validation */}
                                 {item.quantity > availableQty && (
-                                  <div className="flex items-center gap-1 text-xs text-teal-700">
+                                  <div className="flex items-center gap-1 text-xs text-red-600">
                                     ⚠ Qty exceeds stock
                                   </div>
                                 )}

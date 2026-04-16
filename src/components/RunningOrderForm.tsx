@@ -290,10 +290,10 @@ const InputField: React.FC<{ label: string; name: string; value: any; onChange: 
                 onChange={onChange}
                 placeholder={placeholder}
                 className={`w-full h-[56px] px-5 py-4 bg-[#f9fafb] border-2 rounded-2xl text-[#0f766e] font-bold transition-all outline-none 
-                            ${error ? 'border-teal-100 bg-teal-50/5 focus:border-[#0f766e]' : 'border-[#f9fafb] focus:bg-white focus:border-[#0f766e] focus:shadow-md'}`}
+                            ${error ? 'border-red-100 bg-red-50/5 focus:border-red-500 text-red-600' : 'border-[#f9fafb] focus:bg-white focus:border-[#0f766e] focus:shadow-md'}`}
             />
         </div>
-        {error && <p className="text-[#0f766e] text-[9px] font-black mt-1 ml-1 uppercase">{error}</p>}
+        {error && <p className="text-red-600 text-[9px] font-black mt-1 ml-1 uppercase">{error}</p>}
     </div>
 );
 

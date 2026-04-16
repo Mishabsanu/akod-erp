@@ -282,7 +282,7 @@ const QuoteTrackForm: React.FC<any> = ({
                 <thead>
                   <tr className="text-[11px] font-black uppercase tracking-widest text-center">
                     <th className="p-3 border-r border-gray-100 w-12 text-center">S.No</th>
-                    <th className="p-3 border-r border-gray-100 min-w-[220px] text-left">Product <span className="text-teal-500">*</span></th>
+                    <th className="p-3 border-r border-gray-100 min-w-[220px] text-left">Product <span className="text-red-500">*</span></th>
                     <th className="p-3 border-r border-gray-100 w-24 text-center">WT (kg)</th>
                     <th className="p-3 border-r border-gray-100 w-24 text-center">Qty</th>
                     <th className="p-3 border-r border-gray-100 w-32 text-center">Base Rate ({formik.values.currency})</th>

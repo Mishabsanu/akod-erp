@@ -85,7 +85,7 @@ const PasswordDrawer: React.FC<PasswordDrawerProps> = ({
             <div
               className={`relative mt-1 rounded-xl bg-gray-50 border transition overflow-hidden ${
                 passwordError
-                  ? 'border-teal-500'
+                  ? 'border-red-500'
                   : 'border-gray-300 hover:border-gray-400'
               }`}
             >
@@ -107,7 +107,7 @@ const PasswordDrawer: React.FC<PasswordDrawerProps> = ({
             </div>
 
             {passwordError && (
-              <p className="text-teal-500 text-xs mt-1">{passwordError}</p>
+              <p className="text-red-600 text-xs mt-1">{passwordError}</p>
             )}
           </div>
 
@@ -119,7 +119,7 @@ const PasswordDrawer: React.FC<PasswordDrawerProps> = ({
             <div
               className={`relative mt-1 rounded-xl bg-gray-50 border transition overflow-hidden ${
                 confirmError
-                  ? 'border-teal-500'
+                  ? 'border-red-500'
                   : 'border-gray-300 hover:border-gray-400'
               }`}
             >
@@ -141,7 +141,7 @@ const PasswordDrawer: React.FC<PasswordDrawerProps> = ({
             </div>
 
             {confirmError && (
-              <p className="text-teal-500 text-xs mt-1">{confirmError}</p>
+              <p className="text-red-600 text-xs mt-1">{confirmError}</p>
             )}
           </div>
         </div>
