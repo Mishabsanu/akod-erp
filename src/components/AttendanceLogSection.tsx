@@ -130,7 +130,7 @@ export default function AttendanceLogSection() {
             accessor: 'date',
             header: 'Date',
             render: (row) => (
-                <span className="font-black text-gray-800 text-[14px] tracking-tight">
+                <span className="font-bold text-gray-800 tracking-tight">
                     {format(parseSafeDate(row.date)!, 'd MMM yyyy')}
                 </span>
             )
@@ -139,7 +139,7 @@ export default function AttendanceLogSection() {
             accessor: 'type',
             header: 'Type',
             render: (row) => (
-                <div className="text-gray-500 font-bold text-[12px] text-center uppercase tracking-tighter bg-gray-50 px-3 py-1 rounded-md border border-gray-100 inline-block w-full">
+                <div className="text-gray-500 font-bold text-xs text-center uppercase tracking-tighter bg-gray-50 px-3 py-1 rounded-md border border-gray-100 inline-block w-full">
                     {row.type}
                 </div>
             )
@@ -149,8 +149,8 @@ export default function AttendanceLogSection() {
             header: 'Requested On',
             render: (row) => (
                 <div className="flex flex-col gap-0.5">
-                    <span className="text-gray-800 font-bold text-[13px] tracking-tight">{format(parseSafeDate(row.requestedOn)!, 'd MMM yyyy')}</span>
-                    <span className="text-[10px] text-gray-400 font-black uppercase tracking-tighter">by {row.user?.name || 'Self'}</span>
+                    <span className="text-gray-800 font-bold tracking-tight">{format(parseSafeDate(row.requestedOn)!, 'd MMM yyyy')}</span>
+                    <span className="text-[11px] text-gray-400 font-black uppercase tracking-tighter">by {row.user?.name || 'Self'}</span>
                 </div>
             )
         },
@@ -158,7 +158,7 @@ export default function AttendanceLogSection() {
             accessor: 'note',
             header: 'Note',
             render: (row) => (
-                <div className="text-gray-500 text-[12px] leading-relaxed max-w-[200px] line-clamp-2 font-medium italic opacity-80">
+                <div className="text-gray-500 text-sm leading-relaxed max-w-[200px] line-clamp-2 font-medium italic opacity-80">
                     "{row.note}"
                 </div>
             )
@@ -167,7 +167,7 @@ export default function AttendanceLogSection() {
             accessor: 'status',
             header: 'Status',
             render: (row) => (
-                <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border shadow-sm ${row.status === 'Approved' ? 'bg-green-50 text-green-600 border-green-100' :
+                <span className={`px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-widest border shadow-sm ${row.status === 'Approved' ? 'bg-green-50 text-green-600 border-green-100' :
                     row.status === 'Rejected' ? 'bg-teal-50 text-teal-500 border-teal-100' :
                         'bg-yellow-50 text-yellow-600 border-yellow-100'
                     }`}>
@@ -180,9 +180,9 @@ export default function AttendanceLogSection() {
             header: 'Last Action',
             render: (row) => (
                 <div className="flex flex-col gap-0.5 min-w-[140px]">
-                    <span className="text-gray-800 font-bold text-[13px] tracking-tight">{row.lastActionBy?.name || '--'}</span>
+                    <span className="text-gray-800 font-bold tracking-tight">{row.lastActionBy?.name || '--'}</span>
                     {row.lastActionOn && (
-                        <span className="text-[10px] text-gray-400 font-black uppercase tracking-tighter">on {format(parseSafeDate(row.lastActionOn)!, 'd MMM yyyy')}</span>
+                        <span className="text-[11px] text-gray-400 font-black uppercase tracking-tighter">on {format(parseSafeDate(row.lastActionOn)!, 'd MMM yyyy')}</span>
                     )}
                 </div>
             )
@@ -240,7 +240,7 @@ export default function AttendanceLogSection() {
                                 <div className="p-2.5 bg-white border border-gray-200 rounded-xl shadow-sm text-gray-400">
                                     <Filter size={16} />
                                 </div>
-                                <span className="text-[11px] font-black text-gray-500 uppercase tracking-[0.15em] ml-1">Select Month:</span>
+                                <span className="text-xs font-black text-gray-500 uppercase tracking-[0.15em] ml-1">Select Month:</span>
                             </div>
 
                             <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0">
@@ -250,7 +250,7 @@ export default function AttendanceLogSection() {
                                         <button
                                             key={m.toISOString()}
                                             onClick={() => setSelectedMonth(m)}
-                                            className={`px-5 py-2.5 rounded-lg text-[10px] font-black uppercase tracking-tight transition-all duration-200 ${isSelected
+                                            className={`px-5 py-2.5 rounded-lg text-xs font-black uppercase tracking-tight transition-all duration-200 ${isSelected
                                                 ? 'bg-[#0f766e] text-white shadow-lg'
                                                 : 'bg-white text-gray-400 hover:text-[#0f766e] border border-gray-200 hover:border-gray-300'
                                                 }`}
@@ -271,12 +271,12 @@ export default function AttendanceLogSection() {
                                 <table className="akod-table text-left">
                                     <thead>
                                         <tr className="bg-[#f9fafc] border-b border-gray-100">
-                                            <th className="px-8 py-5 text-[11px] font-black uppercase tracking-widest text-gray-400">Date</th>
-                                            <th className="px-4 py-5 text-[11px] font-black uppercase tracking-widest text-gray-400">Attendance Visual</th>
-                                            <th className="px-4 py-5 text-[11px] font-black uppercase tracking-widest text-gray-400 text-center">Effective Hours</th>
-                                            <th className="px-4 py-5 text-[11px] font-black uppercase tracking-widest text-gray-400 text-center">Gross Hours</th>
-                                            <th className="px-4 py-5 text-[11px] font-black uppercase tracking-widest text-gray-400 text-center">Arrival</th>
-                                            <th className="px-4 py-5 text-[11px] font-black uppercase tracking-widest text-gray-400 text-center">Log</th>
+                                            <th className="px-8 py-5 text-gray-400">Date</th>
+                                            <th className="px-4 py-5 text-gray-400">Attendance Visual</th>
+                                            <th className="px-4 py-5 text-gray-400 text-center">Effective Hours</th>
+                                            <th className="px-4 py-5 text-gray-400 text-center">Gross Hours</th>
+                                            <th className="px-4 py-5 text-gray-400 text-center">Arrival</th>
+                                            <th className="px-4 py-5 text-gray-400 text-center">Log</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-100">
@@ -359,14 +359,14 @@ export default function AttendanceLogSection() {
                                                         arrivalContent = (
                                                             <div className="flex items-center gap-2 justify-center text-[#0f766e]">
                                                                 <CheckCircle size={14} className="text-green-500" />
-                                                                <span className="text-[13px] font-medium text-[#0f766e]">On Time</span>
+                                                                <span className="font-medium text-[#0f766e]">On Time</span>
                                                             </div>
                                                         );
                                                     } else {
                                                         arrivalContent = (
                                                             <div className="flex items-center gap-2 justify-center">
                                                                 <AlertCircle size={14} className="text-teal-500" />
-                                                                <span className="text-[13px] font-medium text-teal-500">Late</span>
+                                                                <span className="font-medium text-teal-500">Late</span>
                                                             </div>
                                                         );
                                                     }
@@ -402,11 +402,11 @@ export default function AttendanceLogSection() {
                                                 <tr key={day.toISOString()} className="hover:bg-gray-50/50 transition-colors group">
                                                     {/* DATE */}
                                                     <td className="px-6 py-5 whitespace-nowrap">
-                                                        <span className="text-[13px] text-gray-700 font-medium">
+                                                        <span className="text-gray-700 font-medium">
                                                             {format(day, 'EEE, d MMM')}
                                                         </span>
-                                                        {isWO && <span className="ml-2 text-[10px] bg-teal-50 text-teal-500 px-1 py-0.5 rounded border border-teal-100 uppercase tracking-wide">W-Off</span>}
-                                                        {holiday && <span className="ml-2 text-[10px] bg-purple-50 text-purple-500 px-1 py-0.5 rounded border border-purple-100 uppercase tracking-wide">Holiday</span>}
+                                                        {isWO && <span className="ml-2 text-[11px] bg-teal-50 text-teal-500 px-1 py-0.5 rounded border border-teal-100 uppercase tracking-wide">W-Off</span>}
+                                                        {holiday && <span className="ml-2 text-[11px] bg-purple-50 text-purple-500 px-1 py-0.5 rounded border border-purple-100 uppercase tracking-wide">Holiday</span>}
                                                     </td>
 
                                                     {/* ATTENDANCE VISUAL */}
@@ -451,7 +451,7 @@ export default function AttendanceLogSection() {
                                                                         </div>
                                                                     </div>
                                                                 ) : (
-                                                                    <div className="w-full text-center text-[11px] text-gray-300 italic group-hover:text-gray-400 transition-colors">
+                                                                    <div className="w-full text-center text-[11px] text-red-400 italic group-hover:text-red-500 transition-colors">
                                                                         {isWO ? 'Weekly Off' : 'Absent'}
                                                                     </div>
                                                                 )}
@@ -465,7 +465,7 @@ export default function AttendanceLogSection() {
                                                     <td className="px-4 py-5 text-center">
                                                         <div className="flex items-center justify-center gap-2">
                                                             {hasRecord && <div className="w-2 h-2 rounded-full bg-[#4cc9f0]"></div>}
-                                                            <span className="text-[13px] font-medium text-gray-600 font-mono">
+                                                            <span className="font-medium text-gray-600 font-mono">
                                                                 {effectiveHoursStr}
                                                             </span>
                                                         </div>
@@ -473,7 +473,7 @@ export default function AttendanceLogSection() {
 
                                                     {/* GROSS HOURS */}
                                                     <td className="px-4 py-5 text-center">
-                                                        <span className="text-[13px] font-medium text-gray-600 font-mono">
+                                                        <span className="font-medium text-gray-600 font-mono">
                                                             {grossHoursStr}
                                                         </span>
                                                     </td>
@@ -497,7 +497,7 @@ export default function AttendanceLogSection() {
                                                                         <div className="flex justify-between items-start mb-1">
                                                                             <span className="font-bold text-gray-800 text-sm">General Shift</span>
                                                                             <span className={`text-[10px] border px-1.5 py-0.5 rounded font-bold uppercase ${statusLabel === 'Present' ? 'bg-green-50 text-green-600 border-green-100' :
-                                                                                statusLabel === 'Absent' ? 'bg-teal-50 text-teal-700 border-teal-100' :
+                                                                                statusLabel === 'Absent' ? 'bg-red-50 text-red-600 border-red-100' :
                                                                                     statusLabel === 'Missing Swipe' ? 'bg-amber-50 text-amber-600 border-amber-100' :
                                                                                         'bg-white text-gray-500 border-gray-200'}`}>
                                                                                 {statusLabel}
@@ -523,8 +523,8 @@ export default function AttendanceLogSection() {
                                                                                 <Edit3 size={14} />
                                                                             </div>
                                                                             <div className="flex flex-col text-left">
-                                                                                <span className="text-[13px] font-bold text-gray-800">Regularize</span>
-                                                                                <span className="text-[10px] text-gray-400">Raise a request for this day</span>
+                                                                                <span className="text-sm font-bold text-gray-800">Regularize</span>
+                                                                                <span className="text-xs text-gray-400">Raise a request for this day</span>
                                                                             </div>
                                                                         </button>
                                                                     </div>

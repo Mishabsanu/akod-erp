@@ -9,8 +9,9 @@ import { SearchInput } from '@/components/shared/SearchInput';
 import { LedgerFilterBar } from '@/components/finance/LedgerFilterBar';
 import { Database, Filter, Download, Printer, PieChart } from 'lucide-react';
 import { toast } from 'sonner';
+import withAuth from '@/components/withAuth';
 
-export default function LedgerPage() {
+function LedgerPage() {
   const [entries, setEntries] = useState<LedgerEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalPages, setTotalPages] = useState(1);
@@ -217,3 +218,5 @@ export default function LedgerPage() {
     </div>
   );
 }
+
+export default withAuth(LedgerPage, [{ module: 'ledger', action: 'view' }]);

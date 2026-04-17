@@ -8,6 +8,7 @@ import { getDeliveryTicketById, updateDeliveryTicket } from '@/services/delivery
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import withAuth from '@/components/withAuth';
 
 const EditDeliveryTicketPage = () => {
   const router = useRouter();
@@ -90,4 +91,4 @@ const EditDeliveryTicketPage = () => {
   );
 };
 
-export default EditDeliveryTicketPage;
+export default withAuth(EditDeliveryTicketPage, [{ module: 'delivery_ticket', action: 'update' }]);

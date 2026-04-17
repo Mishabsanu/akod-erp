@@ -11,8 +11,10 @@ import { TableSkeleton } from '@/components/shared/TableSkeleton';
 import { Plus, Filter, MoreVertical, Edit2, Trash2, ArrowDownCircle, ArrowUpCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
+import withAuth from '@/components/withAuth';
 
-export default function PaymentsPage() {
+function PaymentsPage() {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalPages, setTotalPages] = useState(1);
@@ -22,6 +24,7 @@ export default function PaymentsPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const router = useRouter();
+  const { can } = useAuth();
 
   const [filter, setFilter] = useState<PaymentFilter>({
     search: '',
@@ -51,7 +54,7 @@ export default function PaymentsPage() {
     return () => controller.abort();
   }, [fetchPayments]);
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = useCallback(async (id: string) => {
     if (!window.confirm('Are you sure you want to delete this payment record?')) return;
     try {
       await deletePayment(id);
@@ -60,7 +63,7 @@ export default function PaymentsPage() {
     } catch {
       toast.error('Failed to delete payment record');
     }
-  };
+  }, [fetchPayments]);
 
   const toggleActionMenu = (id: string) => {
     setOpenMenu((prev) => (prev === id ? null : id));
@@ -110,70 +113,81 @@ export default function PaymentsPage() {
         header: 'Method',
         accessor: 'paymentMethod' as keyof Payment,
         render: (item: Payment) => <span className="text-xs font-bold text-gray-500 italic">{item.paymentMethod}</span>
-      }
+      },
+      {
+        accessor: 'createdBy' as any,
+        header: 'Created By',
+        render: (item: Payment) => (
+          <span className="text-sm font-medium text-gray-600">
+            {typeof item.createdBy === 'object' ? item.createdBy.name : item.createdBy || '--'}
+          </span>
+        ),
+      },
+      {
+        accessor: 'createdAt',
+        header: 'Date Created',
+        render: (item: Payment) => (
+          <span className="text-sm font-medium text-gray-600">
+            {item.createdAt ? new Date(item.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '--'}
+          </span>
+        ),
+      },
     ];
 
     baseColumns.push({
       accessor: '_id' as keyof Payment,
       header: 'Actions',
       render: (payment) => (
-        <div className="relative">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              if (payment._id) toggleActionMenu(payment._id);
-            }}
-            className="text-gray-600 hover:text-[#0f766e] transition p-1 hover:bg-gray-100 rounded-lg"
-          >
-            <MoreVertical className="w-5 h-5" />
-          </button>
-          {openMenu === payment._id && (
-            <div className="absolute right-0 top-[calc(100%+8px)] w-32 bg-white border border-gray-200 rounded-lg shadow-lg z-10 py-1">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  router.push(`/finance/payment/edit/${payment._id}`);
-                }}
-                className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
-              >
-                <Edit2 className="w-4 h-4 text-[#0f766e]" />
-                Edit
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (payment._id) handleDelete(payment._id);
-                }}
-                className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-[#0f766e] hover:bg-gray-50"
-              >
-                <Trash2 className="w-4 h-4" />
-                Delete
-              </button>
-            </div>
+        <div className="flex items-center gap-2">
+          {can('payment', 'update') && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                if (payment._id) router.push(`/finance/payment/edit/${payment._id}`);
+              }}
+              className="w-9 h-9 flex items-center justify-center text-gray-500 hover:text-[#0f766e] hover:bg-[#0f766e]/5 rounded-lg transition-all border border-gray-100 hover:border-[#0f766e]/20"
+              title="Edit"
+            >
+              <Edit2 className="w-4 h-4" />
+            </button>
+          )}
+          {can('payment', 'delete') && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                if (payment._id) handleDelete(payment._id);
+              }}
+              className="w-9 h-9 flex items-center justify-center text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all border border-gray-100 hover:border-red-200"
+              title="Delete"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
           )}
         </div>
       ),
     });
 
     return baseColumns;
-  }, [openMenu, router]);
+  }, [openMenu, router, can, handleDelete]);
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white p-6 md:p-10">
       <ListPageHeader
-        eyebrow="Payment Registry"
+        eyebrow="Finance Registry"
         title="Payment"
         highlight="Registry"
         description="Review received and paid transactions across accounts."
         actions={
           <>
-          <button 
-            onClick={() => router.push('/finance/payment/add')}
-            className="page-header-button"
-          >
-            <Plus className="w-4 h-4" />
-            Post Payment
-          </button>
+          {can('payment', 'create') && (
+            <button 
+              onClick={() => router.push('/finance/payment/add')}
+              className="page-header-button"
+            >
+              <Plus className="w-4 h-4" />
+              Post Payment
+            </button>
+          )}
           <button 
             onClick={() => setShowFilters(!showFilters)}
             className="page-header-button secondary"
@@ -218,7 +232,11 @@ export default function PaymentsPage() {
         <DataTable
           columns={columns}
           data={payments}
-          onRowClick={(item) => router.push(`/finance/payment/edit/${item._id}`)}
+          onRowClick={(item) => {
+            if (can('payment', 'update')) {
+              router.push(`/finance/payment/edit/${item._id}`);
+            }
+          }}
           serverSidePagination={true}
           totalCount={totalCount}
           totalPages={totalPages}
@@ -231,3 +249,5 @@ export default function PaymentsPage() {
     </div>
   );
 }
+
+export default withAuth(PaymentsPage, [{ module: 'payment', action: 'view' }]);

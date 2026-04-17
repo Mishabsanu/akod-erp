@@ -17,6 +17,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
+import withAuth from '@/components/withAuth';
 
 const RolesPage: React.FC = () => {
   const [allRoles, setAllRoles] = useState<Role[]>([]);
@@ -136,13 +137,29 @@ const RolesPage: React.FC = () => {
   const handleEdit = (id: string) => router.push(`/roles/edit/${id}`);
   const handleAddRole = () => router.push('/roles/add');
   const handleRowClick = (role: Role) => {
-    if (role._id) {
+    if (role._id && can('admin', 'update')) {
       router.push(`/roles/${role._id}`);
     }
   };
   const columns: Column<Role>[] = useMemo(() => {
     const baseColumns: Column<Role>[] = [
       { accessor: 'name', header: 'Role' },
+      {
+        accessor: 'permissions' as any,
+        header: 'Access Rights',
+        render: (role: Role) => {
+          const activeModules = Object.values(role.permissions).filter((p: any) =>
+            Object.values(p).some((v) => v === true)
+          ).length;
+          return (
+            <div className="flex items-center gap-2">
+              <span className="px-3 py-1 text-xs font-black uppercase tracking-widest rounded-full bg-[#0f766e]/10 text-[#0f766e] border border-[#0f766e]/10">
+                {activeModules} Modules
+              </span>
+            </div>
+          );
+        },
+      },
       {
         accessor: 'status',
         header: 'Status',
@@ -158,6 +175,24 @@ const RolesPage: React.FC = () => {
           </span>
         ),
       },
+      {
+        accessor: 'createdBy' as any,
+        header: 'Created By',
+        render: (role: Role) => (
+          <span className="text-sm font-medium text-gray-600">
+            {typeof role.createdBy === 'object' ? role.createdBy.name : role.createdBy || '--'}
+          </span>
+        ),
+      },
+      {
+        accessor: 'createdAt',
+        header: 'Date Created',
+        render: (role: Role) => (
+          <span className="text-sm font-medium text-gray-600">
+            {role.createdAt ? new Date(role.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '--'}
+          </span>
+        ),
+      },
     ];
 
     if (can('role', 'update') || can('role', 'delete')) {
@@ -165,41 +200,30 @@ const RolesPage: React.FC = () => {
         accessor: '_id',
         header: 'Actions',
         render: (role) => (
-          <div className="relative">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                if (role._id) toggleActionMenu(role._id);
-              }}
-              className="text-gray-600 hover:text-[#0f766e] transition"
-            >
-              <MoreVertical className="w-5 h-5" />
-            </button>
-            {openMenu === role._id && (
-              <div className="absolute right-0 top-[calc(100%+8px)] w-32 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
-                {can('role', 'update') && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (role._id) handleEdit(role._id);
-                    }}
-                    className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                  >
-                    <Edit2 className="w-4 h-4 text-[#0f766e]" /> Edit
-                  </button>
-                )}
-                {can('role', 'delete') && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (role._id) handleDelete(role._id);
-                    }}
-                    className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-[#0f766e] hover:bg-gray-50"
-                  >
-                    <Trash2 className="w-4 h-4" /> Delete
-                  </button>
-                )}
-              </div>
+          <div className="flex items-center gap-2">
+            {can('role', 'update') && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleEdit(role._id!);
+                }}
+                className="w-9 h-9 flex items-center justify-center text-gray-500 hover:text-[#0f766e] hover:bg-[#0f766e]/5 rounded-lg transition-all border border-gray-100 hover:border-[#0f766e]/20"
+                title="Edit"
+              >
+                <Edit2 className="w-4 h-4" />
+              </button>
+            )}
+            {can('role', 'delete') && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDelete(role._id!);
+                }}
+                className="w-9 h-9 flex items-center justify-center text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all border border-gray-100 hover:border-red-200"
+                title="Delete"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
             )}
           </div>
         ),
@@ -288,4 +312,4 @@ const RolesPage: React.FC = () => {
   );
 };
 
-export default RolesPage;
+export default withAuth(RolesPage, [{ module: 'admin', action: 'view' }]);

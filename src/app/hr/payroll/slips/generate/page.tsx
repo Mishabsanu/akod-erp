@@ -6,8 +6,9 @@ import { toast } from 'sonner';
 import { SalarySlipForm } from '@/components/payroll/SalarySlipForm';
 import { generateSlip } from '@/services/payrollApi';
 import { getUsers } from '@/services/userApi';
+import withAuth from '@/components/withAuth';
 
-export default function GenerateSalarySlipPage() {
+function GenerateSalarySlipPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
@@ -61,3 +62,4 @@ export default function GenerateSalarySlipPage() {
     </div>
   );
 }
+export default withAuth(GenerateSalarySlipPage, [{ module: 'hr', action: 'create' }]);

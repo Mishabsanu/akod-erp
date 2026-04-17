@@ -8,6 +8,7 @@ import { getUserById, updateUser } from '@/services/userApi';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import withAuth from '@/components/withAuth';
 
 const EditUserPage = () => {
   const router = useRouter();
@@ -89,4 +90,4 @@ const EditUserPage = () => {
   );
 };
 
-export default EditUserPage;
+export default withAuth(EditUserPage, [{ module: 'admin', action: 'update' }]);

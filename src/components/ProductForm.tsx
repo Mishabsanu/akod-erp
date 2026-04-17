@@ -71,29 +71,27 @@ const ProductForm: React.FC<ProductFormProps> = ({
 
   return (
     <div className="w-full min-h-[calc(100vh-4rem)] bg-gray-50 px-8 py-6 rounded-lg">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8 border-b border-gray-200 pb-4">
-        <div className="flex items-center gap-3">
-          {isEditMode ? (
-            <Edit3 className="text-teal-700 w-6 h-6" />
-          ) : (
-            <PackagePlus className="text-teal-700 w-6 h-6" />
-          )}
-          <h2 className="text-2xl font-semibold text-gray-800">
-            {isEditMode ? 'Edit Product' : 'Add New Product'}
-          </h2>
+      <div className="page-header mb-12">
+        <div>
+          <div className="page-header-eyebrow">
+            <div className="page-header-marker" />
+            <span>Catalog Management</span>
+          </div>
+          <h1 className="page-header-title">
+            {isEditMode ? 'Modify' : 'Register'} <span className="gradient-text">Product</span>
+          </h1>
+          <p className="page-header-description">
+            {isEditMode 
+              ? 'Refine product specifications and visibility settings. Updated details will propagate across all linked modules.' 
+              : 'Initialize a new asset in the global catalog. Define its technical specs and operational status.'}
+          </p>
         </div>
-        <span className="text-sm text-gray-500 italic">
-          {isEditMode
-            ? 'Update existing product information'
-            : 'Fill all required fields to create a new product'}
-        </span>
       </div>
 
       <FormikProvider value={formik}>
         <form onSubmit={formik.handleSubmit} className="space-y-10">
           {/* 🧱 Section 1: Basic Product Info */}
-          <Section title="Basic Information">
+          <Section eyebrow="Inventory Hub" title="Product" highlight="Details">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               <FormikInput
                 label="Product Name"

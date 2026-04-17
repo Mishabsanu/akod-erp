@@ -8,11 +8,13 @@ import ListPageHeader from '@/components/shared/ListPageHeader';
 import { SearchInput } from '@/components/shared/SearchInput';
 import { ExpenseFilterBar } from '@/components/finance/ExpenseFilterBar';
 import { TableSkeleton } from '@/components/shared/TableSkeleton';
+import withAuth from '@/components/withAuth';
 import { Plus, Filter, MoreVertical, Edit2, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
 
-export default function ExpensesPage() {
+function ExpensesPage() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalPages, setTotalPages] = useState(1);
@@ -22,6 +24,7 @@ export default function ExpensesPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const router = useRouter();
+  const { can } = useAuth();
 
   const [filter, setFilter] = useState<ExpenseFilter>({
     search: '',
@@ -52,7 +55,7 @@ export default function ExpensesPage() {
     return () => controller.abort();
   }, [fetchExpenses]);
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = useCallback(async (id: string) => {
     if (!window.confirm('Are you sure you want to delete this expense record?')) return;
     try {
       await deleteExpense(id);
@@ -61,7 +64,7 @@ export default function ExpensesPage() {
     } catch {
       toast.error('Failed to delete expense record');
     }
-  };
+  }, [fetchExpenses]);
 
   const toggleActionMenu = (id: string) => {
     setOpenMenu((prev) => (prev === id ? null : id));
@@ -104,7 +107,7 @@ export default function ExpensesPage() {
         header: 'Net Amount', 
         accessor: 'totalAmount' as keyof Expense,
         render: (item: Expense) => (
-          <span className="font-bold text-gray-900">
+          <span className="font-bold text-[#0f766e]">
             QAR {item.totalAmount?.toLocaleString(undefined, { minimumFractionDigits: 2 })}
           </span>
         )
@@ -114,58 +117,67 @@ export default function ExpensesPage() {
         accessor: 'status' as keyof Expense,
         render: (item: Expense) => (
           <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${
-            item.status === 'paid' ? 'bg-green-50 text-green-700' : item.status === 'pending' ? 'bg-orange-50 text-orange-700' : 'bg-teal-50 text-teal-800'
+            item.status === 'paid' ? 'bg-[#0f766e] text-white' : item.status === 'pending' ? 'bg-orange-50 text-orange-700' : 'bg-teal-50 text-teal-800'
           }`}>
             {item.status}
           </span>
         )
-      }
+      },
+      {
+        accessor: 'createdBy' as any,
+        header: 'Created By',
+        render: (item: Expense) => (
+          <span className="text-sm font-medium text-gray-600">
+            {typeof item.createdBy === 'object' ? item.createdBy.name : item.createdBy || '--'}
+          </span>
+        ),
+      },
+      {
+        accessor: 'createdAt',
+        header: 'Date Created',
+        render: (item: Expense) => (
+          <span className="text-sm font-medium text-gray-600">
+            {item.createdAt ? new Date(item.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '--'}
+          </span>
+        ),
+      },
     ];
 
     baseColumns.push({
       accessor: '_id' as keyof Expense,
       header: 'Actions',
       render: (expense) => (
-        <div className="relative">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              if (expense._id) toggleActionMenu(expense._id);
-            }}
-            className="text-gray-600 hover:text-[#0f766e] transition p-1 hover:bg-gray-100 rounded-lg"
-          >
-            <MoreVertical className="w-5 h-5" />
-          </button>
-          {openMenu === expense._id && (
-            <div className="absolute right-0 top-[calc(100%+8px)] w-32 bg-white border border-gray-200 rounded-lg shadow-lg z-10 py-1">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  router.push(`/finance/expenses/edit/${expense._id}`);
-                }}
-                className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
-              >
-                <Edit2 className="w-4 h-4 text-[#0f766e]" />
-                Edit
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (expense._id) handleDelete(expense._id);
-                }}
-                className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-[#0f766e] hover:bg-gray-50"
-              >
-                <Trash2 className="w-4 h-4" />
-                Delete
-              </button>
-            </div>
+        <div className="flex items-center gap-2">
+          {can('expense', 'update') && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                router.push(`/finance/expenses/edit/${expense._id}`);
+              }}
+              className="w-9 h-9 flex items-center justify-center text-gray-500 hover:text-[#0f766e] hover:bg-[#0f766e]/5 rounded-lg transition-all border border-gray-100 hover:border-[#0f766e]/20"
+              title="Edit"
+            >
+              <Edit2 className="w-4 h-4" />
+            </button>
+          )}
+          {can('expense', 'delete') && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                if (expense._id) handleDelete(expense._id);
+              }}
+              className="w-9 h-9 flex items-center justify-center text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all border border-gray-100 hover:border-red-200"
+              title="Delete"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
           )}
         </div>
       ),
     });
 
     return baseColumns;
-  }, [openMenu, router]);
+  }, [openMenu, router, can, handleDelete]);
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white p-6 md:p-10">
@@ -176,13 +188,15 @@ export default function ExpensesPage() {
         description="Log, review, and reconcile outgoing company expenses."
         actions={
           <>
-          <button 
-            onClick={() => router.push('/finance/expenses/add')}
-            className="page-header-button"
-          >
-            <Plus className="w-4 h-4" />
-            Add Expense
-          </button>
+          {can('expense', 'create') && (
+            <button 
+              onClick={() => router.push('/finance/expenses/add')}
+              className="page-header-button"
+            >
+              <Plus className="w-4 h-4" />
+              Add Expense
+            </button>
+          )}
           <button 
             onClick={() => setShowFilters(!showFilters)}
             className="page-header-button secondary"
@@ -228,7 +242,11 @@ export default function ExpensesPage() {
         <DataTable
           columns={columns}
           data={expenses}
-          onRowClick={(item) => router.push(`/finance/expenses/edit/${item._id}`)}
+          onRowClick={(item) => {
+            if (can('expense', 'update')) {
+              router.push(`/finance/expenses/edit/${item._id}`);
+            }
+          }}
           serverSidePagination={true}
           totalCount={totalCount}
           totalPages={totalPages}
@@ -241,3 +259,5 @@ export default function ExpensesPage() {
     </div>
   );
 }
+
+export default withAuth(ExpensesPage, [{ module: 'expense', action: 'view' }]);

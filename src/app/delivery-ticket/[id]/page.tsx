@@ -9,6 +9,7 @@ import { Edit2, ArrowLeft } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import withAuth from '@/components/withAuth';
 
 const ViewDeliveryTicketPage = () => {
   const router = useRouter();

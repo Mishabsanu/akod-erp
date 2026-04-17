@@ -11,8 +11,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { getSlips, deleteSlip } from '@/services/payrollApi';
 import { SalarySlipView } from '@/components/payroll/SalarySlipView';
 import { toast } from 'sonner';
+import withAuth from '@/components/withAuth';
 
-export default function SalarySlipsPage() {
+function SalarySlipsPage() {
   const [slips, setSlips] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -56,7 +57,7 @@ export default function SalarySlipsPage() {
     );
   }, [slips, searchTerm]);
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = useCallback(async (id: string) => {
     toast.custom((t) => (
         <div className="flex flex-col gap-2 bg-white p-3 rounded-lg shadow-md border border-gray-200">
           <p className="font-medium text-gray-800">Are you sure you want to delete this slip?</p>
@@ -75,7 +76,7 @@ export default function SalarySlipsPage() {
           </div>
         </div>
       ));
-  };
+  }, [fetchData]);
 
   const columns: Column<any>[] = useMemo(() => [
     {
@@ -131,47 +132,34 @@ export default function SalarySlipsPage() {
       accessor: 'actions' as any,
       header: 'Actions',
       render: (slip) => (
-        <div className="relative">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setSelectedSlip(slip);
+              setIsViewOpen(true);
+            }}
+            className="w-9 h-9 flex items-center justify-center text-sky-600 hover:text-sky-700 hover:bg-sky-50 rounded-lg transition-all border border-gray-100 hover:border-sky-200"
+            title="View Slip"
+          >
+            <Eye className="w-4 h-4" />
+          </button>
+          {can('payroll', 'delete') && (
             <button
-               onClick={(e) => {
-                 e.stopPropagation();
-                 toggleActionMenu(slip._id);
-               }}
-               className="text-gray-400 hover:text-gray-600 transition"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDelete(slip._id);
+              }}
+              className="w-9 h-9 flex items-center justify-center text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all border border-gray-100 hover:border-red-200"
+              title="Delete Slip"
             >
-              <MoreVertical size={20} />
+              <Trash2 className="w-4 h-4" />
             </button>
-            {openMenu === slip._id && (
-              <div className="absolute right-0 mt-2 w-40 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-                <button
-                   onClick={(e) => {
-                     e.stopPropagation();
-                     setSelectedSlip(slip);
-                     setIsViewOpen(true);
-                     setOpenMenu(null);
-                   }}
-                   className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
-                >
-                  <Eye size={16} className="text-sky-500" />
-                  View Slip
-                </button>
-                <button
-                   onClick={(e) => {
-                     e.stopPropagation();
-                     handleDelete(slip._id);
-                     setOpenMenu(null);
-                   }}
-                   className="w-full flex items-center gap-3 px-4 py-3 text-sm text-teal-500 hover:bg-gray-50 transition-colors"
-                >
-                  <Trash2 size={16} />
-                  Delete Slip
-                </button>
-              </div>
-            )}
-          </div>
+          )}
+        </div>
       ),
     },
-  ], [slips, openMenu]);
+  ], [slips, openMenu, can, handleDelete, setSelectedSlip, setIsViewOpen]);
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white p-6 md:p-10">
@@ -267,3 +255,5 @@ export default function SalarySlipsPage() {
     </div>
   );
 }
+
+export default withAuth(SalarySlipsPage, [{ module: 'hr', action: 'view' }]);

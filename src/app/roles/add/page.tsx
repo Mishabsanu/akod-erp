@@ -1,5 +1,6 @@
 'use client';
 import RoleForm from '@/components/RoleForm';
+import withAuth from '@/components/withAuth';
 import { Role } from '@/lib/types';
 import { handleApiError } from '@/app/utils/errorHandler';
 import { createRole } from '@/services/roleApi';
@@ -46,4 +47,4 @@ const AddRolePage = () => {
   );
 };
 
-export default AddRolePage;
+export default withAuth(AddRolePage, [{ module: 'admin', action: 'create' }]);

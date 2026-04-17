@@ -8,6 +8,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { handleApiError } from '@/app/utils/errorHandler';
+import withAuth from '@/components/withAuth';
 
 const EditRolePage = () => {
   const router = useRouter();
@@ -87,4 +88,4 @@ const EditRolePage = () => {
   );
 };
 
-export default EditRolePage;
+export default withAuth(EditRolePage, [{ module: 'admin', action: 'update' }]);

@@ -13,6 +13,7 @@ import { Edit2, Filter, MoreVertical, Plus, Trash2 } from 'lucide-react'; // Imp
 import { useRouter } from 'next/navigation';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
+import withAuth from '@/components/withAuth';
 
 const VendorPage: React.FC = () => {
   const router = useRouter();
@@ -71,7 +72,7 @@ const VendorPage: React.FC = () => {
   };
 
   const handleRowClick = (vendor: Vendor) => {
-    if (vendor._id) {
+    if (vendor._id && can('vendor', 'update')) {
       router.push(`/master/vendor/${vendor._id}`);
     }
   };
@@ -129,9 +130,26 @@ const VendorPage: React.FC = () => {
       { accessor: 'contactPersonName', header: 'Contact Person Name' },
       { accessor: 'contactPersonMobile', header: 'Contact Person Mobile' },
       {
+        accessor: 'createdBy' as any,
+        header: 'Created By',
+        render: (vendor: any) => {
+          const creator = vendor.createdBy;
+          const name = typeof creator === 'object' ? creator?.name : creator;
+          return (
+            <span className="text-sm font-medium text-gray-600">
+              {name || 'System'}
+            </span>
+          );
+        },
+      },
+      {
         accessor: 'createdAt',
-        header: 'Date',
-        render: (vendor) => formatDate(vendor.createdAt),
+        header: 'Date Created',
+        render: (vendor) => (
+          <span className="text-sm font-medium text-gray-600">
+            {formatDate(vendor.createdAt)}
+          </span>
+        ),
       },
       {
         accessor: 'status',
@@ -155,41 +173,30 @@ const VendorPage: React.FC = () => {
         accessor: 'actions' as keyof Vendor, // Cast to keyof Vendor to satisfy type, as 'actions' is not a direct property
         header: 'Actions',
         render: (vendor) => (
-          <div className="relative">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                if (vendor._id) toggleActionMenu(vendor._id);
-              }}
-              className="text-gray-600 hover:text-[#0f766e] transition"
-            >
-              <MoreVertical className="w-5 h-5" />
-            </button>
-            {openMenu === vendor._id && (
-              <div className="absolute right-0 top-[calc(100%+8px)] w-32 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
-                {can('vendor', 'update') && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (vendor._id) handleEdit(vendor._id);
-                    }}
-                    className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                  >
-                    <Edit2 className="w-4 h-4 text-[#0f766e]" /> Edit
-                  </button>
-                )}
-                {can('vendor', 'delete') && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (vendor._id) handleDelete(vendor._id);
-                    }}
-                    className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-[#0f766e] hover:bg-gray-50"
-                  >
-                    <Trash2 className="w-4 h-4" /> Delete
-                  </button>
-                )}
-              </div>
+          <div className="flex items-center gap-2">
+            {can('vendor', 'update') && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (vendor._id) handleEdit(vendor._id);
+                }}
+                className="w-9 h-9 flex items-center justify-center text-gray-500 hover:text-[#0f766e] hover:bg-[#0f766e]/5 rounded-lg transition-all border border-gray-100 hover:border-[#0f766e]/20"
+                title="Edit"
+              >
+                <Edit2 className="w-4 h-4" />
+              </button>
+            )}
+            {can('vendor', 'delete') && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (vendor._id) handleDelete(vendor._id);
+                }}
+                className="w-9 h-9 flex items-center justify-center text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all border border-gray-100 hover:border-red-200"
+                title="Delete"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
             )}
           </div>
         ),
@@ -197,7 +204,7 @@ const VendorPage: React.FC = () => {
     }
 
     return baseColumns;
-  }, [openMenu, can]);
+  }, [openMenu, can, handleEdit, handleDelete]);
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white p-6 md:p-10">
@@ -281,4 +288,4 @@ const VendorPage: React.FC = () => {
   );
 };
 
-export default VendorPage;
+export default withAuth(VendorPage, [{ module: 'vendor', action: 'view' }]);

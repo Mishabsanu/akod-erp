@@ -7,6 +7,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { Invoice } from '@/lib/types';
 import { TableSkeleton } from '@/components/shared/TableSkeleton';
+import withAuth from '@/components/withAuth';
 
 const EditInvoicePage = () => {
   const router = useRouter();
@@ -64,4 +65,4 @@ const EditInvoicePage = () => {
   );
 };
 
-export default EditInvoicePage;
+export default withAuth(EditInvoicePage, [{ module: 'invoice', action: 'update' }]);

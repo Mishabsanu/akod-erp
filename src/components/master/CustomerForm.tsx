@@ -138,7 +138,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
       <FormikProvider value={formik}>
         <form onSubmit={formik.handleSubmit} className="space-y-10">
           {/* Basic Info */}
-          <Section title="Basic Information">
+          <Section eyebrow="Relationship" title="Basic" highlight="Information">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <FormikInput
                 label="Customer Name"
@@ -176,7 +176,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
           </Section>
 
           {/* Address */}
-          <Section title="Address Details">
+          <Section eyebrow="Commerce" title="Quotation" highlight="Overview">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <FormikInput
                 label="Address"

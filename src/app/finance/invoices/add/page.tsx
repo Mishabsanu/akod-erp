@@ -5,6 +5,7 @@ import InvoiceForm from '@/components/finance/InvoiceForm';
 import { createInvoice } from '@/services/financeApi';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import withAuth from '@/components/withAuth';
 import { Invoice } from '@/lib/types';
 
 const AddInvoicePage = () => {
@@ -37,4 +38,4 @@ const AddInvoicePage = () => {
   );
 };
 
-export default AddInvoicePage;
+export default withAuth(AddInvoicePage, [{ module: 'invoice', action: 'create' }]);

@@ -2,6 +2,10 @@
 
 import ModulePlaceholder from '@/components/shared/ModulePlaceholder';
 
-export default function LeadsPage() {
+import withAuth from '@/components/withAuth';
+
+function LeadsPage() {
   return <ModulePlaceholder title="Leads Management" moduleName="CRM" />;
 }
+
+export default withAuth(LeadsPage, [{ module: 'sales', action: 'view' }]);

@@ -21,6 +21,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
+import withAuth from '@/components/withAuth';
 
 const ReturnTicketPage = () => {
   // Rename component
@@ -145,7 +146,7 @@ const ReturnTicketPage = () => {
   const handleAdd = () => router.push('/return-ticket/add'); // Update path
   const handleEdit = (id: string) => router.push(`/return-ticket/edit/${id}`); // Update path
   const handleRowClick = (ticket: ReturnTicket) => {
-    if (ticket._id) {
+    if (ticket._id && can('return_ticket', 'update')) {
       router.push(`/return-ticket/${ticket._id}`);
     }
   };
@@ -168,11 +169,29 @@ const ReturnTicketPage = () => {
         ),
       },
       {
-        accessor: '_id',
+        accessor: '_id' as keyof ReturnTicket,
         header: 'Items',
         render: (ticket) => (
           <span className="font-medium bg-gray-100 px-2 py-1 rounded text-gray-700">
             {ticket.items?.length || 0} {ticket.items?.length === 1 ? 'Item' : 'Items'}
+          </span>
+        ),
+      },
+      {
+        accessor: 'createdBy' as any,
+        header: 'Created By',
+        render: (ticket: ReturnTicket) => (
+          <span className="text-sm font-medium text-gray-600">
+            {typeof ticket.createdBy === 'object' ? (ticket.createdBy as any).name : (ticket.createdBy || '--')}
+          </span>
+        ),
+      },
+      {
+        accessor: 'createdAt',
+        header: 'Date Created',
+        render: (ticket: ReturnTicket) => (
+          <span className="text-sm font-medium text-gray-600">
+            {ticket.createdAt ? new Date(ticket.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '--'}
           </span>
         ),
       },
@@ -183,49 +202,37 @@ const ReturnTicketPage = () => {
         accessor: '_id',
         header: 'Actions',
         render: (ticket) => (
-          <div className="relative">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                if (ticket._id) toggleActionMenu(ticket._id);
-              }}
-              className="text-gray-600 hover:text-[#0f766e]"
-            >
-              <MoreVertical className="w-5 h-5" />
-            </button>
-
-            {openMenu === ticket._id && (
-              <div className="absolute right-0 top-[calc(100%+8px)] w-32 bg-white border rounded-lg shadow-lg z-10">
-                {can('return_ticket', 'update') && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (ticket._id) handleEdit(ticket._id);
-                    }}
-                    className="flex items-center gap-2 w-full px-3 py-2 text-sm hover:bg-gray-50"
-                  >
-                    <Edit2 className="w-4 h-4" /> Edit
-                  </button>
-                )}
-                {can('return_ticket', 'delete') && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (ticket._id) handleDelete(ticket._id);
-                    }}
-                    className="flex items-center gap-2 w-full px-3 py-2 text-sm text-teal-700 hover:bg-gray-50"
-                  >
-                    <Trash2 className="w-4 h-4" /> Delete
-                  </button>
-                )}
-              </div>
+          <div className="flex items-center gap-2">
+            {can('return_ticket', 'update') && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (ticket._id) handleEdit(ticket._id);
+                }}
+                className="w-9 h-9 flex items-center justify-center text-gray-500 hover:text-[#0f766e] hover:bg-[#0f766e]/5 rounded-lg transition-all border border-gray-100 hover:border-[#0f766e]/20"
+                title="Edit"
+              >
+                <Edit2 className="w-4 h-4" />
+              </button>
+            )}
+            {can('return_ticket', 'delete') && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (ticket._id) handleDelete(ticket._id);
+                }}
+                className="w-9 h-9 flex items-center justify-center text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all border border-gray-100 hover:border-red-200"
+                title="Delete"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
             )}
           </div>
         ),
       });
     }
     return baseColumns;
-  }, [openMenu, can]);
+  }, [openMenu, can, handleEdit, handleDelete]);
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white p-6 md:p-10">
@@ -317,4 +324,4 @@ const ReturnTicketPage = () => {
   );
 };
 
-export default ReturnTicketPage;
+export default withAuth(ReturnTicketPage, [{ module: 'return_ticket', action: 'view' }]);

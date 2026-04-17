@@ -8,6 +8,7 @@ import { getProductById, updateProduct } from '@/services/catalogApi';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import withAuth from '@/components/withAuth';
 
 const EditProductPage = () => {
   const router = useRouter();
@@ -91,4 +92,4 @@ const EditProductPage = () => {
   );
 };
 
-export default EditProductPage;
+export default withAuth(EditProductPage, [{ module: 'product', action: 'update' }]);

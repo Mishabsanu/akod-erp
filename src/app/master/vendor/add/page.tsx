@@ -6,6 +6,7 @@ import { Vendor } from '@/lib/types';
 import { createVendor } from '@/services/vendorApi';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import withAuth from '@/components/withAuth';
 
 const AddVendorPage = () => {
   const router = useRouter();
@@ -52,4 +53,4 @@ const AddVendorPage = () => {
   );
 };
 
-export default AddVendorPage;
+export default withAuth(AddVendorPage, [{ module: 'vendor', action: 'create' }]);

@@ -6,8 +6,9 @@ import { toast } from 'sonner';
 import { SalaryBreakupForm } from '@/components/payroll/SalaryBreakupForm';
 import { getBreakupByUserId, upsertBreakup } from '@/services/payrollApi';
 import { getUserById } from '@/services/userApi';
+import withAuth from '@/components/withAuth';
 
-export default function ConfigSalaryBreakupPage() {
+function ConfigSalaryBreakupPage() {
   const { id } = useParams();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -70,3 +71,4 @@ export default function ConfigSalaryBreakupPage() {
     </div>
   );
 }
+export default withAuth(ConfigSalaryBreakupPage, [{ module: 'hr', action: 'update' }]);

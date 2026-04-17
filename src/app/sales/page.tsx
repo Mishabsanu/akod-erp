@@ -177,6 +177,24 @@ const SalesPage: React.FC = () => {
           </span>
         ),
       },
+      {
+        accessor: 'createdBy' as any,
+        header: 'Created By',
+        render: (sale: Sale) => (
+          <span className="text-sm font-medium text-gray-600">
+            {typeof sale.user === 'object' ? (sale.user as any).name : (typeof sale.createdBy === 'object' ? (sale.createdBy as any).name : (sale.createdBy || '--'))}
+          </span>
+        ),
+      },
+      {
+        accessor: 'createdAt',
+        header: 'Date Created',
+        render: (sale: Sale) => (
+          <span className="text-sm font-medium text-gray-600">
+            {sale.createdAt ? new Date(sale.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '--'}
+          </span>
+        ),
+      },
     ];
 
     if (can('sales', 'update') || can('sales', 'delete')) {
@@ -184,55 +202,43 @@ const SalesPage: React.FC = () => {
         accessor: '_id' as keyof Sale,
         header: 'Actions',
         render: (sale) => (
-          <div className="relative">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                if (sale._id) toggleActionMenu(sale._id);
-              }}
-              className="text-gray-600 hover:text-[#0f766e] transition p-1 hover:bg-gray-100 rounded-lg"
-            >
-              <MoreVertical className="w-5 h-5" />
-            </button>
-            {openMenu === sale._id && (
-              <div className="absolute right-0 top-[calc(100%+8px)] w-32 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSelectedSale(sale);
-                    setShowStatusModal(true);
-                    setOpenMenu(null);
-                  }}
-                  className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-sky-700 hover:bg-gray-50"
-                >
-                  <TrendingUp className="w-4 h-4" />
-                  Update Status
-                </button>
-                {can('sales', 'update') && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      router.push(`/sales/edit/${sale._id}`);
-                    }}
-                    className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                  >
-                    <Edit2 className="w-4 h-4 text-[#0f766e]" />
-                    Edit
-                  </button>
-                )}
-                {can('sales', 'delete') && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (sale._id) handleDelete(sale._id);
-                    }}
-                    className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-[#0f766e] hover:bg-gray-50"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                    Delete
-                  </button>
-                )}
-              </div>
+          <div className="flex items-center gap-2">
+            {can('sales', 'update') && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedSale(sale);
+                  setShowStatusModal(true);
+                }}
+                className="w-9 h-9 flex items-center justify-center text-sky-600 hover:text-sky-700 hover:bg-sky-50 rounded-lg transition-all border border-gray-100 hover:border-sky-200"
+                title="Update Status"
+              >
+                <TrendingUp className="w-4 h-4" />
+              </button>
+            )}
+            {can('sales', 'update') && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  router.push(`/sales/edit/${sale._id}`);
+                }}
+                className="w-9 h-9 flex items-center justify-center text-gray-500 hover:text-[#0f766e] hover:bg-[#0f766e]/5 rounded-lg transition-all border border-gray-100 hover:border-[#0f766e]/20"
+                title="Edit"
+              >
+                <Edit2 className="w-4 h-4" />
+              </button>
+            )}
+            {can('sales', 'delete') && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (sale._id) handleDelete(sale._id);
+                }}
+                className="w-9 h-9 flex items-center justify-center text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all border border-gray-100 hover:border-red-200"
+                title="Delete"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
             )}
           </div>
         ),
@@ -240,10 +246,10 @@ const SalesPage: React.FC = () => {
     }
 
     return baseColumns;
-  }, [openMenu, can, router]);
+  }, [openMenu, can, router, handleDelete]);
 
   const handleRowClick = (sale: Sale) => {
-    if (sale._id) router.push(`/sales/${sale._id}`);
+    if (sale._id && can('sales', 'update')) router.push(`/sales/${sale._id}`);
   };
 
   return (

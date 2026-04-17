@@ -12,8 +12,9 @@ import {
   Building2, ArrowUpRight, ArrowDownRight, Activity 
 } from 'lucide-react';
 import { toast } from 'sonner';
+import withAuth from '@/components/withAuth';
 
-export default function FinanceDashboard() {
+function FinanceDashboard() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -52,50 +53,50 @@ export default function FinanceDashboard() {
 
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
-        <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm relative overflow-hidden group hover:shadow-xl transition-all h-full flex flex-col justify-between">
+        <div className="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-xl shadow-slate-900/5 relative overflow-hidden group hover:shadow-2xl transition-all h-full flex flex-col justify-between">
            <div className="flex items-center justify-between mb-4">
-              <span className="text-xs font-black text-gray-400 uppercase tracking-[0.2em]">Total Revenue</span>
+              <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Total Revenue</span>
               <div className="p-2.5 bg-green-50 rounded-xl text-green-600 group-hover:scale-110 transition-transform"><TrendingUp size={20} /></div>
            </div>
            <div>
-             <p className="text-4xl font-black text-gray-900 tracking-tighter mb-1">
+             <p className="text-4xl font-black text-[#0f766e] tracking-tighter mb-1">
                QAR {data?.summary?.totalRevenue?.toLocaleString()}
              </p>
-             <div className="flex items-center gap-1 text-green-600 font-bold text-sm">
-                <ArrowUpRight size={16} />
+             <div className="flex items-center gap-1 text-green-600 font-bold text-[10px] uppercase tracking-widest">
+                <ArrowUpRight size={14} />
                 <span>Overall Income</span>
              </div>
            </div>
         </div>
 
-        <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm relative overflow-hidden group hover:shadow-xl transition-all h-full flex flex-col justify-between">
+        <div className="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-xl shadow-slate-900/5 relative overflow-hidden group hover:shadow-2xl transition-all h-full flex flex-col justify-between">
            <div className="flex items-center justify-between mb-4">
-              <span className="text-xs font-black text-gray-400 uppercase tracking-[0.2em]">Total Expenses</span>
+              <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Total Expenses</span>
               <div className="p-2.5 bg-teal-50 rounded-xl text-teal-700 group-hover:scale-110 transition-transform"><TrendingDown size={20} /></div>
            </div>
            <div>
-             <p className="text-4xl font-black text-gray-900 tracking-tighter mb-1">
+             <p className="text-4xl font-black text-[#0f766e] tracking-tighter mb-1">
                QAR {data?.summary?.totalExpenses?.toLocaleString()}
              </p>
-             <div className="flex items-center gap-1 text-teal-700 font-bold text-sm">
-                <ArrowDownRight size={16} />
+             <div className="flex items-center gap-1 text-teal-700 font-bold text-[10px] uppercase tracking-widest">
+                <ArrowDownRight size={14} />
                 <span>Overall Spending</span>
              </div>
            </div>
         </div>
 
-        <div className="bg-[#111827] p-8 rounded-3xl border border-gray-100 shadow-xl relative overflow-hidden group hover:scale-[1.02] transition-all h-full flex flex-col justify-between">
+        <div className="bg-[#0f766e] p-8 rounded-[2rem] shadow-2xl relative overflow-hidden group hover:scale-[1.02] transition-all h-full flex flex-col justify-between text-white border-0">
            <div className="flex items-center justify-between mb-4">
-              <span className="text-xs font-black text-gray-500 uppercase tracking-[0.2em]">In Hand</span>
-              <div className="p-2.5 bg-sky-500/10 rounded-xl text-sky-400 group-hover:rotate-12 transition-transform"><DollarSign size={20} /></div>
+              <span className="text-[10px] font-black text-teal-100 uppercase tracking-[0.2em]">Net Balance</span>
+              <div className="p-2.5 bg-white/10 rounded-xl text-teal-100 group-hover:rotate-12 transition-transform"><DollarSign size={20} /></div>
            </div>
            <div>
-             <p className="text-4xl font-black text-white tracking-tighter mb-1 font-mono">
-               QAR {data?.summary?.netProfit?.toLocaleString()}
+             <p className="text-4xl font-black text-white tracking-tighter mb-1">
+               QAR {data?.summary?.totalRevenue - data?.summary?.totalExpenses?.toLocaleString()}
              </p>
-             <div className="flex items-center gap-1 text-sky-400 font-bold text-sm">
-                <Activity size={16} />
-                <span>Balance Position</span>
+             <div className="flex items-center gap-1 text-teal-100 font-bold text-[10px] uppercase tracking-widest">
+                <Activity size={14} />
+                <span>Corporate Liquidity</span>
              </div>
            </div>
         </div>
@@ -103,12 +104,12 @@ export default function FinanceDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
         {/* Monthly Trend Chart */}
-        <div className="lg:col-span-3 bg-white p-8 rounded-3xl border border-gray-100 shadow-sm">
+        <div className="lg:col-span-3 bg-white p-10 rounded-[3rem] border border-gray-100 shadow-2xl shadow-slate-900/5">
           <div className="flex items-center justify-between mb-8">
-            <h3 className="text-xl font-bold text-gray-800 tracking-tight">Financial Performance Trend</h3>
-            <div className="flex gap-4 text-xs font-bold uppercase tracking-widest text-gray-400">
-              <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-teal-700" /> Income</div>
-              <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-gray-800" /> Expenses</div>
+            <h3 className="text-2xl font-black text-[#0f766e] tracking-tight">Financial Performance Flux</h3>
+            <div className="flex gap-4 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">
+              <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-[#0f766e]" /> Inflow</div>
+              <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-gray-800" /> Outflow</div>
             </div>
           </div>
           <div className="h-[400px]">
@@ -135,10 +136,10 @@ export default function FinanceDashboard() {
         </div>
 
         {/* Company Breakdown */}
-        <div className="lg:col-span-2 bg-white p-8 rounded-3xl border border-gray-100 shadow-sm flex flex-col">
+        <div className="lg:col-span-2 bg-white p-10 rounded-[3rem] border border-gray-100 shadow-2xl shadow-slate-900/5 flex flex-col">
           <div className="flex items-center gap-3 mb-8">
-            <Building2 className="w-6 h-6 text-teal-700" />
-            <h3 className="text-xl font-bold text-gray-800 tracking-tight">Income by Company</h3>
+            <Building2 className="w-6 h-6 text-[#0f766e]" />
+            <h3 className="text-2xl font-black text-[#0f766e] tracking-tight">Revenue by Entity</h3>
           </div>
           
           <div className="flex-1">
@@ -179,3 +180,5 @@ export default function FinanceDashboard() {
     </div>
   );
 }
+
+export default withAuth(FinanceDashboard, [{ module: 'ledger', action: 'view' }]);

@@ -90,4 +90,4 @@ const EditVendorPage = () => {
   );
 };
 
-export default EditVendorPage;
+export default withAuth(EditVendorPage, [{ module: 'vendor', action: 'update' }]);

@@ -17,6 +17,8 @@ import {
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
+import withAuth from '@/components/withAuth';
+import { formatDate } from '../utils/formatDate';
 
 const UsersPage: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -106,7 +108,7 @@ const UsersPage: React.FC = () => {
                 toast.dismiss(loadingId);
                 toast.error(
                   error.response?.data?.message ||
-                    'Something went wrong while deleting.'
+                  'Something went wrong while deleting.'
                 );
               }
             }}
@@ -122,7 +124,7 @@ const UsersPage: React.FC = () => {
   const handleAddUser = () => router.push('/users/add');
   const handleEdit = (id: string) => router.push(`/users/edit/${id}`);
   const handleRowClick = (user: User) => {
-    if (user._id) {
+    if (user._id && can('admin', 'update')) {
       router.push(`/users/${user._id}`);
     }
   };
@@ -141,17 +143,37 @@ const UsersPage: React.FC = () => {
           </span>
         ),
       },
-
+      {
+        accessor: 'createdBy' as any,
+        header: 'Created By',
+        render: (user: any) => {
+          const creator = user.createdBy;
+          const name = typeof creator === 'object' ? creator?.name : creator;
+          return (
+            <span className="text-sm font-medium text-gray-600">
+              {name || 'System'}
+            </span>
+          );
+        },
+      },
+      {
+        accessor: 'createdAt',
+        header: 'Date Created',
+        render: (user) => (
+          <span className="text-sm font-medium text-gray-600">
+            {formatDate(user.createdAt)}
+          </span>
+        ),
+      },
       {
         accessor: 'status',
         header: 'Status',
         render: (user) => (
           <span
-            className={`px-3 py-1 text-xs font-semibold rounded-full ${
-              user.status === 'active'
+            className={`px-3 py-1 text-xs font-semibold rounded-full ${user.status === 'active'
                 ? 'bg-green-100 text-green-800'
                 : 'bg-teal-100 text-teal-900'
-            }`}
+              }`}
           >
             {user.status}
           </span>
@@ -164,41 +186,30 @@ const UsersPage: React.FC = () => {
         accessor: 'actions' as keyof User,
         header: 'Actions',
         render: (user) => (
-          <div className="relative">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                if (user._id) toggleActionMenu(user._id);
-              }}
-              className="text-gray-600 hover:text-[#0f766e] transition"
-            >
-              <MoreVertical className="w-5 h-5" />
-            </button>
-            {openMenu === user._id && (
-              <div className="absolute right-0 top-[calc(100%+8px)] w-32 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
-                {can('user', 'update') && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (user._id) handleEdit(user._id);
-                    }}
-                    className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                  >
-                    <Edit2 className="w-4 h-4 text-[#0f766e]" /> Edit
-                  </button>
-                )}
-                {can('user', 'delete') && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (user._id) handleDelete(user._id);
-                    }}
-                    className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-[#0f766e] hover:bg-gray-50"
-                  >
-                    <Trash2 className="w-4 h-4" /> Delete
-                  </button>
-                )}
-              </div>
+          <div className="flex items-center gap-2">
+            {can('user', 'update') && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (user._id) handleEdit(user._id);
+                }}
+                className="w-9 h-9 flex items-center justify-center text-gray-500 hover:text-[#0f766e] hover:bg-[#0f766e]/5 rounded-lg transition-all border border-gray-100 hover:border-[#0f766e]/20"
+                title="Edit"
+              >
+                <Edit2 className="w-4 h-4" />
+              </button>
+            )}
+            {can('user', 'delete') && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (user._id) handleDelete(user._id);
+                }}
+                className="w-9 h-9 flex items-center justify-center text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all border border-gray-100 hover:border-red-200"
+                title="Delete"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
             )}
           </div>
         ),
@@ -206,33 +217,33 @@ const UsersPage: React.FC = () => {
     }
 
     return baseColumns;
-  }, [openMenu, can]);
+  }, [openMenu, can, handleEdit, handleDelete]);
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white p-6 md:p-10">
       <ListPageHeader
-        eyebrow="Staff Registry"
-        title="User"
-        highlight="Management"
+        eyebrow="Administration"
+        title="Employee"
+        highlight="Users"
         description="Manage employee profiles, access status, and account ownership."
         actions={
           <>
-          {can('user', 'create') && (
+            {can('user', 'create') && (
+              <button
+                onClick={handleAddUser}
+                className="page-header-button"
+              >
+                <Plus className="w-4 h-4" />
+                Add
+              </button>
+            )}
             <button
-              onClick={handleAddUser}
-              className="page-header-button"
+              onClick={() => setShowFilters(!showFilters)}
+              className="page-header-button secondary"
             >
-              <Plus className="w-4 h-4" />
-              Add
+              <Filter className="w-4 h-4" />
+              {showFilters ? 'Hide Filters' : 'Show Filters'}
             </button>
-          )}
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className="page-header-button secondary"
-          >
-            <Filter className="w-4 h-4" />
-            {showFilters ? 'Hide Filters' : 'Show Filters'}
-          </button>
           </>
         }
       />
@@ -292,4 +303,5 @@ const UsersPage: React.FC = () => {
   );
 };
 
-export default UsersPage;
+
+export default withAuth(UsersPage, [{ module: 'admin', action: 'view' }]);

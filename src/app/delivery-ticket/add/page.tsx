@@ -6,6 +6,7 @@ import { DeliveryTicket } from '@/lib/types';
 import { createDeliveryTicket } from '@/services/deliveryTicketApi';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import withAuth from '@/components/withAuth';
 
 const AddDeliveryTicketPage = () => {
   const router = useRouter();
@@ -53,4 +54,4 @@ const AddDeliveryTicketPage = () => {
   );
 };
 
-export default AddDeliveryTicketPage;
+export default withAuth(AddDeliveryTicketPage, [{ module: 'delivery_ticket', action: 'create' }]);

@@ -171,28 +171,26 @@ const SalesForm: React.FC<SalesFormProps> = ({
 
   return (
     <div className="w-full min-h-[calc(100vh-4rem)] bg-gray-50 px-8 py-6 rounded-lg">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8 border-b border-gray-200 pb-4">
-        <div className="flex items-center gap-3">
-          {isEditMode ? (
-            <Edit3 className="text-teal-700 w-6 h-6" />
-          ) : (
-            <UserPlus className="text-teal-700 w-6 h-6" />
-          )}
-          <h2 className="text-2xl font-semibold text-gray-800">
-            {isEditMode ? 'Edit Enquiry' : 'Create New Enquiry'}
-          </h2>
+      <div className="page-header mb-12">
+        <div>
+          <div className="page-header-eyebrow">
+            <div className="page-header-marker" />
+            <span>Business Development</span>
+          </div>
+          <h1 className="page-header-title">
+            {isEditMode ? 'Modify' : 'Register'} <span className="gradient-text">Enquiry</span>
+          </h1>
+          <p className="page-header-description">
+            {isEditMode 
+              ? `Refining details for Ticket #${formik.values.ticketNo}. Ensure follow-up strategies are updated to maintain lead momentum.` 
+              : 'Capture a new commercial opportunity. Define client needs, platform targeting, and initial contact parameters.'}
+          </p>
         </div>
-        <span className="text-sm text-gray-500 italic">
-          {isEditMode
-            ? `Updating Ticket #${formik.values.ticketNo}`
-            : 'Fill in the form to create a new client enquiry'}
-        </span>
       </div>
 
       <FormikProvider value={formik}>
         <form onSubmit={formik.handleSubmit} className="space-y-10">
-          <Section title="Client Information">
+          <Section eyebrow="Account Setup" title="Client" highlight="Information">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               <FormikInput
                 label="Company Name"
@@ -249,7 +247,7 @@ const SalesForm: React.FC<SalesFormProps> = ({
             </div>
           </Section>
 
-          <Section title="Enquiry Details">
+          <Section eyebrow="Lead Intake" title="Enquiry" highlight="Details">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               <FormikInput
                 label="Ticket No"
@@ -333,7 +331,7 @@ const SalesForm: React.FC<SalesFormProps> = ({
             </div>
           </Section>
 
-          <Section title="Attachments">
+          <Section eyebrow="Engagement Registry" title="Follow Up" highlight="History">
             <div
               className="border-2 border-dashed border-gray-300 rounded-xl p-8 bg-white/50 backdrop-blur-sm 
                      flex flex-col items-center justify-center cursor-pointer hover:border-teal-400 

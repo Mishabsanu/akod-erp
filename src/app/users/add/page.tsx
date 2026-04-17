@@ -6,6 +6,7 @@ import { User } from '@/lib/types';
 import { createUser } from '@/services/userApi';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import withAuth from '@/components/withAuth';
 
 const AddUserPage = () => {
   const router = useRouter();
@@ -53,4 +54,4 @@ const AddUserPage = () => {
   );
 };
 
-export default AddUserPage;
+export default withAuth(AddUserPage, [{ module: 'admin', action: 'create' }]);

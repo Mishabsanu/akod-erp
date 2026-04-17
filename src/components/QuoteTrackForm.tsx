@@ -220,12 +220,20 @@ const QuoteTrackForm: React.FC<any> = ({
 
   return (
     <div className="w-full min-h-screen bg-gray-50 px-8 py-6 rounded-lg font-sans">
-      <div className="flex items-center justify-between mb-8 border-b border-gray-200 pb-4">
-        <div className="flex items-center gap-3">
-          <Edit3 className="text-teal-700 w-6 h-6" />
-          <h2 className="text-2xl font-semibold text-gray-800">
-            {isEditMode ? 'Edit Quote Track' : 'Create New Quote Track'}
-          </h2>
+      <div className="page-header mb-12">
+        <div>
+          <div className="page-header-eyebrow">
+            <div className="page-header-marker" />
+            <span>Commercial Intelligence</span>
+          </div>
+          <h1 className="page-header-title">
+            {isEditMode ? 'Modify' : 'Initialize'} <span className="gradient-text">Quote Tracking</span>
+          </h1>
+          <p className="page-header-description">
+            {isEditMode 
+              ? 'Adjust commercial variables and item specs. Real-time margin calculations will update automatically as you refine the data.' 
+              : 'Initiate a new commercial tracking funnel. Define shipping costs, exchange rates, and line items to calculate target margins.'}
+          </p>
         </div>
       </div>
 

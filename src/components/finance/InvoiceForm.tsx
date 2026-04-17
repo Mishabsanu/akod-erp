@@ -109,7 +109,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ initialData, onSubmit, onCanc
 
       <FormikProvider value={formik}>
         <form onSubmit={formik.handleSubmit} className="space-y-10">
-          <Section title="Invoice Identification">
+          <Section eyebrow="Revenue" title="Invoice" highlight="Details">
              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <FormikInput 
                   name="invoiceNo" 

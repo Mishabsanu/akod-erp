@@ -6,6 +6,7 @@ import { Customer } from '@/lib/types';
 import { createCustomer } from '@/services/customerApi';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import withAuth from '@/components/withAuth';
 
 const AddCustomerPage = () => {
   const router = useRouter();
@@ -52,4 +53,4 @@ const AddCustomerPage = () => {
   );
 };
 
-export default AddCustomerPage;
+export default withAuth(AddCustomerPage, [{ module: 'customer', action: 'create' }]);

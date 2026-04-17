@@ -61,4 +61,4 @@ const AddReturnTicketPage = () => {
   );
 };
 
-export default AddReturnTicketPage;
+export default withAuth(AddReturnTicketPage, [{ module: 'return_ticket', action: 'create' }]);

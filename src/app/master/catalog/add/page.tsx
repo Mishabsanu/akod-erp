@@ -6,6 +6,7 @@ import { Product } from '@/lib/types';
 import { createProduct } from '@/services/catalogApi';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import withAuth from '@/components/withAuth';
 
 const AddProductPage = () => {
   const router = useRouter();
@@ -53,4 +54,4 @@ const AddProductPage = () => {
   );
 };
 
-export default AddProductPage;
+export default withAuth(AddProductPage, [{ module: 'product', action: 'create' }]);

@@ -19,6 +19,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
 
 const getStatusColor = (status: string) => {
     switch (status) {
@@ -36,6 +37,7 @@ const RunningOrdersPage = () => {
     const [loading, setLoading] = useState(true);
     const [openMenu, setOpenMenu] = useState<string | null>(null);
     const [showFilters, setShowFilters] = useState(false);
+    const { can } = useAuth();
 
     // Filters State
     const [searchTerm, setSearchTerm] = useState('');
@@ -187,7 +189,8 @@ const RunningOrdersPage = () => {
                                     toast.dismiss(loadingId);
                                 }
                             }}
-                            className="appearance-none px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest text-white border-0 cursor-pointer shadow-sm transition-transform active:scale-95 outline-none"
+                            className={`appearance-none px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest text-white border-0 transition-transform active:scale-95 outline-none ${can('running_order', 'update') ? 'cursor-pointer shadow-sm' : 'cursor-not-allowed opacity-75'}`}
+                            disabled={!can('running_order', 'update')}
                             style={{ backgroundColor: getStatusColor(order.status) }}
                         >
                             <option value="Pending">Pending</option>
@@ -199,50 +202,61 @@ const RunningOrdersPage = () => {
                     </div>
                 ),
             },
+            {
+                accessor: 'createdBy' as any,
+                header: 'Created By',
+                render: (order: RunningOrder) => (
+                    <span className="text-sm font-medium text-gray-600">
+                        {typeof (order as any).createdBy === 'object' ? (order as any).createdBy.name : ((order as any).createdBy || '--')}
+                    </span>
+                ),
+            },
+            {
+                accessor: 'createdAt' as any,
+                header: 'Date Created',
+                render: (order: RunningOrder) => (
+                    <span className="text-sm font-medium text-gray-600">
+                        {(order as any).createdAt ? format(new Date((order as any).createdAt), 'dd MMM yyyy') : '--'}
+                    </span>
+                ),
+            },
         ];
 
         baseColumns.push({
             accessor: 'actions' as keyof RunningOrder,
             header: 'Actions',
             render: (order) => (
-                <div className="relative">
-                    <button
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            if ((order as any)._id) toggleActionMenu((order as any)._id);
-                        }}
-                        className="text-gray-600 hover:text-[#0f766e] transition"
-                    >
-                        <MoreVertical className="w-5 h-5" />
-                    </button>
-                    {openMenu === (order as any)._id && (
-                        <div className="absolute right-0 top-[calc(100%+8px)] w-36 bg-white border border-gray-200 rounded-xl shadow-lg z-10 overflow-hidden">
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    router.push(`/running-order/edit/${(order as any)._id}`);
-                                }}
-                                className="flex items-center gap-2 w-full text-left px-3 py-2.5 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
-                            >
-                                <Edit2 className="w-4 h-4 text-[#0f766e]" /> Edit Order
-                            </button>
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    if ((order as any)._id) handleDelete((order as any)._id);
-                                }}
-                                className="flex items-center gap-2 w-full text-left px-3 py-2.5 text-xs font-semibold text-[#0f766e] hover:bg-teal-50 transition-colors border-t border-gray-50"
-                            >
-                                <Trash2 className="w-4 h-4" /> Delete
-                            </button>
-                        </div>
+                <div className="flex items-center gap-2">
+                    {can('running_order', 'update') && (
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                router.push(`/running-order/edit/${(order as any)._id}`);
+                            }}
+                            className="w-9 h-9 flex items-center justify-center text-gray-500 hover:text-[#0f766e] hover:bg-[#0f766e]/5 rounded-lg transition-all border border-gray-100 hover:border-[#0f766e]/20"
+                            title="Edit"
+                        >
+                            <Edit2 className="w-4 h-4" />
+                        </button>
+                    )}
+                    {can('running_order', 'delete') && (
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                if ((order as any)._id) handleDelete((order as any)._id);
+                            }}
+                            className="w-9 h-9 flex items-center justify-center text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all border border-gray-100 hover:border-red-200"
+                            title="Delete"
+                        >
+                            <Trash2 className="w-4 h-4" />
+                        </button>
                     )}
                 </div>
             ),
         });
 
-        return baseColumns;
-    }, [openMenu, orders]);
+    return baseColumns;
+  }, [orders, router, handleDelete, can]);
 
     return (
         <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white p-6 md:p-10 font-sans">
@@ -295,7 +309,11 @@ const RunningOrdersPage = () => {
                 <DataTable
                     columns={columns}
                     data={orders}
-                    onRowClick={(order) => router.push(`/running-order/${(order as any)._id}`)}
+                    onRowClick={(order) => {
+                        if (can('running_order', 'update')) {
+                            router.push(`/running-order/${(order as any)._id}`);
+                        }
+                    }}
                     serverSidePagination={true}
                     totalCount={totalCount}
                     currentPage={currentPage}

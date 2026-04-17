@@ -308,23 +308,27 @@ const DeliveryTicketForm = ({
 
   return (
     <div className="w-full min-h-[calc(100vh-4rem)] bg-gray-50 px-8 py-6 rounded-lg">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8 border-b border-gray-200 pb-4">
-        <div className="flex items-center gap-3">
-          <FilePlus className="text-teal-700 w-6 h-6" />
-          <h2 className="text-2xl font-semibold text-gray-800">
-            {isEditMode ? 'Edit Delivery Ticket' : 'Add Delivery Ticket'}
-          </h2>
+      <div className="page-header mb-12">
+        <div>
+          <div className="page-header-eyebrow">
+            <div className="page-header-marker" />
+            <span>Operational Document</span>
+          </div>
+          <h1 className="page-header-title">
+            {isEditMode ? 'Modify' : 'Initialize'} <span className="gradient-text">Delivery Note</span>
+          </h1>
+          <p className="page-header-description">
+            {isEditMode 
+              ? 'Update the details of this delivery authorization. Changes will be reflected in inventory and tracking logs.' 
+              : 'Initialize a new delivery record. Select the customer and items to generate an official delivery note.'}
+          </p>
         </div>
-        <span className="text-sm text-gray-500 italic">
-          Fill all required fields to create a delivery ticket
-        </span>
       </div>
 
       <FormikProvider value={formik}>
         <form onSubmit={(e) => { e.preventDefault(); handlePreview(); }} className="space-y-10">
           {/* 🧱 BASIC INFO */}
-          <Section title="Basic Information">
+          <Section eyebrow="Logistics" title="Delivery" highlight="Details">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               <FormikSelect
                 label="Customer Name"

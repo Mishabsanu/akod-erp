@@ -10,14 +10,17 @@ import { TableSkeleton } from '@/components/shared/TableSkeleton';
 import { getUsers } from '@/services/userApi';
 import { getAllBreakups } from '@/services/payrollApi';
 import { toast } from 'sonner';
+import withAuth from '@/components/withAuth';
+import { useAuth } from '@/contexts/AuthContext';
 
-export default function SalaryBreakupsPage() {
+function SalaryBreakupsPage() {
   const [users, setUsers] = useState<any[]>([]);
   const [breakups, setBreakups] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const { can } = useAuth();
   
   const router = useRouter();
 
@@ -120,29 +123,18 @@ export default function SalaryBreakupsPage() {
         accessor: 'actions' as any,
         header: 'Actions',
         render: (user) => (
-          <div className="relative">
-            <button
-               onClick={(e) => {
-                 e.stopPropagation();
-                 toggleActionMenu(user._id);
-               }}
-               className="text-gray-400 hover:text-gray-600 transition"
-            >
-              <MoreVertical size={20} />
-            </button>
-            {openMenu === user._id && (
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-                <button
-                   onClick={(e) => {
-                     e.stopPropagation();
-                     router.push(`/hr/payroll/breakups/config/${user._id}`);
-                   }}
-                   className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
-                >
-                  <Edit3 size={16} className="text-sky-500" />
-                  Configure Salary
-                </button>
-              </div>
+          <div className="flex items-center gap-2">
+            {can('hr', 'update') && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  router.push(`/hr/payroll/breakups/config/${user._id}`);
+                }}
+                className="w-9 h-9 flex items-center justify-center text-sky-600 hover:text-sky-700 hover:bg-sky-50 rounded-lg transition-all border border-gray-100 hover:border-sky-200"
+                title="Configure Salary"
+              >
+                <Edit3 className="w-4 h-4" />
+              </button>
             )}
           </div>
         ),
@@ -193,3 +185,5 @@ export default function SalaryBreakupsPage() {
     </div>
   );
 }
+
+export default withAuth(SalaryBreakupsPage, [{ module: 'hr', action: 'view' }]);

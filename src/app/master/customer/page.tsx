@@ -13,6 +13,7 @@ import { Edit2, Filter, MoreVertical, Plus, Trash2 } from 'lucide-react'; // Imp
 import { useRouter } from 'next/navigation';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
+import withAuth from '@/components/withAuth';
 
 const CustomerPage: React.FC = () => {
   const router = useRouter();
@@ -71,7 +72,7 @@ const CustomerPage: React.FC = () => {
   };
 
   const handleRowClick = (customer: Customer) => {
-    if (customer._id) {
+    if (customer._id && can('customer', 'update')) {
       router.push(`/master/customer/${customer._id}`);
     }
   };
@@ -129,9 +130,26 @@ const CustomerPage: React.FC = () => {
       { accessor: 'contactPersonName', header: 'Contact Person Name' },
       { accessor: 'contactPersonMobile', header: 'Contact Person Mobile' },
       {
+        accessor: 'createdBy' as any,
+        header: 'Created By',
+        render: (customer: any) => {
+          const creator = customer.createdBy;
+          const name = typeof creator === 'object' ? creator?.name : creator;
+          return (
+            <span className="text-sm font-medium text-gray-600">
+              {name || 'System'}
+            </span>
+          );
+        },
+      },
+      {
         accessor: 'createdAt',
-        header: 'Date',
-        render: (vendor) => formatDate(vendor.createdAt),
+        header: 'Date Created',
+        render: (vendor) => (
+          <span className="text-sm font-medium text-gray-600">
+            {formatDate(vendor.createdAt)}
+          </span>
+        ),
       },
       {
         accessor: 'status',
@@ -155,48 +173,37 @@ const CustomerPage: React.FC = () => {
         accessor: 'actions' as keyof Customer,
         header: 'Actions',
         render: (customer) => (
-          <div className="relative">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                if (customer._id) toggleActionMenu(customer._id);
-              }}
-              className="text-gray-600 hover:text-[#0f766e] transition"
-            >
-              <MoreVertical className="w-5 h-5" />
-            </button>
-            {openMenu === customer._id && (
-              <div className="absolute right-0 top-[calc(100%+8px)] w-32 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
-                {can('customer', 'update') && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (customer._id) handleEdit(customer._id);
-                    }}
-                    className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                  >
-                    <Edit2 className="w-4 h-4 text-[#0f766e]" /> Edit
-                  </button>
-                )}
-                {can('customer', 'delete') && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (customer._id) handleDelete(customer._id);
-                    }}
-                    className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-[#0f766e] hover:bg-gray-50"
-                  >
-                    <Trash2 className="w-4 h-4" /> Delete
-                  </button>
-                )}
-              </div>
+          <div className="flex items-center gap-2">
+            {can('customer', 'update') && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (customer._id) handleEdit(customer._id);
+                }}
+                className="w-9 h-9 flex items-center justify-center text-gray-500 hover:text-[#0f766e] hover:bg-[#0f766e]/5 rounded-lg transition-all border border-gray-100 hover:border-[#0f766e]/20"
+                title="Edit"
+              >
+                <Edit2 className="w-4 h-4" />
+              </button>
+            )}
+            {can('customer', 'delete') && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (customer._id) handleDelete(customer._id);
+                }}
+                className="w-9 h-9 flex items-center justify-center text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all border border-gray-100 hover:border-red-200"
+                title="Delete"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
             )}
           </div>
         ),
       });
     }
     return baseColumns;
-  }, [openMenu, can]);
+  }, [openMenu, can, handleEdit, handleDelete]);
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white p-6 md:p-10">
@@ -280,4 +287,4 @@ const CustomerPage: React.FC = () => {
   );
 };
 
-export default CustomerPage;
+export default withAuth(CustomerPage, [{ module: 'customer', action: 'view' }]);

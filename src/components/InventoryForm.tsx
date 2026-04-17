@@ -189,17 +189,26 @@ const InventoryForm: React.FC<InventoryFormProps> = ({
   return (
     <div className="w-full bg-gray-50 px-8 py-6 rounded-lg">
       <form onSubmit={formik.handleSubmit}>
-        {/* HEADER */}
-        <div className="flex items-center gap-3 mb-6 border-b pb-4">
-          <PackagePlus className="text-teal-700 w-6 h-6" />
-          <h2 className="text-2xl font-semibold">
-            {isEditMode ? 'Edit Inventory' : 'Add Inventory'}
-          </h2>
+        <div className="page-header mb-12">
+          <div>
+            <div className="page-header-eyebrow">
+              <div className="page-header-marker" />
+              <span>Stock Management</span>
+            </div>
+            <h1 className="page-header-title">
+              {isEditMode ? 'Modify' : 'Register'} <span className="gradient-text">Inventory</span>
+            </h1>
+            <p className="page-header-description">
+              {isEditMode 
+                ? 'Update inventory levels and historical reference points for this stock entry.' 
+                : 'Account for incoming stock and link items to their associated purchase orders.'}
+            </p>
+          </div>
         </div>
 
         <FormikProvider value={formik}>
           {/* GENERAL INFO */}
-          <Section title="General Information">
+          <Section eyebrow="Stock Management" title="Item" highlight="Details">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <FormikInput label="Date" name="date" type="date" required />
               <FormikInput label="Reference" name="reference" />
@@ -237,19 +246,19 @@ const InventoryForm: React.FC<InventoryFormProps> = ({
                       className="text-white text-sm uppercase tracking-wider"
                       style={{ backgroundColor: '#0f766e' }}
                     >
-                      <th className="py-3 px-4 text-center w-12">#</th>
-                      <th className="w-[260px] py-2 px-3 text-left">
+                      <th className="py-3 px-4 text-center w-12 !text-white">#</th>
+                      <th className="w-[260px] py-2 px-3 text-left !text-white">
                         Product <span className="text-red-500">*</span>
                       </th>
-                      <th className="w-[160px] py-2 px-3 text-left">
+                      <th className="w-[160px] py-2 px-3 text-left !text-white">
                         Item Code
                       </th>
-                      <th className="w-[100px] py-2 px-3 text-left">Unit</th>
-                      <th className="w-[120px] py-2 px-3 text-right">
+                      <th className="w-[100px] py-2 px-3 text-left !text-white">Unit</th>
+                      <th className="w-[120px] py-2 px-3 text-right !text-white">
                         Stock <span className="text-red-500">*</span>
                       </th>
                       {!isEditMode && (
-                        <th className="w-[70px] py-2 px-2 text-center">
+                        <th className="w-[70px] py-2 px-2 text-center !text-white">
                           Action
                         </th>
                       )}

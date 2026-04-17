@@ -17,6 +17,7 @@ import {
     Ship
 } from 'lucide-react';
 import { RunningOrder } from '@/lib/types';
+import ListPageHeader from './shared/ListPageHeader';
 
 interface RunningOrderFormProps {
     initialData?: Partial<RunningOrder> & { _id?: string };
@@ -79,35 +80,30 @@ const RunningOrderForm: React.FC<RunningOrderFormProps> = ({
     return (
         <div className="w-full max-w-5xl mx-auto font-sans pb-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
             
-            {/* Header Card */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10 overflow-hidden relative">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-[#0f766e]/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl pointer-events-none"></div>
-                <div className="flex items-center gap-6 relative z-10">
-                    <div className="w-16 h-16 rounded-2xl bg-[#0f766e] flex items-center justify-center text-white shadow-lg rotate-3">
-                        <Truck size={32} />
+            <ListPageHeader
+                eyebrow="Production Pipeline"
+                title={isEditMode ? 'Refine' : 'Initialize'}
+                highlight="Running Order"
+                description={isEditMode 
+                    ? 'Adjust manufacturing milestones and logistics timelines for this active fulfillment order.' 
+                    : 'Establish a new tracking sequence. Define ETD/ETA milestones and financial commitments.'}
+                className="mb-10"
+                actions={
+                    <div className="flex items-center gap-4">
+                        <button type="button" onClick={onCancel} className="page-header-secondary-button">
+                            Discard
+                        </button>
+                        <button
+                            onClick={() => formik.handleSubmit()}
+                            disabled={isLoading}
+                            className="page-header-button flex items-center gap-2"
+                        >
+                            {isLoading ? 'Processing...' : isEditMode ? 'Commit Changes' : 'Launch Tracking'}
+                            {!isLoading && <ArrowRight size={14} />}
+                        </button>
                     </div>
-                    <div>
-                        <h1 className="text-3xl font-black text-[#0f766e] tracking-tight">
-                            {isEditMode ? 'Edit Tracking' : 'New Order Tracking'}
-                        </h1>
-                        <p className="text-gray-400 font-medium text-sm mt-1">Manage manufacturing & delivery timelines</p>
-                    </div>
-                </div>
-
-                <div className="flex items-center gap-3 relative z-10">
-                    <button type="button" onClick={onCancel} className="px-6 py-3 rounded-xl border border-gray-200 text-gray-500 font-bold hover:bg-gray-50 transition-all text-sm">
-                        Cancel
-                    </button>
-                    <button
-                        onClick={() => formik.handleSubmit()}
-                        disabled={isLoading}
-                        className="px-8 py-3 rounded-xl bg-[#0f766e] text-white font-bold shadow-lg shadow-[#0f766e]/20 hover:bg-[#134e4a] transition-all active:scale-95 disabled:opacity-50 text-sm flex items-center gap-2"
-                    >
-                        {isLoading ? 'Saving...' : isEditMode ? 'Update Record' : 'Create Record'}
-                        {!isLoading && <ArrowRight size={16} />}
-                    </button>
-                </div>
-            </div>
+                }
+            />
 
             <form onSubmit={formik.handleSubmit} className="space-y-10">
                 

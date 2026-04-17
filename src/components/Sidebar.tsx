@@ -2,36 +2,36 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 import {
+  Banknote,
+  BookOpen,
+  Box,
   ChevronDown,
+  ChevronRight,
+  Clock,
+  Contact,
+  CreditCard,
+  Database,
+  FileText,
+  IndianRupee,
+  Layers,
   LayoutDashboard,
   LogOut,
-  Database,
-  Truck,
-  RotateCcw,
-  Clock,
-  FileText,
-  Users,
-  ShieldCheck,
-  Users2,
-  UserPlus,
-  IndianRupee,
-  BookOpen,
-  Wallet,
-  CreditCard,
   Package,
-  Box,
-  Layers,
-  Contact,
-  Banknote,
   PieChart,
   ReceiptText,
-  ChevronRight,
+  RotateCcw,
+  ShieldCheck,
+  Truck,
+  UserPlus,
+  Users,
+  Users2,
+  Wallet,
   type LucideIcon,
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 type SubMenuItem = {
   name: string;
@@ -42,9 +42,10 @@ type SubMenuItem = {
 
 type MenuItem = {
   name: string;
-  icon: LucideIcon;
+  icon?: LucideIcon;
   href?: string;
   subItems?: SubMenuItem[];
+  noCollapse?: boolean;
 };
 
 export const Sidebar = () => {
@@ -65,6 +66,7 @@ export const Sidebar = () => {
     (can('sales', 'view') || can('quote_track', 'view')) && {
       name: 'CRM',
       icon: Users2,
+      noCollapse: true,
       subItems: [
         {
           name: 'Leads',
@@ -80,22 +82,24 @@ export const Sidebar = () => {
     },
 
     // Finance Module
-    {
+    (can('accounts', 'view') || can('ledger', 'view') || can('expense', 'view') || can('invoice', 'view') || can('payment', 'view')) && {
       name: 'Finance',
       icon: IndianRupee,
+      noCollapse: true,
       subItems: [
-        { name: 'Accounts', icon: BookOpen, href: '/finance/accounts' },
-        { name: 'Ledger', icon: Database, href: '/finance/ledger' },
-        { name: 'Expenses', icon: Wallet, href: '/finance/expenses' },
-        { name: 'Invoices', icon: FileText, href: '/finance/invoices' },
-        { name: 'Payment', icon: CreditCard, href: '/finance/payment' },
-      ],
+        can('accounts', 'view') && { name: 'Accounts', icon: BookOpen, href: '/finance/accounts' },
+        can('ledger', 'view') && { name: 'Ledger', icon: Database, href: '/finance/ledger' },
+        can('expense', 'view') && { name: 'Expenses', icon: Wallet, href: '/finance/expenses' },
+        can('invoice', 'view') && { name: 'Invoices', icon: FileText, href: '/finance/invoices' },
+        can('payment', 'view') && { name: 'Payment', icon: CreditCard, href: '/finance/payment' },
+      ].filter(Boolean) as SubMenuItem[],
     },
 
     // Inventory Module
     (can('inventory', 'view') || can('delivery_ticket', 'view') || can('return_ticket', 'view') || can('product', 'view')) && {
       name: 'Inventory',
       icon: Package,
+      noCollapse: true,
       subItems: [
         can('product', 'view') && {
           name: 'Products Catalog',
@@ -135,7 +139,7 @@ export const Sidebar = () => {
           icon: Clock,
           href: '/attendance',
         },
-        {
+        can('hr', 'view') && {
           name: 'Payroll',
           icon: Banknote,
           href: '/hr/payroll',
@@ -247,7 +251,7 @@ export const Sidebar = () => {
       <nav className="flex-1 overflow-y-auto p-4 no-scrollbar">
         <div className="space-y-6">
           {menuItems.map((item) => {
-            const Icon = item.icon;
+            const ItemIcon = item.icon;
             const hasSubItems = item.subItems && item.subItems.length > 0;
             const isExpanded = openSubMenus.includes(item.name);
             const isChildActive = item.subItems?.some(sub =>
@@ -260,6 +264,31 @@ export const Sidebar = () => {
             // isRouteActive determines if the module should have the active background highlight
             const isRouteActive = isChildActive || isDirectActive;
 
+            if (item.noCollapse && hasSubItems) {
+              return (
+                <div key={item.name} className="flex flex-col gap-1">
+                  {isOpen && <p className="px-3 text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 mt-2">{item.name}</p>}
+                  {item.subItems!.map(sub => {
+                    const SubIcon = sub.icon || Box;
+                    const isSubRouteActive = pathname === sub.href || pathname.startsWith(sub.href + '/');
+                    return (
+                      <Link
+                        key={sub.name}
+                        href={sub.href}
+                        className={`group flex items-center gap-4 px-4 py-3 rounded-2xl transition-all duration-300
+                          ${isSubRouteActive && isOpen ? 'bg-[#0f766e] text-white shadow-xl' : 'hover:bg-white/10 text-gray-200'}`}
+                      >
+                        <div className={`p-2 rounded-xl transition-all duration-300 ${isSubRouteActive ? 'bg-[#14b8a6] text-white shadow-md' : 'bg-white/10 text-gray-300 group-hover:bg-white/20'}`}>
+                          <SubIcon size={18} />
+                        </div>
+                        {isOpen && <span className="text-[14px] font-bold">{sub.name}</span>}
+                      </Link>
+                    )
+                  })}
+                </div>
+              );
+            }
+
             if (hasSubItems) {
               return (
                 <div key={item.name} className="flex flex-col gap-1">
@@ -271,7 +300,7 @@ export const Sidebar = () => {
                   >
                     <div className="flex items-center gap-4">
                       <div className={`p-2 rounded-xl transition-all duration-300 ${isRouteActive ? 'bg-[#14b8a6] text-white shadow-md' : 'bg-white/10 text-gray-200 group-hover:bg-white/20'}`}>
-                        <Icon size={18} />
+                        {ItemIcon && <ItemIcon size={18} />}
                       </div>
                       {isOpen && <span className="text-[14px] font-bold">{item.name}</span>}
                     </div>
@@ -293,7 +322,7 @@ export const Sidebar = () => {
                   ${isDirectActive && isOpen ? 'bg-[#0f766e] text-white shadow-xl' : 'hover:bg-white/10 text-gray-200'}`}
               >
                 <div className={`p-2 rounded-xl transition-all duration-300 ${isDirectActive ? 'bg-[#14b8a6] text-white shadow-md' : 'bg-white/10 text-gray-300 group-hover:bg-white/20'}`}>
-                  <Icon size={18} />
+                  {ItemIcon && <ItemIcon size={18} />}
                 </div>
                 {isOpen && <span className="text-[14px] font-bold">{item.name}</span>}
               </Link>

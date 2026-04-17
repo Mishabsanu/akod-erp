@@ -13,7 +13,9 @@ export interface Role {
   _id?: string;
   name: string;
   status: 'active' | 'inactive';
+  description?: string;
   permissions: RolePermissions;
+  createdBy?: string | User;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -77,6 +79,7 @@ export interface Vendor {
   contactPersonMobile?: string;
   createdAt?: string;
   updatedAt?: string;
+  createdBy?: string | User;
 }
 
 export interface VendorFilter {
@@ -101,6 +104,7 @@ export interface Customer {
   contactPersonMobile?: string;
   createdAt?: string;
   updatedAt?: string;
+  createdBy?: string | User;
 }
 
 export interface CustomerFilter {
@@ -204,6 +208,7 @@ export interface Product {
   category?: string;
   createdAt?: string;
   updatedAt?: string;
+  createdBy?: string | User;
 }
 export interface PODropdownItem {
   _id: string;
@@ -235,9 +240,10 @@ export interface InventoryItem {
   orderedQty: number;
   availableQty: number;
   history: HistoryItem[];
-  status: 'OUT_OF_STOCK' | 'LOW_STOCK' | '	IN_STOCK';
+  status: 'OUT_OF_STOCK' | 'LOW_STOCK' | 'IN_STOCK';
   createdAt: string;
   updatedAt: string;
+  createdBy?: string | User;
 }
 
 export interface CreateInventoryPayload {
@@ -306,6 +312,7 @@ export interface DeliveryTicket {
   quantity: string;
   createdAt?: string;
   updatedAt?: string;
+  createdBy?: string | User;
 }
 
 export interface DeliveryTicketFilter {
@@ -329,6 +336,7 @@ export interface ReturnTicket {
   receivedBy: ReceivedBy;
   createdAt?: string;
   updatedAt?: string;
+  createdBy?: string | User;
   ticketType?: string;
   ticketNo: string;
   poNo?: string;
@@ -373,6 +381,7 @@ export interface Sale {
   user?: SaleUser;
   nearestPort?: string;
   businessType?: string;
+  createdBy?: string;
 }
 
 export interface SaleFilter {
@@ -398,6 +407,7 @@ export interface QuoteTrack {
   quantity?: number;
   price?: number;
   date?: string;
+  quoteNo?: string;
   followUpDate?: string;
   remarks?: string;
   status: 'Pending' | 'Quoted' | 'Accepted' | 'Rejected';
@@ -405,6 +415,7 @@ export interface QuoteTrack {
   deepPrice?: number;
   createdAt?: string;
   updatedAt?: string;
+  createdBy?: string | User;
   totalShippingCost?: number;
   totalItemCost?: number;
   totalWeight?: number;
@@ -466,6 +477,7 @@ export interface Account {
   description?: string;
   createdAt?: string;
   updatedAt?: string;
+  createdBy?: string | User;
 }
 
 export interface AccountFilter {
@@ -489,6 +501,7 @@ export interface Expense {
   status: 'pending' | 'paid' | 'cancelled';
   attachments?: string[];
   createdAt?: string;
+  createdBy?: string | User;
 }
 
 export interface ExpenseFilter {
@@ -528,6 +541,7 @@ export interface Invoice {
   notes?: string;
   terms?: string;
   createdAt?: string;
+  createdBy?: string | User;
 }
 
 export interface InvoiceFilter {
@@ -550,6 +564,7 @@ export interface Payment {
   companyName?: string;
   status: 'completed' | 'pending' | 'failed';
   createdAt?: string;
+  createdBy?: string | User;
 }
 
 export interface PaymentFilter {

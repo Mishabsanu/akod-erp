@@ -15,6 +15,7 @@ import {
   Plus,
   Trash2,
 } from 'lucide-react';
+import withAuth from '@/components/withAuth';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
@@ -130,28 +131,54 @@ const CatalogPage = () => {
   const handleAdd = () => router.push('/master/catalog/add');
   const handleEdit = (id: string) => router.push(`/master/catalog/edit/${id}`);
   const handleRowClick = (product: Product) => {
-    if (product._id) {
+    if (product._id && can('product', 'update')) {
       router.push(`/master/catalog/${product._id}`);
     }
   };
 
   const columns: Column<Product>[] = useMemo(() => {
     const baseColumns: Column<Product>[] = [
-      { accessor: 'name', header: 'Name' },
-      { accessor: 'itemCode', header: 'Item Code' },
+      { 
+        accessor: 'name', 
+        header: 'Name',
+        render: (product) => <span className="font-bold text-gray-900">{product.name}</span>
+      },
+      { 
+        accessor: 'itemCode', 
+        header: 'Item Code',
+        render: (product) => <span className="font-bold text-[#0f766e] tracking-wider uppercase">{product.itemCode}</span>
+      },
       { accessor: 'unit', header: 'Unit' },
       {
         accessor: 'status',
         header: 'Status',
         render: (product) => (
           <span
-            className={`px-3 py-1 text-xs font-semibold rounded-full ${
+            className={`px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-lg ${
               product.status === 'active'
-                ? 'bg-green-100 text-green-800'
-                : 'bg-teal-100 text-teal-900'
+                ? 'bg-[#0f766e] text-white'
+                : 'bg-gray-100 text-gray-400 border border-gray-200'
             }`}
           >
             {product.status}
+          </span>
+        ),
+      },
+      {
+        accessor: 'createdBy' as any,
+        header: 'Created By',
+        render: (product: Product) => (
+          <span className="text-sm font-medium text-gray-600">
+            {typeof product.createdBy === 'object' ? product.createdBy.name : product.createdBy || '--'}
+          </span>
+        ),
+      },
+      {
+        accessor: 'createdAt',
+        header: 'Date Created',
+        render: (product: Product) => (
+          <span className="text-sm font-medium text-gray-600">
+            {product.createdAt ? new Date(product.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '--'}
           </span>
         ),
       },
@@ -161,44 +188,31 @@ const CatalogPage = () => {
       baseColumns.push({
         accessor: 'actions' as keyof Product,
         header: 'Actions',
-        render: (product: Product) => (
-          <div className="relative">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                if (product._id) toggleActionMenu(product._id);
-              }}
-              className="text-gray-600 hover:text-[#0f766e] transition"
-            >
-              <MoreVertical className="w-5 h-5" />
-            </button>
-            {openMenu === product._id && (
-              <div className="absolute right-0 top-[calc(100%+8px)] w-32 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
-                {can('product', 'update') && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (product._id) handleEdit(product._id);
-                    }}
-                    className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                  >
-                    <Edit2 className="w-4 h-4 text-[#0f766e]" />
-                    Edit
-                  </button>
-                )}
-                {can('product', 'delete') && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (product._id) handleDelete(product._id);
-                    }}
-                    className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-[#0f766e] hover:bg-gray-50"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                    Delete
-                  </button>
-                )}
-              </div>
+        render: (product) => (
+          <div className="flex items-center gap-2">
+            {can('product', 'update') && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (product._id) handleEdit(product._id);
+                }}
+                className="w-9 h-9 flex items-center justify-center text-gray-500 hover:text-[#0f766e] hover:bg-[#0f766e]/5 rounded-lg transition-all border border-gray-100 hover:border-[#0f766e]/20"
+                title="Edit"
+              >
+                <Edit2 className="w-4 h-4" />
+              </button>
+            )}
+            {can('product', 'delete') && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (product._id) handleDelete(product._id);
+                }}
+                className="w-9 h-9 flex items-center justify-center text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all border border-gray-100 hover:border-red-200"
+                title="Delete"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
             )}
           </div>
         ),
@@ -206,13 +220,13 @@ const CatalogPage = () => {
     }
 
     return baseColumns;
-  }, [openMenu, can]);
+  }, [openMenu, can, handleEdit, handleDelete]);
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white p-6 md:p-10">
       <ListPageHeader
-        eyebrow="Product Registry"
-        title="Product"
+        eyebrow="Inventory Master"
+        title="Products"
         highlight="Catalog"
         description="Manage product definitions, specifications, and catalog status."
         actions={
@@ -293,4 +307,4 @@ const CatalogPage = () => {
   );
 };
 
-export default CatalogPage;
+export default withAuth(CatalogPage, [{ module: 'product', action: 'view' }]);

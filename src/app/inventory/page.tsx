@@ -21,6 +21,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
+import withAuth from '@/components/withAuth';
 
 const InventoryPage = () => {
   // Rename component
@@ -146,7 +147,7 @@ const InventoryPage = () => {
   const handleAdd = () => router.push('/inventory/add'); // Update path
   const handleEdit = (id: string) => router.push(`/inventory/edit/${id}`); // Update path
   const handleRowClick = (item: InventoryItem) => {
-    if (item._id) {
+    if (item._id && can('inventory', 'update')) {
       router.push(`/inventory/${item._id}`);
     }
   };
@@ -156,6 +157,7 @@ const InventoryPage = () => {
       {
         accessor: 'poNo',
         header: 'PO Number',
+        render: (item) => <span className="font-bold text-[#0f766e] uppercase tracking-wider">{item.poNo}</span>
       },
       {
         accessor: 'product',
@@ -165,6 +167,7 @@ const InventoryPage = () => {
       {
         accessor: 'itemCode',
         header: 'Item Code',
+        render: (item) => <span className="font-bold text-gray-950 uppercase tracking-widest">{item.itemCode}</span>
       },
       {
         accessor: 'orderedQty',
@@ -191,12 +194,32 @@ const InventoryPage = () => {
 
           return (
             <span
-              className={`px-3 py-1 text-xs font-semibold rounded-full ${color}`}
+              className={`px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-lg ${
+                item.status === 'IN_STOCK' ? 'bg-[#0f766e] text-white' : item.status === 'LOW_STOCK' ? 'bg-orange-50 text-orange-700' : 'bg-red-50 text-red-700'
+              }`}
             >
               {item.status.replaceAll('_', ' ')}
             </span>
           );
         },
+      },
+      {
+        accessor: 'createdBy' as any,
+        header: 'Created By',
+        render: (item: InventoryItem) => (
+          <span className="text-sm font-medium text-gray-600">
+            {typeof item.createdBy === 'object' ? item.createdBy.name : item.createdBy || '--'}
+          </span>
+        ),
+      },
+      {
+        accessor: 'createdAt',
+        header: 'Date Created',
+        render: (item: InventoryItem) => (
+          <span className="text-sm font-medium text-gray-600">
+            {item.createdAt ? new Date(item.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '--'}
+          </span>
+        ),
       },
     ];
 
@@ -205,42 +228,30 @@ const InventoryPage = () => {
         accessor: 'actions' as keyof InventoryItem,
         header: 'Actions',
         render: (item) => (
-          <div className="relative">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                if (item._id) toggleActionMenu(item._id);
-              }}
-              className="text-gray-600 hover:text-[#0f766e]"
-            >
-              <MoreVertical className="w-5 h-5" />
-            </button>
-
-            {openMenu === item._id && (
-              <div className="absolute right-0 mt-2 w-32 bg-white  rounded-lg shadow z-10">
-                {can('inventory', 'update') && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (item._id) handleEdit(item._id);
-                    }}
-                    className="flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50"
-                  >
-                    <Edit2 className="w-4 h-4" /> Edit
-                  </button>
-                )}
-                {can('inventory', 'delete') && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (item._id) handleDelete(item._id);
-                    }}
-                    className="flex w-full items-center gap-2 px-3 py-2 text-sm text-teal-700 hover:bg-gray-50"
-                  >
-                    <Trash2 className="w-4 h-4" /> Delete
-                  </button>
-                )}
-              </div>
+          <div className="flex items-center gap-2">
+            {can('inventory', 'update') && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (item._id) handleEdit(item._id);
+                }}
+                className="w-9 h-9 flex items-center justify-center text-gray-500 hover:text-[#0f766e] hover:bg-[#0f766e]/5 rounded-lg transition-all border border-gray-100 hover:border-[#0f766e]/20"
+                title="Edit"
+              >
+                <Edit2 className="w-4 h-4" />
+              </button>
+            )}
+            {can('inventory', 'delete') && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (item._id) handleDelete(item._id);
+                }}
+                className="w-9 h-9 flex items-center justify-center text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all border border-gray-100 hover:border-red-200"
+                title="Delete"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
             )}
           </div>
         ),
@@ -252,9 +263,9 @@ const InventoryPage = () => {
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white p-6 md:p-10">
       <ListPageHeader
-        eyebrow="Stock Registry"
+        eyebrow="Logistics"
         title="Inventory"
-        highlight="Registry"
+        highlight="Status"
         description="Monitor stock status, item movement, and available quantities."
         actions={
           <>
@@ -341,4 +352,4 @@ const InventoryPage = () => {
   );
 };
 
-export default InventoryPage;
+export default withAuth(InventoryPage, [{ module: 'inventory', action: 'view' }]);

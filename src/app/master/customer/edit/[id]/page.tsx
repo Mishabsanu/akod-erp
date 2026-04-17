@@ -8,6 +8,7 @@ import { getCustomerById, updateCustomer } from '@/services/customerApi';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import withAuth from '@/components/withAuth';
 
 const EditCustomerPage = () => {
   const router = useRouter();
@@ -89,4 +90,4 @@ const EditCustomerPage = () => {
   );
 };
 
-export default EditCustomerPage;
+export default withAuth(EditCustomerPage, [{ module: 'customer', action: 'update' }]);

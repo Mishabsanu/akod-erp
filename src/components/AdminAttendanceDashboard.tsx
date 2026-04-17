@@ -139,7 +139,7 @@ export default function AdminAttendanceDashboard() {
                             Checked Out
                         </span>
                     ) : (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-50 text-teal-500 text-[11px] font-black uppercase tracking-wide border border-teal-100">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-50 text-red-600 text-[11px] font-black uppercase tracking-wide border border-red-100">
                             Absent
                         </span>
                     )}
@@ -363,7 +363,7 @@ export default function AdminAttendanceDashboard() {
                                                                 );
                                                             } else if (cellData.status === 'A') {
                                                                 badge = (
-                                                                    <div className="w-9 h-9 rounded-xl bg-teal-50 text-teal-500 flex items-center justify-center text-[13px] font-black border border-teal-100 shadow-sm">
+                                                                    <div className="w-9 h-9 rounded-xl bg-red-50 text-red-600 flex items-center justify-center text-[13px] font-black border border-red-100 shadow-sm">
                                                                         A
                                                                     </div>
                                                                 );
@@ -410,7 +410,7 @@ const StatsCard = ({ label, value, icon: Icon, color }: any) => {
         blue: 'bg-sky-50 text-sky-600',
         green: 'bg-green-50 text-green-600',
         cyan: 'bg-cyan-50 text-cyan-600',
-        red: 'bg-teal-50 text-teal-700',
+        red: 'bg-rose-50 text-rose-600',
     };
     return (
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center gap-3 group hover:border-[#0f766e]/20 transition-all hover:shadow-md">

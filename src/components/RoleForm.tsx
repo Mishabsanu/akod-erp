@@ -1,12 +1,28 @@
-'use client';
-
-import React from 'react';
 import { FormikProvider, useFormik } from 'formik';
+import {
+  Activity,
+  ArrowLeft,
+  Box,
+  CheckCircle2,
+  Clock,
+  CreditCard,
+  Edit2,
+  Eye,
+  FileText,
+  LayoutGrid,
+  Plus,
+  ReceiptText,
+  ShieldCheck,
+  ShieldPlus,
+  Trash2,
+  TrendingUp,
+  Truck,
+  Users,
+  Wallet,
+} from 'lucide-react';
+import React from 'react';
 import * as Yup from 'yup';
-import { ShieldPlus, Edit3 } from 'lucide-react';
-import { FormikInput } from './shared/FormikInput';
-import { FormikSelect } from './shared/FormikSelect';
-import { Section } from './ui/Section';
+import ListPageHeader from './shared/ListPageHeader';
 
 /* ---------------- VALIDATION ---------------- */
 const RoleValidationSchema = Yup.object({
@@ -17,6 +33,7 @@ const RoleValidationSchema = Yup.object({
   status: Yup.string()
     .oneOf(['active', 'inactive'])
     .required('Status is required'),
+  description: Yup.string().max(500, 'Max 500 characters'),
 });
 
 const emptyPermissions = {
@@ -31,195 +48,249 @@ const emptyPermissions = {
   sales: { view: false, create: false, update: false, delete: false },
   quote_track: { view: false, create: false, update: false, delete: false },
   running_order: { view: false, create: false, update: false, delete: false },
+  invoice: { view: false, create: false, update: false, delete: false },
+  payment: { view: false, create: false, update: false, delete: false },
+  expense: { view: false, create: false, update: false, delete: false },
+  attendance: { view: false, create: false, update: false, delete: false },
+  payroll: { view: false, create: false, update: false, delete: false },
+};
+
+const MODULE_CONFIG: Record<string, { label: string; icon: any; category: string }> = {
+  user: { label: 'Users', icon: Users, category: 'Core' },
+  role: { label: 'Roles', icon: ShieldCheck, category: 'Core' },
+  customer: { label: 'Customers', icon: Users, category: 'Masters' },
+  vendor: { label: 'Vendors', icon: Truck, category: 'Masters' },
+  product: { label: 'Products', icon: Box, category: 'Masters' },
+  inventory: { label: 'Inventory', icon: Box, category: 'Logistics' },
+  delivery_ticket: { label: 'Delivery Ticket', icon: FileText, category: 'Logistics' },
+  return_ticket: { label: 'Return Ticket', icon: Activity, category: 'Logistics' },
+  running_order: { label: 'Running Order', icon: Activity, category: 'Logistics' },
+  sales: { label: 'Sales/CRM', icon: TrendingUp, category: 'Commercial' },
+  quote_track: { label: 'Quote Tracking', icon: TrendingUp, category: 'Commercial' },
+  invoice: { label: 'Invoices', icon: ReceiptText, category: 'Finance' },
+  payment: { label: 'Payments', icon: CreditCard, category: 'Finance' },
+  expense: { label: 'Expenses', icon: Wallet, category: 'Finance' },
+  attendance: { label: 'Attendance', icon: Clock, category: 'HR' },
+  payroll: { label: 'Payroll', icon: CreditCard, category: 'HR' },
 };
 
 interface RoleFormProps {
   initialData?: any;
-  onSubmit: (
-    data: any,
-    formikHelpers: {
-      setErrors: (errors: any) => void;
-      setSubmitting: (isSubmitting: boolean) => void;
-    }
-  ) => Promise<void> | void;
+  onSubmit: (data: any, helpers: any) => Promise<void> | void;
   onCancel: () => void;
   isEditMode: boolean;
 }
 
-const RoleForm: React.FC<RoleFormProps> = ({
-  initialData,
-  onSubmit,
-  onCancel,
-  isEditMode,
-}) => {
+const RoleForm: React.FC<RoleFormProps> = ({ initialData, onSubmit, onCancel, isEditMode }) => {
   const formik = useFormik({
     initialValues: {
       name: initialData?.name || '',
       status: initialData?.status || 'active',
+      description: initialData?.description || '',
       permissions: initialData?.permissions
         ? JSON.parse(JSON.stringify(initialData.permissions))
         : JSON.parse(JSON.stringify(emptyPermissions)),
     },
     validationSchema: RoleValidationSchema,
-    enableReinitialize: false,
-    onSubmit: async (values, { setErrors, setSubmitting }) => {
-      console.log('SUBMITTED ✅', values);
-      await onSubmit(values, { setErrors, setSubmitting });
+    enableReinitialize: true,
+    onSubmit: async (values, helpers) => {
+      await onSubmit(values, helpers);
     },
   });
 
-  const MODULES = Object.keys(formik.values.permissions);
+  const modules = Object.keys(formik.values.permissions);
+  const isSuperAdmin = modules.every((m) => Object.values(formik.values.permissions[m]).every((v) => v === true));
+
+  const toggleSuperAdmin = (checked: boolean) => {
+    const updated = JSON.parse(JSON.stringify(formik.values.permissions));
+    Object.keys(updated).forEach((m) => {
+      Object.keys(updated[m]).forEach((p) => {
+        updated[m][p] = checked;
+      });
+    });
+    formik.setFieldValue('permissions', updated);
+  };
+
+  const toggleModule = (module: string, checked: boolean) => {
+    const updated = { ...formik.values.permissions[module] };
+    Object.keys(updated).forEach((p) => {
+      updated[p] = checked;
+    });
+    formik.setFieldValue(`permissions.${module}`, updated);
+  };
 
   return (
-    <div className="w-full min-h-[calc(100vh-4rem)] bg-gray-50 px-8 py-6 rounded-lg">
-      {/* ---------------- HEADER ---------------- */}
-      <div className="flex items-center justify-between mb-10 border-b border-gray-300 pb-5">
-        <div className="flex items-center gap-3">
-          {isEditMode ? (
-            <Edit3 className="text-teal-700 w-7 h-7" />
-          ) : (
-            <ShieldPlus className="text-teal-700 w-7 h-7" />
-          )}
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">
-              {isEditMode ? 'Edit Role' : 'Create New Role'}
-            </h2>
-          </div>
-        </div>
-      </div>
-
-      {/* ---------------- FORM START ---------------- */}
+    <div className="w-full min-h-screen bg-[#f8fafc] pb-24 font-sans">
       <FormikProvider value={formik}>
-        <form onSubmit={formik.handleSubmit} className="space-y-12">
-          {/* ========== BASIC ROLE INFO (NO BORDER) ========== */}
-          <Section title="Basic Role Information">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <FormikInput
-                label="Role Name"
-                name="name"
-                placeholder="Eg: Admin, Sales Manager"
-                required
-              />
-
-              <FormikSelect
-                label="Status"
-                name="status"
-                options={[
-                  { value: 'active', label: 'Active' },
-                  { value: 'inactive', label: 'Inactive' },
-                ]}
-                required
-              />
-            </div>
-          </Section>
-
-          {/* ========== PERMISSIONS SECTION ========== */}
-          <Section title="Permissions">
-            <p className="text-sm text-gray-500 italic mb-4">
-              Select what actions this role is allowed to perform in each
-              module.
-            </p>
-            {/* GLOBAL SELECT ALL TOGGLE */}
-            <div className="flex items-center gap-3 mb-4">
-              <input
-                type="checkbox"
-                checked={MODULES.every((module) =>
-                  Object.values(formik.values.permissions[module]).every(
-                    (v) => v === true
-                  )
-                )}
-                onChange={(e) => {
-                  const updated = { ...formik.values.permissions };
-
-                  Object.keys(updated).forEach((module) => {
-                    Object.keys(updated[module]).forEach((perm) => {
-                      updated[module][perm] = e.target.checked;
-                    });
-                  });
-
-                  formik.setFieldValue('permissions', updated);
-                }}
-                className="w-5 h-5"
-              />
-              <span className="text-sm font-medium">
-                Select All / Clear All Permissions
-              </span>
-            </div>
-            {/* PERMISSION TABLE HEADER */}
-            <div className="grid grid-cols-6 bg-gray-100 border p-2 text-sm font-semibold">
-              <div>Module</div>
-              <div className="text-center">View</div>
-              <div className="text-center">Create</div>
-              <div className="text-center">Update</div>
-              <div className="text-center">Delete</div>
-              <div className="text-center">Select Row</div>
-            </div>
-            {/* PERMISSION ROWS */}
-            {MODULES.map((module) => (
-              <div
-                key={module}
-                className="grid grid-cols-6 border-x border-b p-2 items-center"
-              >
-                <div className="capitalize text-sm">
-                  {module.replace('_', ' ')}
-                </div>
-
-                {['view', 'create', 'update', 'delete'].map((perm) => (
-                  <div key={perm} className="text-center">
+        <form onSubmit={formik.handleSubmit}>
+          <ListPageHeader
+            eyebrow="Permissions Matrix"
+            title={isEditMode ? 'Modify' : 'Architect'}
+            highlight="Security Role"
+            description={isEditMode
+              ? 'Review and adjust assigned access levels. Granular permission changes will take effect upon the next user session.'
+              : 'Establish a new administrative or operational role. Define precise CRUD permissions across all system modules.'}
+            className="mb-12"
+            actions={
+              <div className="flex items-center gap-6">
+                <div className="bg-[#0f766e]/5 border border-[#0f766e]/10 rounded-2xl px-4 py-2 flex items-center gap-4">
+                  <div className="text-right">
+                    <p className="text-[9px] font-black text-[#0f766e] uppercase tracking-widest leading-none">Super Admin</p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
                     <input
                       type="checkbox"
-                      checked={formik.values.permissions[module][perm]}
-                      onChange={(e) =>
-                        formik.setFieldValue(
-                          `permissions.${module}.${perm}`,
-                          e.target.checked
-                        )
-                      }
+                      checked={isSuperAdmin}
+                      onChange={(e) => toggleSuperAdmin(e.target.checked)}
+                      className="sr-only peer"
                     />
-                  </div>
-                ))}
-                <div className="text-center">
+                    <div className="w-10 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#0f766e]"></div>
+                  </label>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <button type="button" onClick={onCancel} className="page-header-secondary-button">
+                    Discard
+                  </button>
+                  <button type="submit" disabled={formik.isSubmitting} className="page-header-button flex items-center gap-2">
+                    {formik.isSubmitting ? 'Architecting...' : isEditMode ? 'Commit Role' : 'Launch Role'}
+                    {!formik.isSubmitting && <CheckCircle2 size={14} />}
+                  </button>
+                </div>
+              </div>
+            }
+          />
+
+          <div className="max-w-[1600px] mx-auto px-8 py-10">
+            {/* Role Personalization Card */}
+            <div className="bg-white rounded-[2rem] border border-gray-100 shadow-xl shadow-slate-200/50 p-10 mb-12">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+                <div className="lg:col-span-1">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4 block ml-1">Role Identity *</label>
                   <input
-                    type="checkbox"
-                    checked={Object.values(
-                      formik.values.permissions[module]
-                    ).every((p) => p === true)}
-                    onChange={(e) => {
-                      const { checked } = e.target;
-                      const updatedModulePerms = {
-                        ...formik.values.permissions[module],
-                      };
-                      Object.keys(updatedModulePerms).forEach((perm) => {
-                        updatedModulePerms[perm] = checked;
-                      });
-                      formik.setFieldValue(
-                        `permissions.${module}`,
-                        updatedModulePerms
-                      );
-                    }}
+                    name="name"
+                    value={formik.values.name}
+                    onChange={formik.handleChange}
+                    placeholder="e.g. Finance Director"
+                    className="w-full h-14 px-6 bg-[#f8fafc] border-2 border-[#f8fafc] rounded-2xl text-gray-900 font-bold outline-none focus:bg-white focus:border-[#0f766e] transition-all"
+                  />
+                  {formik.errors.name && formik.touched.name && (
+                    <p className="text-[10px] text-red-500 font-bold mt-2 ml-1 uppercase">{formik.errors.name as string}</p>
+                  )}
+
+                  <div className="mt-6">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4 block ml-1">Status</label>
+                    <div className="flex bg-[#f8fafc] p-1 rounded-2xl border-2 border-[#f8fafc]">
+                      {['active', 'inactive'].map((s) => (
+                        <button
+                          key={s}
+                          type="button"
+                          onClick={() => formik.setFieldValue('status', s)}
+                          className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${formik.values.status === s ? 'bg-white text-[#0f766e] shadow-sm' : 'text-gray-400 hover:text-gray-600'
+                            }`}
+                        >
+                          {s}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="lg:col-span-2">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4 block ml-1">Scope / Description (Optional)</label>
+                  <textarea
+                    name="description"
+                    value={formik.values.description}
+                    onChange={formik.handleChange}
+                    placeholder="Briefly define the responsibilities and access boundaries for this role..."
+                    className="w-full h-[156px] px-6 py-5 bg-[#f8fafc] border-2 border-[#f8fafc] rounded-2xl text-gray-900 font-medium outline-none focus:bg-white focus:border-[#0f766e] transition-all resize-none"
                   />
                 </div>
               </div>
-            ))}{' '}
-          </Section>
+            </div>
 
-          {/* ACTION BUTTONS */}
-          <div className="flex justify-end gap-4 pt-8 border-t border-gray-300">
-            <button
-              type="button"
-              onClick={onCancel}
-              className="px-6 py-2.5 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-100 transition"
-            >
-              Cancel
-            </button>
+            {/* Authorization Matrix */}
+            <div className="mb-10 flex items-end justify-between px-2">
+              <div>
+                <h2 className="text-2xl font-black text-gray-900 tracking-tight">
+                  Authorization <span className="text-[#0f766e]">Matrix</span>
+                </h2>
+                <p className="text-gray-400 text-sm font-medium mt-1">Configure granular access for every ERP module</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{modules.length} Modules Active</span>
+                {isSuperAdmin && (
+                  <div className="flex items-center gap-1.5 px-3 py-1 bg-[#0f766e]/10 text-[#0f766e] rounded-full">
+                    <ShieldCheck size={12} />
+                    <span className="text-[9px] font-black uppercase tracking-widest">Full Bypass Active</span>
+                  </div>
+                )}
+              </div>
+            </div>
 
-            <button
-              type="submit"
-              disabled={formik.isSubmitting}
-              className="px-6 py-2.5 rounded-lg bg-teal-700 hover:bg-teal-800 text-white font-semibold shadow"
-            >
-              {isEditMode ? 'Update Role' : 'Create Role'}
-            </button>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {modules.map((m) => {
+                const config = MODULE_CONFIG[m] || { label: m, icon: LayoutGrid, category: 'Module' };
+                const isAllSelected = Object.values(formik.values.permissions[m]).every((v) => v === true);
+                const isAnySelected = Object.values(formik.values.permissions[m]).some((v) => v === true);
+
+                return (
+                  <div
+                    key={m}
+                    className={`bg-white rounded-[2rem] border-2 transition-all duration-300 p-8 flex flex-col ${isAllSelected ? 'border-[#0f766e] shadow-xl shadow-teal-900/5' : isAnySelected ? 'border-teal-100' : 'border-gray-50'
+                      }`}
+                  >
+                    {/* Module Card Header */}
+                    <div className="flex items-start justify-between mb-8">
+                      <div className="flex items-center gap-4">
+                        <div
+                          className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${isAnySelected ? 'bg-[#0f766e] text-white shadow-lg shadow-teal-900/20' : 'bg-gray-100 text-gray-400'
+                            }`}
+                        >
+                          <config.icon size={24} />
+                        </div>
+                        <div>
+                          <h3 className="text-base font-black text-gray-900 uppercase tracking-tight">{config.label}</h3>
+                          <p className="text-[9px] font-bold text-gray-400 uppercase tracking-[0.2em]">{config.category} Module</p>
+                        </div>
+                      </div>
+                      <input
+                        type="checkbox"
+                        checked={isAllSelected}
+                        onChange={(e) => toggleModule(m, e.target.checked)}
+                        className="w-5 h-5 rounded-lg border-2 border-gray-200 text-[#0f766e] focus:ring-[#0f766e] transition-all cursor-pointer"
+                      />
+                    </div>
+
+                    {/* Permissions Grid */}
+                    <div className="grid grid-cols-2 gap-3 mb-6">
+                      {[
+                        { key: 'view', label: 'View', icon: Eye },
+                        { key: 'create', label: 'Create', icon: Plus },
+                        { key: 'update', label: 'Update', icon: Edit2 },
+                        { key: 'delete', label: 'Delete', icon: Trash2 },
+                      ].map((p) => {
+                        const isActive = formik.values.permissions[m][p.key];
+                        return (
+                          <button
+                            key={p.key}
+                            type="button"
+                            onClick={() => formik.setFieldValue(`permissions.${m}.${p.key}`, !isActive)}
+                            className={`flex items-center justify-between px-4 py-3.5 rounded-xl border-2 transition-all group ${isActive
+                              ? 'bg-[#0f766e] border-[#0f766e] text-white shadow-md'
+                              : 'bg-[#f8fafc] border-[#f8fafc] text-gray-400 hover:border-teal-100 hover:text-gray-600'
+                              }`}
+                          >
+                            <span className="text-[10px] font-black uppercase tracking-widest">{p.label}</span>
+                            <p.icon size={14} className={isActive ? 'text-white/70' : 'text-gray-300 group-hover:text-teal-400'} />
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </form>
       </FormikProvider>

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { Plus, MoreVertical, Edit2, Trash2, Filter } from 'lucide-react';
@@ -110,15 +110,12 @@ const QuoteTracksPage: React.FC = () => {
     ));
   };
 
-  const columns = [
+  const columns = useMemo(() => {
+    const baseColumns = [
     {
-      header: 'Quote Ref',
-      accessor: '_id' as keyof QuoteTrack,
-      render: (track: QuoteTrack) => (
-        <span className="text-[10px] font-mono font-bold text-gray-400 bg-gray-100 px-2 py-1 rounded">
-          {track._id?.toString().slice(-8).toUpperCase()}
-        </span>
-      )
+      header: 'Quote ID',
+      accessor: 'quoteNo' as keyof QuoteTrack,
+      render: (track: QuoteTrack) => <span className="font-bold text-[#0f766e] uppercase tracking-wider">{track.quoteNo}</span>
     },
     {
       header: 'Date',
@@ -161,12 +158,9 @@ const QuoteTracksPage: React.FC = () => {
       accessor: 'totalSellingPrice' as keyof QuoteTrack,
       render: (track: QuoteTrack) => (
         <div className="flex flex-col">
-          <div className="flex items-center gap-1.5">
-            <span className="font-black text-[#0f766e]">
-              {track.currency === 'USD' ? '$' : '₹'}{track.totalSellingPrice?.toLocaleString()}
-            </span>
-            <span className="text-[9px] px-1 bg-gray-100 text-gray-500 rounded uppercase font-bold">{track.currency}</span>
-          </div>
+          <span className="font-bold text-[#0f766e]">
+            {track.currency === 'USD' ? '$' : '₹'}{track.totalSellingPrice?.toLocaleString()}
+          </span>
           <span className="text-[10px] text-green-600 font-bold uppercase tracking-widest">
             Margin: {track.currency === 'USD' ? '$' : '₹'}{track.totalGrossMargin?.toLocaleString()}
           </span>
@@ -180,6 +174,7 @@ const QuoteTracksPage: React.FC = () => {
         <select
           value={track.status}
           onClick={(e) => e.stopPropagation()}
+          disabled={!can('quote_track', 'update')}
           onChange={async (e) => {
             const newStatus = e.target.value;
             const loadingId = toast.loading('Updating status...');
@@ -193,12 +188,11 @@ const QuoteTracksPage: React.FC = () => {
               toast.dismiss(loadingId);
             }
           }}
-          className={`px-3 py-1 rounded-lg text-xs font-bold border cursor-pointer bg-white transition-colors ${
-            track.status === 'Accepted' ? 'border-green-200 text-green-700 bg-green-50' :
-            track.status === 'Rejected' ? 'border-teal-200 text-teal-800 bg-teal-50' :
-            track.status === 'Quoted' ? 'border-sky-200 text-sky-700 bg-sky-50' :
-            'border-gray-200 text-gray-700 bg-gray-50'
-          }`}
+          className={`px-3 py-1 rounded-lg text-xs font-bold border bg-white transition-colors ${!can('quote_track', 'update') ? 'cursor-not-allowed opacity-75' : 'cursor-pointer'} ${track.status === 'Accepted' ? 'border-green-200 text-green-700 bg-green-50' :
+              track.status === 'Rejected' ? 'border-teal-200 text-teal-800 bg-teal-50' :
+                track.status === 'Quoted' ? 'border-sky-200 text-sky-700 bg-sky-50' :
+                  'border-gray-200 text-gray-700 bg-gray-50'
+            }`}
         >
           <option value="Pending">Pending</option>
           <option value="Quoted">Quoted</option>
@@ -208,67 +202,84 @@ const QuoteTracksPage: React.FC = () => {
       )
     },
     {
+      accessor: 'createdBy' as any,
+      header: 'Created By',
+      render: (track: QuoteTrack) => (
+        <span className="text-sm font-medium text-gray-600">
+          {typeof track.createdBy === 'object' ? (track.createdBy as any).name : (track.createdBy || '--')}
+        </span>
+      ),
+    },
+    {
+      accessor: 'createdAt',
+      header: 'Date Created',
+      render: (track: QuoteTrack) => (
+        <span className="text-sm font-medium text-gray-600">
+          {track.createdAt ? new Date(track.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '--'}
+        </span>
+      ),
+    },
+    {
       header: 'Actions',
       accessor: '_id' as keyof QuoteTrack,
       render: (track: QuoteTrack) => (
-        <div className="relative">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setOpenMenu(openMenu === track._id ? null : track._id!);
-            }}
-            className="text-gray-600 hover:text-[#0f766e] transition p-1 hover:bg-gray-100 rounded-lg"
-          >
-            <MoreVertical size={20} />
-          </button>
-          {openMenu === track._id && (
-            <div className="absolute right-0 top-[calc(100%+8px)] w-32 bg-white border border-gray-200 rounded-lg shadow-lg z-10 overflow-hidden">
-              <button
-                onClick={(e) => { e.stopPropagation(); router.push(`/quote-track/edit/${track._id}`); }}
-                className="flex items-center gap-2 w-full text-left px-3 py-2.5 text-xs font-bold text-gray-700 hover:bg-gray-50 border-b border-gray-50"
-              >
-                <Edit2 size={14} className="text-[#0f766e]" />
-                Edit Quote
-              </button>
-              <button
-                onClick={(e) => { e.stopPropagation(); handleDelete(track._id!); }}
-                className="flex items-center gap-2 w-full text-left px-3 py-2.5 text-xs font-bold text-[#0f766e] hover:bg-gray-50"
-              >
-                <Trash2 size={14} />
-                Remove
-              </button>
-            </div>
+        <div className="flex items-center gap-2">
+          {can('quote_track', 'update') && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                if (track._id) router.push(`/quote-track/edit/${track._id}`);
+              }}
+              className="w-9 h-9 flex items-center justify-center text-gray-500 hover:text-[#0f766e] hover:bg-[#0f766e]/5 rounded-lg transition-all border border-gray-100 hover:border-[#0f766e]/20"
+              title="Edit"
+            >
+              <Edit2 className="w-4 h-4" />
+            </button>
+          )}
+          {can('quote_track', 'delete') && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                if (track._id) handleDelete(track._id);
+              }}
+              className="w-9 h-9 flex items-center justify-center text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all border border-gray-100 hover:border-red-200"
+              title="Delete"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
           )}
         </div>
-      )
+      ),
     }
-  ];
+    ];
+    return baseColumns;
+  }, [openMenu, can, handleDelete]);
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white p-6 md:p-10">
       <ListPageHeader
-        eyebrow="Quotation Registry"
+        eyebrow="CRM Pipeline"
         title="Quote"
         highlight="Tracking"
         description="Monitor quote progress, currency, value, and approval movement."
         actions={
           <>
-          {can('quote_track', 'create') && (
+            {can('quote_track', 'create') && (
+              <button
+                onClick={() => router.push('/quote-track/add')}
+                className="page-header-button"
+              >
+                <Plus className="w-4 h-4" />
+                Add
+              </button>
+            )}
             <button
-              onClick={() => router.push('/quote-track/add')}
-              className="page-header-button"
+              onClick={() => setShowFilters(!showFilters)}
+              className="page-header-button secondary"
             >
-              <Plus className="w-4 h-4" />
-              Add
+              <Filter className="w-4 h-4" />
+              {showFilters ? 'Hide Filters' : 'Show Filters'}
             </button>
-          )}
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className="page-header-button secondary"
-          >
-            <Filter className="w-4 h-4" />
-            {showFilters ? 'Hide Filters' : 'Show Filters'}
-          </button>
           </>
         }
       />
@@ -290,11 +301,11 @@ const QuoteTracksPage: React.FC = () => {
 
       {/* Persistent Search Input */}
       <div className="mb-6">
-          <SearchInput
-            placeholder="Search quote tracks..."
-            initialSearchTerm={searchQuery}
-            onSearchChange={useCallback((val: string) => setSearchQuery(val), [])}
-          />
+        <SearchInput
+          placeholder="Search quote tracks..."
+          initialSearchTerm={searchQuery}
+          onSearchChange={useCallback((val: string) => setSearchQuery(val), [])}
+        />
       </div>
 
       {/* Main Table Area */}
@@ -311,7 +322,11 @@ const QuoteTracksPage: React.FC = () => {
           onPageChange={setCurrentPage}
           onLimitChange={setLimit}
           totalPages={totalPages}
-          onRowClick={(track) => router.push(`/quote-track/${track._id}`)}
+          onRowClick={(track) => {
+            if (can('quote_track', 'update')) {
+              router.push(`/quote-track/${track._id}`);
+            }
+          }}
         />
       )}
     </div>

@@ -400,16 +400,21 @@ const ReturnTicketForm = ({
 
   return (
     <div className="w-full min-h-[calc(100vh-4rem)] bg-gray-50 px-8 py-6 rounded-lg">
-      <div className="flex items-center justify-between mb-8 border-b border-gray-200 pb-4">
-        <div className="flex items-center gap-3">
-          <FilePlus className="text-teal-700 w-6 h-6" />
-          <h2 className="text-2xl font-semibold text-gray-800">
-            {isEditMode ? 'Edit Return Ticket' : 'Add Return Ticket'}
-          </h2>
+      <div className="page-header mb-12">
+        <div>
+          <div className="page-header-eyebrow">
+            <div className="page-header-marker" />
+            <span>Logistics Management</span>
+          </div>
+          <h1 className="page-header-title">
+            {isEditMode ? 'Modify' : 'Initialize'} <span className="gradient-text">Return Ticket</span>
+          </h1>
+          <p className="page-header-description">
+            {isEditMode 
+              ? 'Update the details of this return authorization. Ensure the returned quantities are verified against the original delivery.' 
+              : 'Initialize a new return process. Select the original PO to auto-fill delivered quantities and track returns.'}
+          </p>
         </div>
-        <span className="text-sm text-gray-500 italic">
-          Fill all required fields to create a return ticket
-        </span>
       </div>
 
       <FormikProvider value={formik}>

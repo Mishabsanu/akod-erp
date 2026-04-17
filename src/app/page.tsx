@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import withAuth from '@/components/withAuth';
 
 import {
     Area,
@@ -105,11 +106,12 @@ function Dashboard() {
                     </div>
                     <div>
                         <div className="flex items-center gap-2 mb-1">
+                            <div className="w-1 h-3 bg-[#0f766e] rounded-full" />
                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Corporate Intelligence Hub</p>
-                            <span className="px-2 py-0.5 bg-sky-50 text-[8px] font-black text-sky-600 rounded-full uppercase tracking-tighter">Live v2.1</span>
+                            <span className="px-2 py-0.5 bg-teal-50 text-[8px] font-black text-[#0f766e] rounded-full uppercase tracking-tighter border border-teal-100">Live v2.1</span>
                         </div>
                         <h1 className="text-4xl font-black text-[#0f766e] tracking-tight">
-                            Welcome back, {data.role?.charAt(0).toUpperCase() || ''}{data.role?.slice(1) || ''}
+                            Welcome <span className="gradient-text">back, {data.role?.charAt(0).toUpperCase() || ''}{data.role?.slice(1) || ''}</span>
                         </h1>
                     </div>
                 </div>
@@ -130,22 +132,27 @@ function Dashboard() {
                 {/* LEAD PERFORMANCE MATRIX */}
                 <section>
                     <div className="flex items-center justify-between mb-6">
-                        <div className="flex items-center gap-3">
-                            <Activity className="w-5 h-5 text-sky-600" />
-                            <h2 className="text-sm font-black uppercase tracking-[0.2em] text-gray-400 font-bold">Lead Pipeline Matrix</h2>
+                        <div className="flex flex-col">
+                            <div className="flex items-center gap-2 mb-1">
+                                <div className="w-1 h-3 bg-[#0f766e] rounded-full" />
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">CRM Funnel</p>
+                            </div>
+                            <h2 className="text-xl font-black text-[#0f766e] tracking-tight">
+                                Lead Pipeline <span className="gradient-text">Matrix</span>
+                            </h2>
                         </div>
                         <button
                             onClick={() => router.push('/quote-track')}
-                            className="text-[10px] font-black text-sky-600 uppercase tracking-widest hover:underline"
+                            className="text-[10px] font-black text-[#0f766e] uppercase tracking-widest hover:underline"
                         >
                             View Full Funnel →
                         </button>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <TrendCard title="Today's Leads" value={data.stats.sales.timeframes.today} label="New Proposals" color="blue" icon={<Calendar />} />
-                        <TrendCard title="Weekly Volume" value={data.stats.sales.timeframes.weekly} label="Week-to-Date" color="indigo" icon={<Activity />} />
-                        <TrendCard title="Monthly Traffic" value={data.stats.sales.timeframes.monthly} label="Billing Period" color="purple" icon={<TrendingUp />} />
-                        <TrendCard title="Yearly Gross" value={data.stats.sales.timeframes.yearly} label="Annual Total" color="slate" icon={<Layers />} />
+                        <TrendCard title="Today's Leads" value={data.stats.sales.timeframes.today} label="New Proposals" color="teal" icon={<Calendar />} />
+                        <TrendCard title="Weekly Volume" value={data.stats.sales.timeframes.weekly} label="Week-to-Date" color="emerald" icon={<Activity />} />
+                        <TrendCard title="Monthly Traffic" value={data.stats.sales.timeframes.monthly} label="Billing Period" color="darkTeal" icon={<TrendingUp />} />
+                        <TrendCard title="Yearly Gross" value={data.stats.sales.timeframes.yearly} label="Annual Total" color="gray" icon={<Layers />} />
                     </div>
                 </section>
 
@@ -155,8 +162,13 @@ function Dashboard() {
                     <div className="lg:col-span-2 bg-white p-10 rounded-[3rem] shadow-2xl shadow-slate-900/5 border border-gray-100">
                         <div className="flex items-center justify-between mb-10">
                             <div>
-                                <h3 className="text-2xl font-black text-[#0f766e]">Financial Flux Intelligence</h3>
-                                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Cross-Module Movement Trends</p>
+                                <div className="flex items-center gap-2 mb-1">
+                                    <div className="w-1 h-3 bg-[#0f766e] rounded-full" />
+                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Cross-Module Movements</p>
+                                </div>
+                                <h3 className="text-2xl font-black text-[#0f766e] tracking-tight">
+                                    Financial Flux <span className="gradient-text">Intelligence</span>
+                                </h3>
                             </div>
                             <div className="flex items-center gap-6">
                                 <div className="text-right">
@@ -170,16 +182,16 @@ function Dashboard() {
                                 <ComposedChart data={data.stats.finance.monthlyTrends}>
                                     <defs>
                                         <linearGradient id="fluxIn" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.2} />
-                                            <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                                            <stop offset="5%" stopColor="#0f766e" stopOpacity={0.2} />
+                                            <stop offset="95%" stopColor="#0f766e" stopOpacity={0} />
                                         </linearGradient>
                                     </defs>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                                     <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#94a3b8' }} dy={10} />
                                     <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#94a3b8' }} />
                                     <Tooltip content={<CustomTooltip />} />
-                                    <Area type="monotone" dataKey="income" fill="url(#fluxIn)" stroke="#3b82f6" strokeWidth={4} />
-                                    <Bar dataKey="expenses" fill="#ef4444" radius={[6, 6, 0, 0]} barSize={20} />
+                                    <Area type="monotone" dataKey="income" fill="url(#fluxIn)" stroke="#0f766e" strokeWidth={4} />
+                                    <Bar dataKey="expenses" fill="#f43f5e" radius={[6, 6, 0, 0]} barSize={20} />
                                     <Line type="monotone" dataKey="income" stroke="#0f766e" strokeWidth={2} dot={false} strokeDasharray="5 5" />
                                 </ComposedChart>
                             </ResponsiveContainer>
@@ -190,7 +202,7 @@ function Dashboard() {
                     <div className="bg-[#0f766e] p-10 rounded-[3rem] shadow-2xl text-white flex flex-col justify-between">
                         <div>
                             <h3 className="text-2xl font-black mb-1">Sales Conversion</h3>
-                            <p className="text-xs font-bold text-sky-200 uppercase tracking-widest">Approval Metrics</p>
+                            <p className="text-xs font-bold text-teal-100 uppercase tracking-widest">Approval Metrics</p>
                         </div>
 
                         <div className="space-y-8 my-10">
@@ -200,18 +212,18 @@ function Dashboard() {
                                         <Clock size={24} />
                                     </div>
                                     <div>
-                                        <p className="text-[10px] font-black text-sky-200 uppercase tracking-widest">Waiting Action</p>
+                                        <p className="text-[10px] font-black text-teal-100 uppercase tracking-widest">Waiting Action</p>
                                         <p className="text-2xl font-black">Pending leads: {data.stats.sales.pendingCount}</p>
                                     </div>
                                 </div>
                             </div>
-                            <div className="flex items-center justify-between p-6 bg-green-500/20 rounded-3xl border border-green-500/20">
+                            <div className="flex items-center justify-between p-6 bg-emerald-500/20 rounded-3xl border border-emerald-500/20">
                                 <div className="flex items-center gap-4">
-                                    <div className="p-3 bg-green-500/20 text-green-400 rounded-2xl">
+                                    <div className="p-3 bg-emerald-500/20 text-emerald-400 rounded-2xl">
                                         <ShieldCheck size={24} />
                                     </div>
                                     <div>
-                                        <p className="text-[10px] font-black text-sky-200 uppercase tracking-widest">Revenue secured</p>
+                                        <p className="text-[10px] font-black text-teal-100 uppercase tracking-widest">Revenue secured</p>
                                         <p className="text-2xl font-black">Approved leads: {data.stats.sales.approvalCount}</p>
                                     </div>
                                 </div>
@@ -219,10 +231,10 @@ function Dashboard() {
                         </div>
 
                         <div className="pt-6 border-t border-white/10">
-                            <p className="text-[10px] font-black text-sky-200 uppercase tracking-widest mb-2 text-center">Conversion Velocity</p>
+                            <p className="text-[10px] font-black text-teal-100 uppercase tracking-widest mb-2 text-center">Conversion Velocity</p>
                             <div className="w-full h-3 bg-white/10 rounded-full overflow-hidden">
                                 <div
-                                    className="h-full bg-green-400 shadow-[0_0_15px_rgba(74,222,128,0.5)] transition-all duration-1000"
+                                    className="h-full bg-emerald-400 shadow-[0_0_15px_rgba(52,211,153,0.5)] transition-all duration-1000"
                                     style={{ width: `${Math.round((data.stats.sales.approvalCount / (data.stats.sales.totalQuotes || 1)) * 100)}%` }}
                                 />
                             </div>
@@ -236,8 +248,13 @@ function Dashboard() {
                     <div className="bg-white p-10 rounded-[3rem] shadow-xl border border-gray-100">
                         <div className="flex items-center justify-between mb-10">
                             <div>
-                                <h3 className="text-xl font-black text-[#0f766e]">Stock Intelligence</h3>
-                                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Operational Health Status</p>
+                                <div className="flex items-center gap-2 mb-1">
+                                    <div className="w-1 h-3 bg-[#0f766e] rounded-full" />
+                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Inventory Pulse</p>
+                                </div>
+                                <h3 className="text-xl font-black text-[#0f766e] tracking-tight">
+                                    Stock <span className="gradient-text">Intelligence</span>
+                                </h3>
                             </div>
                             <div className="p-3 bg-orange-50 text-orange-600 rounded-2full">
                                 <Layers size={24} />
@@ -280,8 +297,13 @@ function Dashboard() {
                     <div className="bg-white p-10 rounded-[3rem] shadow-xl border border-gray-100">
                         <div className="flex items-center justify-between mb-10">
                             <div>
-                                <h3 className="text-xl font-black text-[#0f766e]">Workforce Pulse</h3>
-                                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Human Capital Deployment</p>
+                                <div className="flex items-center gap-2 mb-1">
+                                    <div className="w-1 h-3 bg-[#0f766e] rounded-full" />
+                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Human Capital</p>
+                                </div>
+                                <h3 className="text-xl font-black text-[#0f766e] tracking-tight">
+                                    Workforce <span className="gradient-text">Pulse</span>
+                                </h3>
                             </div>
                             <Users className="text-purple-500" />
                         </div>
@@ -315,8 +337,13 @@ function Dashboard() {
                     <div className="bg-white p-10 rounded-[3rem] shadow-2xl shadow-slate-900/5 border border-gray-100 lg:col-span-2">
                         <div className="flex items-center justify-between mb-10">
                             <div>
-                                <h3 className="text-2xl font-black text-[#0f766e]">Live Operations Stream</h3>
-                                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Global Record Monitoring</p>
+                                <div className="flex items-center gap-2 mb-1">
+                                    <div className="w-1 h-3 bg-[#0f766e] rounded-full" />
+                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Global Record Stream</p>
+                                </div>
+                                <h3 className="text-2xl font-black text-[#0f766e] tracking-tight">
+                                    Live Operations <span className="gradient-text">Stream</span>
+                                </h3>
                             </div>
                             <div className="flex items-center gap-2 px-4 py-2 bg-teal-50 text-teal-700 rounded-full">
                                 <Activity size={16} className="animate-pulse" />
@@ -357,10 +384,10 @@ function Dashboard() {
 
 const TrendCard = ({ title, value, label, color, icon }: any) => {
     const themes = {
-        blue: 'text-sky-600 bg-sky-50 border-sky-100',
-        indigo: 'text-indigo-600 bg-indigo-50 border-indigo-100',
-        purple: 'text-purple-600 bg-purple-50 border-purple-100',
-        slate: 'text-slate-600 bg-slate-50 border-slate-100',
+        teal: 'text-[#0f766e] bg-teal-50 border-teal-100',
+        emerald: 'text-emerald-600 bg-emerald-50 border-emerald-100',
+        darkTeal: 'text-teal-900 bg-teal-100/50 border-teal-200',
+        gray: 'text-gray-600 bg-gray-50 border-gray-100',
     };
     return (
         <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 group hover:shadow-md transition-shadow">
@@ -383,14 +410,14 @@ const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
         return (
             <div className="bg-[#0f766e] p-4 rounded-2xl shadow-2xl border border-white/10">
-                <p className="text-[10px] font-black text-sky-200 uppercase tracking-widest mb-2">{label}</p>
+                <p className="text-[10px] font-black text-teal-100 uppercase tracking-widest mb-2">{label}</p>
                 <div className="space-y-1">
-                    <p className="text-sm font-bold text-sky-400 flex items-center justify-between gap-6">
-                        <span className="uppercase text-[9px] tracking-tighter">Inflow:</span>
+                    <p className="text-sm font-bold text-teal-50 flex items-center justify-between gap-6">
+                        <span className="uppercase text-[9px] tracking-tighter opacity-70">Inflow:</span>
                         QAR {payload[0]?.value?.toLocaleString() || 0}
                     </p>
-                    <p className="text-sm font-bold text-teal-400 flex items-center justify-between gap-6">
-                        <span className="uppercase text-[9px] tracking-tighter">Outflow:</span>
+                    <p className="text-sm font-bold text-rose-300 flex items-center justify-between gap-6">
+                        <span className="uppercase text-[9px] tracking-tighter opacity-70">Outflow:</span>
                         QAR {payload[1]?.value?.toLocaleString() || 0}
                     </p>
                 </div>
@@ -400,4 +427,4 @@ const CustomTooltip = ({ active, payload, label }: any) => {
     return null;
 };
 
-export default Dashboard;
+export default withAuth(Dashboard);
