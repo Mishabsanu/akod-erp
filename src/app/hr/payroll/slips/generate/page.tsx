@@ -62,4 +62,4 @@ function GenerateSalarySlipPage() {
     </div>
   );
 }
-export default withAuth(GenerateSalarySlipPage, [{ module: 'hr', action: 'create' }]);
+export default withAuth(GenerateSalarySlipPage, [{ module: 'payroll', action: 'create' }]);

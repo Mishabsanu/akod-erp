@@ -124,7 +124,7 @@ function SalaryBreakupsPage() {
         header: 'Actions',
         render: (user) => (
           <div className="flex items-center gap-2">
-            {can('hr', 'update') && (
+            {can('payroll', 'update') && (
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -186,4 +186,4 @@ function SalaryBreakupsPage() {
   );
 }
 
-export default withAuth(SalaryBreakupsPage, [{ module: 'hr', action: 'view' }]);
+export default withAuth(SalaryBreakupsPage, [{ module: 'payroll', action: 'view' }]);

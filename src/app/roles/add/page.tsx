@@ -47,4 +47,4 @@ const AddRolePage = () => {
   );
 };
 
-export default withAuth(AddRolePage, [{ module: 'admin', action: 'create' }]);
+export default withAuth(AddRolePage, [{ module: 'role', action: 'create' }]);

@@ -54,4 +54,4 @@ const AddUserPage = () => {
   );
 };
 
-export default withAuth(AddUserPage, [{ module: 'admin', action: 'create' }]);
+export default withAuth(AddUserPage, [{ module: 'user', action: 'create' }]);

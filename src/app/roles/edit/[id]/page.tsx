@@ -88,4 +88,4 @@ const EditRolePage = () => {
   );
 };
 
-export default withAuth(EditRolePage, [{ module: 'admin', action: 'update' }]);
+export default withAuth(EditRolePage, [{ module: 'role', action: 'update' }]);

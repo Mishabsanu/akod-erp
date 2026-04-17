@@ -170,7 +170,7 @@ function SalarySlipsPage() {
         description="Generate, review, and maintain monthly payroll slip records."
         actions={
           <>
-          {can('attendance', 'create') && ( // Assuming similar permission
+          {can('payroll', 'create') && (
             <button
               onClick={() => router.push('/hr/payroll/slips/generate')}
               className="page-header-button"
@@ -256,4 +256,4 @@ function SalarySlipsPage() {
   );
 }
 
-export default withAuth(SalarySlipsPage, [{ module: 'hr', action: 'view' }]);
+export default withAuth(SalarySlipsPage, [{ module: 'payroll', action: 'view' }]);

@@ -71,4 +71,4 @@ function ConfigSalaryBreakupPage() {
     </div>
   );
 }
-export default withAuth(ConfigSalaryBreakupPage, [{ module: 'hr', action: 'update' }]);
+export default withAuth(ConfigSalaryBreakupPage, [{ module: 'payroll', action: 'update' }]);
