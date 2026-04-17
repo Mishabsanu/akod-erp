@@ -137,7 +137,7 @@ const RolesPage: React.FC = () => {
   const handleEdit = (id: string) => router.push(`/roles/edit/${id}`);
   const handleAddRole = () => router.push('/roles/add');
   const handleRowClick = (role: Role) => {
-    if (role._id && can('admin', 'update')) {
+    if (role._id && can('role', 'update')) {
       router.push(`/roles/${role._id}`);
     }
   };
@@ -312,4 +312,4 @@ const RolesPage: React.FC = () => {
   );
 };
 
-export default withAuth(RolesPage, [{ module: 'admin', action: 'view' }]);
+export default withAuth(RolesPage, [{ module: 'role', action: 'view' }]);

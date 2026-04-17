@@ -68,12 +68,12 @@ export const Sidebar = () => {
       icon: Users2,
       noCollapse: true,
       subItems: [
-        {
+        can('sales', 'view') && {
           name: 'Leads',
           icon: UserPlus,
           href: '/sales',
         },
-        {
+        can('quote_track', 'view') && {
           name: 'Quote Tracking',
           icon: FileText,
           href: '/quote-track',
@@ -139,7 +139,7 @@ export const Sidebar = () => {
           icon: Clock,
           href: '/attendance',
         },
-        can('hr', 'view') && {
+        can('payroll', 'view') && {
           name: 'Payroll',
           icon: Banknote,
           href: '/hr/payroll',
@@ -152,7 +152,7 @@ export const Sidebar = () => {
     },
 
     // Admin / Master
-    (can('role', 'view') || can('customer', 'view') || can('vendor', 'view')) && {
+    (can('role', 'view') || can('customer', 'view') || can('vendor', 'view') || can('user', 'view')) && {
       name: 'Administration',
       icon: ShieldCheck,
       subItems: [

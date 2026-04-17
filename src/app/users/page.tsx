@@ -124,7 +124,7 @@ const UsersPage: React.FC = () => {
   const handleAddUser = () => router.push('/users/add');
   const handleEdit = (id: string) => router.push(`/users/edit/${id}`);
   const handleRowClick = (user: User) => {
-    if (user._id && can('admin', 'update')) {
+    if (user._id && can('user', 'update')) {
       router.push(`/users/${user._id}`);
     }
   };
@@ -304,4 +304,4 @@ const UsersPage: React.FC = () => {
 };
 
 
-export default withAuth(UsersPage, [{ module: 'admin', action: 'view' }]);
+export default withAuth(UsersPage, [{ module: 'user', action: 'view' }]);

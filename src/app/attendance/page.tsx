@@ -14,7 +14,8 @@ function AttendancePage() {
     const [view, setView] = useState<'my' | 'admin'>('my');
 
     // Only allow admin view if user has permission
-    const canViewAll = user?.role && (typeof user.role === 'string' ? user.role === 'Admin' : user.role.name === 'Admin');
+    const { can } = useAuth();
+    const canViewAll = can('attendance', 'view');
 
     return (
         <div className="min-h-screen w-full p-6 md:p-10 bg-[#f8f9fc]">

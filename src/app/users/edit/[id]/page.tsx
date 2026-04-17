@@ -90,4 +90,4 @@ const EditUserPage = () => {
   );
 };
 
-export default withAuth(EditUserPage, [{ module: 'admin', action: 'update' }]);
+export default withAuth(EditUserPage, [{ module: 'user', action: 'update' }]);
