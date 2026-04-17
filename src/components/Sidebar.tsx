@@ -2,6 +2,7 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 import {
+  ActivityIcon,
   Banknote,
   BookOpen,
   Box,
@@ -96,7 +97,7 @@ export const Sidebar = () => {
     },
 
     // Inventory Module
-    (can('inventory', 'view') || can('delivery_ticket', 'view') || can('return_ticket', 'view') || can('product', 'view')) && {
+    (can('inventory', 'view') || can('delivery_ticket', 'view') || can('return_ticket', 'view') || can('product', 'view') || can('running_order', 'view')) && {
       name: 'Inventory',
       icon: Package,
       noCollapse: true,
@@ -120,6 +121,11 @@ export const Sidebar = () => {
           name: 'Return Records',
           icon: RotateCcw,
           href: '/return-ticket',
+        },
+        can('running_order', 'view') && {
+          name: 'Running Order',
+          icon: ActivityIcon,
+          href: '/running-order',
         },
       ].filter(Boolean) as SubMenuItem[],
     },

@@ -171,15 +171,21 @@ const UserForm: React.FC<UserFormProps> = ({
             />
 
             <FormikSelect label="Role" name="role" options={roles} required />
-            <FormikSelect
-              label="Status"
-              name="status"
-              options={[
-                { value: 'active', label: 'Active' },
-                { value: 'inactive', label: 'Inactive' },
-              ]}
               required
             />
+
+            {isEditMode && initialData?.createdBy && (
+              <div className="flex flex-col">
+                <label className="text-sm font-medium text-gray-700 mb-1">
+                  Created By
+                </label>
+                <div className="bg-gray-100 px-3 py-2 rounded-lg text-sm text-gray-600 font-medium">
+                  {typeof initialData.createdBy === 'object' 
+                    ? (initialData.createdBy as any).name 
+                    : initialData.createdBy}
+                </div>
+              </div>
+            )}
 
             {isEditMode && can('user', 'update') && (
               <div className="flex flex-col">

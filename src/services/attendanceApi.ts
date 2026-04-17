@@ -56,6 +56,7 @@ export interface RegularizationRequest {
   comments: { user: { name: string }; text: string; timestamp: string }[];
   lastActionBy?: { name: string };
   lastActionOn?: string;
+  createdBy?: string | { _id: string; name: string };
 }
 
 // 📝 Request Attendance Regularization

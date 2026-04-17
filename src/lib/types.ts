@@ -585,7 +585,7 @@ export interface LedgerEntry {
   referenceId?: string;
   referenceType?: string;
   companyName?: string;
-  createdBy: string | User;
+  createdBy?: string | User;
 }
 
 export interface LedgerFilter {

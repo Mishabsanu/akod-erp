@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useFormik, FormikErrors, FormikProvider } from 'formik';
+import { useFormik, FormikErrors, FormikProvider, FieldArray } from 'formik';
 import * as Yup from 'yup';
-import { Edit3, PlusCircle, Trash2, Package, Weight, IndianRupee, Save } from 'lucide-react';
+import { Edit3, PlusCircle, Trash2, Package, Weight, IndianRupee, Save, Plus } from 'lucide-react';
 import { Product, QuoteLineItem } from '@/lib/types';
 import { getProductDropdown, getProductById } from '@/services/catalogApi';
 import { toast } from 'sonner';
@@ -39,7 +39,6 @@ const emptyItem = (): LineItem => ({
 });
 
 const convertToUSD = (inr: number, rate: number) => (rate > 0 ? inr / rate : 0);
-const convertToINR = (usd: number, rate: number) => (rate > 0 ? usd * rate : 0);
 
 const lineItemSchema = Yup.object().shape({
   productId: Yup.string().required('Select a product'),
@@ -112,7 +111,6 @@ const QuoteTrackForm: React.FC<any> = ({
       totalContainers: initialData?.totalContainers || 1,
       costPerContainer: initialData?.costPerContainer || 0,
       marginPercentage: initialData?.marginPercentage || 10,
-      deepPrice: initialData?.deepPrice || 0,
       currency: initialData?.currency || 'INR',
       exchangeRate: initialData?.exchangeRate || 80,
       items: initialData?.items || [emptyItem()],
@@ -126,35 +124,36 @@ const QuoteTrackForm: React.FC<any> = ({
     enableReinitialize: true,
   });
 
+  const updateLineItemDetails = async (index: number, productId: string) => {
+    if (!productId) return;
+    try {
+      const prod = await getProductById(productId);
+      formik.setFieldValue(`items.${index}.name`, prod.name);
+      formik.setFieldValue(`items.${index}.price`, prod.price || 0);
+      formik.setFieldValue(`items.${index}.weight`, Number(prod.weight) || 0);
+    } catch {
+      toast.error('Failed to fetch product details');
+    }
+  };
+
   const totals = React.useMemo(() => {
     let totalWeight = 0;
     let totalItemCost = 0;
-    let totalItemCostUSD = 0;
     let totalQty = 0;
 
     formik.values.items.forEach((it: any) => {
       totalWeight += Number(it.totalWeight || 0);
       totalItemCost += Number(it.totalCost || 0);
-      totalItemCostUSD += Number(it.totalCostUSD || 0);
       totalQty += Number(it.qty || 0);
     });
 
-    const totalShippingCost =
-      formik.values.totalContainers * formik.values.costPerContainer;
-
-    const itemsTotalSelling = formik.values.items.reduce(
-      (acc: number, it: any) => acc + (it.totalSellingPrice || 0),
-      0
-    );
-    const itemsGrossMargin = formik.values.items.reduce(
-      (acc: number, it: any) => acc + (it.grossMargin || 0),
-      0
-    );
+    const totalShippingCost = formik.values.totalContainers * formik.values.costPerContainer;
+    const itemsTotalSelling = formik.values.items.reduce((acc: number, it: any) => acc + (it.totalSellingPrice || 0), 0);
+    const itemsGrossMargin = formik.values.items.reduce((acc: number, it: any) => acc + (it.grossMargin || 0), 0);
 
     return {
       totalWeight,
       totalItemCost,
-      totalItemCostUSD,
       totalQty,
       totalShippingCost,
       totalSellingPrice: itemsTotalSelling,
@@ -162,61 +161,46 @@ const QuoteTrackForm: React.FC<any> = ({
     };
   }, [formik.values.items, formik.values.costPerContainer, formik.values.totalContainers]);
 
-  const updateLineItem = async (index: number, field: string, value: any) => {
-    const items = [...formik.values.items];
-    const it = { ...items[index] };
-
-    (it as any)[field] = value;
-
-    if (field === 'productId' && value) {
-      try {
-        const prod = await getProductById(value);
-        it.name = prod.name;
-        it.price = prod.price || 0;
-        it.weight = Number(prod.weight) || 0;
-      } catch {
-        toast.error('Failed to fetch product details');
-      }
-    }
-
-    const { exchangeRate } = formik.values;
-    it.totalWeight = it.weight * it.qty;
-    it.totalCost = it.price * it.qty;
-    it.totalCostUSD = convertToUSD(it.totalCost, exchangeRate);
-    it.priceUSD = convertToUSD(it.price, exchangeRate);
-
-    items[index] = it;
-    formik.setFieldValue('items', items);
-  };
-
+  // Handle auto-calculations
   useEffect(() => {
-    const { totalContainers, costPerContainer, items } = formik.values;
-    let totalWeight = 0;
-    items.forEach((it: any) => (totalWeight += Number(it.totalWeight || 0)));
+    const { totalContainers, costPerContainer, items, exchangeRate } = formik.values;
+    let totalWeightVal = 0;
+    items.forEach((it: any) => (totalWeightVal += (Number(it.weight) || 0) * (Number(it.qty) || 0)));
 
     const totalShipping = totalContainers * costPerContainer;
-    const shippingPerKg = totalWeight > 0 ? totalShipping / totalWeight : 0;
+    const shippingPerKg = totalWeightVal > 0 ? totalShipping / totalWeightVal : 0;
 
     const updatedItems = items.map((it: any) => {
-      const unitShipping = it.weight * shippingPerKg;
-      const marginAmt = it.price * (it.marginPercentage / 100);
-      const sPrice = it.price + unitShipping + marginAmt;
+      const weight = Number(it.weight) || 0;
+      const qty = Number(it.qty) || 0;
+      const price = Number(it.price) || 0;
+      const marginPerc = Number(it.marginPercentage) || 0;
+
+      const totalWeight = weight * qty;
+      const totalCost = price * qty;
+      const unitShipping = weight * shippingPerKg;
+      const marginAmt = price * (marginPerc / 100);
+      const sPrice = price + unitShipping + marginAmt;
 
       return {
         ...it,
+        totalWeight,
+        totalCost,
+        totalCostUSD: convertToUSD(totalCost, exchangeRate),
+        priceUSD: convertToUSD(price, exchangeRate),
         unitShippingAmount: unitShipping,
-        unitPriceWithShipping: it.price + unitShipping,
+        unitPriceWithShipping: price + unitShipping,
         marginAmount: marginAmt,
         sellingPrice: sPrice,
-        totalSellingPrice: sPrice * it.qty,
-        grossMargin: marginAmt * it.qty,
+        totalSellingPrice: sPrice * qty,
+        grossMargin: marginAmt * qty,
       };
     });
 
     if (JSON.stringify(updatedItems) !== JSON.stringify(items)) {
       formik.setFieldValue('items', updatedItems);
     }
-  }, [formik.values.totalContainers, formik.values.costPerContainer, formik.values.items]);
+  }, [formik.values.totalContainers, formik.values.costPerContainer, formik.values.items, formik.values.exchangeRate]);
 
   return (
     <div className="w-full min-h-screen bg-gray-50 px-8 py-6 rounded-lg font-sans">
@@ -230,9 +214,7 @@ const QuoteTrackForm: React.FC<any> = ({
             {isEditMode ? 'Modify' : 'Initialize'} <span className="gradient-text">Quote Tracking</span>
           </h1>
           <p className="page-header-description">
-            {isEditMode 
-              ? 'Adjust commercial variables and item specs. Real-time margin calculations will update automatically as you refine the data.' 
-              : 'Initiate a new commercial tracking funnel. Define shipping costs, exchange rates, and line items to calculate target margins.'}
+            Define shipping variables and line items to calculate target margins and selling prices in real-time.
           </p>
         </div>
       </div>
@@ -252,242 +234,199 @@ const QuoteTrackForm: React.FC<any> = ({
                 ]}
                 required
               />
-              <FormikInput
-                label="Exchange Rate (1 USD = ? INR)"
-                name="exchangeRate"
-                type="number"
-                required
-              />
+              <FormikInput label="Exchange Rate" name="exchangeRate" type="number" required />
             </div>
           </Section>
 
-          <Section title="Container & Shipping Details">
+          <Section title="Shipping Parameters">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <FormikInput
-                label="Total Containers"
-                name="totalContainers"
-                type="number"
-                required
-              />
-              <FormikInput
-                label="Cost Per Container (INR)"
-                name="costPerContainer"
-                type="number"
-                required
-              />
+              <FormikInput label="Total Containers" name="totalContainers" type="number" required />
+              <FormikInput label="Cost Per Container (INR)" name="costPerContainer" type="number" required />
               <div className="bg-[#0f766e]/5 p-4 rounded-xl border border-[#0f766e]/10 flex flex-col justify-center">
-                <span className="text-xs font-bold text-[#0f766e] uppercase mb-1">Total Shipping</span>
-                <span className="text-xl font-bold text-[#0f766e]">
-                  ₹{totals.totalShippingCost.toLocaleString()}
-                </span>
+                <span className="text-[10px] font-black text-[#0f766e] uppercase tracking-widest mb-1">Total Logistics Cost</span>
+                <span className="text-xl font-bold text-[#0f766e]">₹{totals.totalShippingCost.toLocaleString()}</span>
               </div>
             </div>
           </Section>
 
-          <Section title="Quote Items">
-            <div className="overflow-x-auto">
-              <table className="akod-table whitespace-nowrap">
-                <thead>
-                  <tr className="text-[11px] font-black uppercase tracking-widest text-center">
-                    <th className="p-3 border-r border-gray-100 w-12 text-center">S.No</th>
-                    <th className="p-3 border-r border-gray-100 min-w-[220px] text-left">Product <span className="text-red-500">*</span></th>
-                    <th className="p-3 border-r border-gray-100 w-24 text-center">WT (kg)</th>
-                    <th className="p-3 border-r border-gray-100 w-24 text-center">Qty</th>
-                    <th className="p-3 border-r border-gray-100 w-32 text-center">Base Rate ({formik.values.currency})</th>
-                    <th className="p-3 border-r border-gray-100 w-24 text-center">Margin %</th>
-                    <th className="p-3 border-r border-gray-100 w-32 text-center">Unit Sell</th>
-                    <th className="p-3 border-r border-gray-100 w-32 text-center">Total Sell</th>
-                    <th className="p-3 w-16 text-center">Action</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100 bg-white">
-                  {formik.values.items.map((item: any, idx: number) => (
-                    <tr key={idx} className="group hover:bg-gray-50/50 transition-colors">
-                      <td className="p-3 text-center border-r border-gray-100 font-bold text-gray-400">
-                        {idx + 1}
-                      </td>
-                      <td className="p-3 border-r border-gray-100">
-                        <select
-                          className="w-full text-[13px] border-gray-200 rounded-lg focus:ring-[#0f766e] focus:border-[#0f766e] disabled:bg-gray-50"
-                          value={item.productId}
-                          onChange={(e) => updateLineItem(idx, 'productId', e.target.value)}
-                        >
-                          <option value="">Select Product...</option>
-                          {products.map((p) => (
-                            <option key={p._id} value={p._id}>
-                              {p.name} ({p.itemCode})
-                            </option>
-                          ))}
-                        </select>
-                      </td>
-                      <td className="p-3 border-r border-gray-100">
-                        <input
-                          type="number"
-                          className="w-full text-[13px] border-gray-200 rounded-lg text-center font-medium"
-                          value={item.weight}
-                          onChange={(e) => updateLineItem(idx, 'weight', Number(e.target.value))}
-                        />
-                      </td>
-                      <td className="p-3 border-r border-gray-100">
-                        <input
-                          type="number"
-                          className="w-full text-[13px] border-gray-200 rounded-lg text-center font-bold text-[#0f766e]"
-                          value={item.qty}
-                          onChange={(e) => updateLineItem(idx, 'qty', Number(e.target.value))}
-                        />
-                      </td>
-                      <td className="p-3 border-r border-gray-100">
-                        <input
-                          type="number"
-                          className="w-full text-[13px] border-gray-200 rounded-lg text-center font-semibold bg-sky-50/30"
-                          value={item.price}
-                          onChange={(e) => updateLineItem(idx, 'price', Number(e.target.value))}
-                        />
-                      </td>
-                      <td className="p-3 border-r border-gray-100">
-                        <input
-                          type="number"
-                          className="w-full text-[13px] border-gray-200 rounded-lg text-center text-green-600 font-black"
-                          value={item.marginPercentage}
-                          onChange={(e) => updateLineItem(idx, 'marginPercentage', Number(e.target.value))}
-                        />
-                      </td>
-                      <td className="p-3 border-r border-gray-100 text-center">
-                        <div className="flex flex-col">
-                            <span className="text-[13px] font-bold text-gray-700">
+          <Section title="Line Items">
+            <FieldArray name="items">
+              {({ push, remove }) => (
+                <div className="overflow-x-auto">
+                  <table className="akod-table whitespace-nowrap border-separate border-spacing-y-0.5">
+                    <thead>
+                      <tr className="bg-[#f8f9fc] text-[11px] font-black uppercase tracking-[0.1em] text-gray-500">
+                        <th className="p-4 w-12 text-center rounded-l-xl">S.No</th>
+                        <th className="p-4 min-w-[280px] text-left">Product / Catalog Item</th>
+                        <th className="p-4 w-28 text-center text-[#0f766e]">Unit WT (KG)</th>
+                        <th className="p-4 w-28 text-center">Quantity</th>
+                        <th className="p-4 w-36 text-center">Rate ({formik.values.currency})</th>
+                        <th className="p-4 w-32 text-center text-green-600">Margin %</th>
+                        <th className="p-4 w-36 text-center">Unit Sell</th>
+                        <th className="p-4 w-44 text-center">Net Total</th>
+                        <th className="p-4 w-16 text-center rounded-r-xl">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white">
+                      {formik.values.items.map((item: any, idx: number) => (
+                        <tr key={idx} className="group hover:bg-teal-50/30 transition-all duration-200">
+                          <td className="p-4 text-center border-b border-gray-50">
+                            <div className="flex flex-col items-center">
+                              <span className="text-[10px] font-black text-[#0f766e] opacity-40 mb-0.5">#{idx + 1}</span>
+                              <div className="w-1.5 h-1.5 rounded-full bg-[#0f766e]" />
+                            </div>
+                          </td>
+                          <td className="p-4 border-b border-gray-50">
+                            <FormikSelect
+                              label=""
+                              name={`items.${idx}.productId`}
+                              options={products.map(p => ({ value: p._id, label: `${p.name} (${p.itemCode})` }))}
+                              onChange={(e) => {
+                                formik.handleChange(e);
+                                updateLineItemDetails(idx, e.target.value);
+                              }}
+                            />
+                          </td>
+                          <td className="p-4 border-b border-gray-50">
+                            <input
+                              type="number"
+                              {...formik.getFieldProps(`items.${idx}.weight`)}
+                              className="w-full h-11 px-3 bg-gray-50/50 border border-transparent rounded-xl text-center font-bold text-gray-600 focus:bg-white focus:border-[#0f766e] transition-all outline-none"
+                            />
+                          </td>
+                          <td className="p-4 border-b border-gray-50">
+                            <input
+                              type="number"
+                              {...formik.getFieldProps(`items.${idx}.qty`)}
+                              className="w-full h-11 px-3 bg-teal-50/30 border border-teal-100/50 rounded-xl text-center font-black text-[#0f766e] focus:bg-white focus:border-[#0f766e] transition-all outline-none"
+                            />
+                          </td>
+                          <td className="p-4 border-b border-gray-50">
+                            <input
+                              type="number"
+                              {...formik.getFieldProps(`items.${idx}.price`)}
+                              className="w-full h-11 px-3 bg-gray-50/50 border border-transparent rounded-xl text-center font-bold text-gray-600 focus:bg-white focus:border-[#0f766e] transition-all outline-none"
+                            />
+                          </td>
+                          <td className="p-4 border-b border-gray-50">
+                            <input
+                              type="number"
+                              {...formik.getFieldProps(`items.${idx}.marginPercentage`)}
+                              className="w-full h-11 px-3 bg-green-50/20 border border-green-100/30 rounded-xl text-center font-black text-green-600 focus:bg-white focus:border-[#0f766e] transition-all outline-none"
+                            />
+                          </td>
+                          <td className="p-4 border-b border-gray-50 text-center">
+                            <div className="flex flex-col">
+                              <span className="text-[16px] font-black text-gray-800 tabular-nums leading-none">
                                 {formik.values.currency === 'USD' ? '$' : '₹'}{item.sellingPrice?.toFixed(2)}
-                            </span>
-                            <span className="text-[9px] text-gray-400 font-bold uppercase tracking-tighter">Incl. Ship + Margin</span>
-                        </div>
-                      </td>
-                      <td className="p-3 border-r border-gray-100 text-center bg-gray-50/30">
-                        <span className="text-[13px] font-black text-[#0f766e]">
-                            {formik.values.currency === 'USD' ? '$' : '₹'}{item.totalSellingPrice?.toLocaleString()}
-                        </span>
-                      </td>
-                      <td className="p-3 text-center">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const newItems = formik.values.items.filter((_: any, i: number) => i !== idx);
-                            formik.setFieldValue('items', newItems.length ? newItems : [emptyItem()]);
-                          }}
-                          className="w-8 h-8 rounded-lg text-gray-400 hover:text-white hover:bg-teal-500 transition-all flex items-center justify-center mx-auto"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-                <tfoot className="bg-gray-50/50 border-t-2 border-gray-100">
-                  <tr className="text-sm font-black text-[#0f766e]">
-                    <td colSpan={3} className="py-4 px-3 text-right text-[10px] uppercase tracking-widest text-gray-400">Grand Summary</td>
-                    <td className="py-4 px-3 text-center border-r border-gray-100 bg-white">{totals.totalQty} Units</td>
-                    <td className="py-4 px-3 text-center border-r border-gray-100 bg-white">--</td>
-                    <td className="py-4 px-3 text-center border-r border-gray-100 bg-white">--</td>
-                    <td className="py-4 px-3 text-center border-r border-gray-100 bg-white">--</td>
-                    <td className="py-4 px-3 text-center text-teal-700 text-lg bg-teal-50/30">
-                      {formik.values.currency === 'USD' ? '$' : '₹'}{totals.totalSellingPrice.toLocaleString()}
-                    </td>
-                    <td></td>
-                  </tr>
-                </tfoot>
-              </table>
-            </div>
-
-            <div className="mt-6 flex justify-between items-center bg-white p-4 rounded-xl border border-dashed border-gray-300">
-                <button
-                    type="button"
-                    onClick={() => formik.setFieldValue('items', [...formik.values.items, emptyItem()])}
-                    className="flex items-center gap-2 px-6 py-2 rounded-lg bg-[#0f766e] text-white text-xs font-black uppercase tracking-widest hover:bg-[#134e4a] transition-all shadow-md"
-                >
-                    <PlusCircle size={14} />
-                    Add More Item
-                </button>
-                <div className="flex gap-8 px-6">
-                    <div className="text-right">
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Gross Weight</p>
-                        <p className="text-sm font-bold text-[#0f766e]">{totals.totalWeight.toFixed(2)} KG</p>
+                              </span>
+                              <span className="text-[9px] text-gray-400 font-black uppercase tracking-widest mt-1.5">Per Unit</span>
+                            </div>
+                          </td>
+                          <td className="p-4 border-b border-gray-50 text-center">
+                            <div className="bg-[#0f172a] px-5 py-2.5 rounded-xl inline-block shadow-lg shadow-gray-900/10">
+                              <span className="text-[14px] font-black text-white tabular-nums">
+                                {formik.values.currency === 'USD' ? '$' : '₹'}{item.totalSellingPrice?.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="p-4 text-center border-b border-gray-50">
+                            <button
+                              type="button"
+                              onClick={() => remove(idx)}
+                              className="w-10 h-10 flex items-center justify-center text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  <div className="mt-8 flex justify-between items-center bg-white p-6 rounded-2xl border border-dashed border-gray-200 shadow-sm">
+                    <button
+                      type="button"
+                      onClick={() => push(emptyItem())}
+                      className="flex items-center gap-2 px-6 py-3 bg-[#0f172a] text-white rounded-xl text-xs font-black uppercase tracking-[0.1em] hover:bg-black transition-all shadow-xl active:scale-95"
+                    >
+                      <Plus size={16} strokeWidth={3} />
+                      Append Row
+                    </button>
+                    <div className="flex gap-10">
+                      <div className="text-right">
+                        <span className="block text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">Total Quantity</span>
+                        <span className="text-xl font-bold text-gray-800">{totals.totalQty} Units</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="block text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">Gross Weight</span>
+                        <span className="text-xl font-bold text-gray-800">{totals.totalWeight.toFixed(2)} KG</span>
+                      </div>
                     </div>
-                    <div className="text-right">
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Inventory Cost</p>
-                        <p className="text-sm font-bold text-[#0f766e]">₹{totals.totalItemCost.toLocaleString()}</p>
-                    </div>
+                  </div>
                 </div>
-            </div>
+              )}
+            </FieldArray>
           </Section>
 
-          <Section title="Additional Information">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <FormikSelect
-                label="Status"
-                name="status"
-                options={[
-                  { value: 'Pending', label: 'Pending' },
-                  { value: 'Quoted', label: 'Quoted' },
-                  { value: 'Accepted', label: 'Accepted' },
-                  { value: 'Rejected', label: 'Rejected' },
-                ]}
-                required
-              />
-              <FormikTextarea label="Remarks" name="remarks" placeholder="Internal notes or comments..." rows={4} />
-            </div>
-          </Section>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <Section title="Categorization">
+              <div className="space-y-6">
+                <FormikSelect
+                  label="Status"
+                  name="status"
+                  options={[
+                    { value: 'Pending', label: 'Pending Assessment' },
+                    { value: 'Quoted', label: 'Official Quotation' },
+                    { value: 'Accepted', label: 'Contract Accepted' },
+                    { value: 'Rejected', label: 'Offer Rejected' },
+                  ]}
+                  required
+                />
+                <FormikTextarea label="Log / Remarks" name="remarks" placeholder="Enter internal audit logs or commercial remarks..." rows={4} />
+              </div>
+            </Section>
 
-          {/* Quick Summary Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
-            <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-sky-50 flex items-center justify-center text-sky-600">
-                <Weight className="w-6 h-6" />
+            <Section title="Commercial Summary">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 h-full pt-2">
+                <div className="p-6 bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-center gap-1">
+                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Inventory Cost</span>
+                  <span className="text-2xl font-black text-[#0f172a]">₹{totals.totalItemCost.toLocaleString()}</span>
+                </div>
+                <div className="p-6 bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-center gap-1">
+                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Logistics Overhead</span>
+                  <span className="text-2xl font-black text-[#0f172a]">₹{totals.totalShippingCost.toLocaleString()}</span>
+                </div>
+                <div className="col-span-1 sm:col-span-2 p-6 bg-[#0f766e] rounded-2xl shadow-xl shadow-[#0f766e]/20 flex justify-between items-center group overflow-hidden relative">
+                  <div className="relative z-10">
+                    <span className="text-[10px] font-black text-white/60 uppercase tracking-widest mb-1 block">Projected Gross Margin</span>
+                    <span className="text-3xl font-black text-white">₹{totals.totalGrossMargin.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                  </div>
+                  <IndianRupee size={40} className="text-white/10 absolute -right-2 rotate-12 group-hover:scale-125 transition-transform" />
+                </div>
               </div>
-              <div>
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Weight</p>
-                <p className="text-lg font-bold text-gray-800">{totals.totalWeight.toFixed(2)} kg</p>
-              </div>
-            </div>
-            <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600">
-                <IndianRupee className="w-6 h-6" />
-              </div>
-              <div>
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Item Cost</p>
-                <p className="text-lg font-bold text-gray-800">₹{totals.totalItemCost.toLocaleString()}</p>
-              </div>
-            </div>
-            <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center text-green-600">
-                <Package className="w-6 h-6" />
-              </div>
-              <div>
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Units</p>
-                <p className="text-lg font-bold text-gray-800">{totals.totalQty} Units</p>
-              </div>
-            </div>
-            <div className="bg-teal-700 p-5 rounded-2xl shadow-lg shadow-teal-700/20 flex flex-col justify-center">
-              <p className="text-[10px] font-black text-white/70 uppercase tracking-widest mb-1">Final Total Profit</p>
-              <p className="text-2xl font-black text-white">₹{totals.totalGrossMargin.toLocaleString()}</p>
-            </div>
+            </Section>
           </div>
 
-          <div className="flex justify-end gap-4 pt-8 border-t border-gray-200">
+          <div className="flex justify-end items-center gap-6 pt-10 border-t border-gray-100">
             <button
               type="button"
               onClick={onCancel}
-              className="px-8 py-2.5 rounded-xl border border-gray-300 text-gray-700 font-bold hover:bg-gray-100 transition"
+              className="text-sm font-black text-gray-400 uppercase tracking-widest hover:text-gray-600 transition-colors"
             >
-              Cancel
+              Discard Changes
             </button>
             <button
               type="submit"
               disabled={formik.isSubmitting || isLoading}
-              className={`flex items-center gap-2 px-10 py-2.5 rounded-xl text-white font-bold shadow-lg shadow-teal-700/10 transition-all active:scale-95 ${formik.isSubmitting || isLoading
-                ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-teal-700 hover:bg-teal-800'
-                }`}
+              className="px-12 py-5 bg-[#0f766e] text-white rounded-[1.25rem] font-black text-lg shadow-[0_20px_40px_-10px_rgba(15,118,110,0.4)] hover:shadow-[0_25px_50px_-10px_rgba(15,118,110,0.5)] hover:-translate-y-1 active:scale-95 transition-all duration-300 disabled:opacity-50 flex items-center gap-4"
             >
-              <Save className="w-4 h-4" />
-              {isEditMode ? 'Update Quote Track' : 'Create Quote Track'}
+              {formik.isSubmitting || isLoading ? (
+                <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                <Save size={20} strokeWidth={3} />
+              )
+              }
+              <span>{isEditMode ? 'Authorize Update' : 'Initialize Quote'}</span>
             </button>
           </div>
         </form>

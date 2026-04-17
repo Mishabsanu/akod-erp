@@ -145,14 +145,32 @@ export default function AttendanceLogSection() {
             )
         },
         {
-            accessor: 'requestedOn',
             header: 'Requested On',
-            render: (row) => (
+            accessor: 'requestedOn',
+            render: (row: RegularizationRequest) => (
                 <div className="flex flex-col gap-0.5">
-                    <span className="text-gray-800 font-bold tracking-tight">{format(parseSafeDate(row.requestedOn)!, 'd MMM yyyy')}</span>
-                    <span className="text-[11px] text-gray-400 font-black uppercase tracking-tighter">by {row.user?.name || 'Self'}</span>
+                    <span className="text-gray-800 font-extrabold tracking-tight">{format(parseSafeDate(row.requestedOn)!, 'd MMM yyyy')}</span>
+                    <span className="text-[10px] text-[#0f766e] font-black uppercase tracking-widest opacity-60">
+                        by {typeof row.createdBy === 'object' ? (row.createdBy as any).name : 'Self'}
+                    </span>
                 </div>
             )
+        },
+        {
+            header: 'Status',
+            accessor: 'status',
+            render: (row: RegularizationRequest) => {
+                const colors = {
+                    Pending: 'bg-amber-50 text-amber-700 border-amber-100',
+                    Approved: 'bg-green-50 text-green-700 border-green-100',
+                    Rejected: 'bg-red-50 text-red-700 border-red-100'
+                };
+                return (
+                    <span className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border ${colors[row.status]}`}>
+                        {row.status}
+                    </span>
+                );
+            }
         },
         {
             accessor: 'note',
@@ -207,28 +225,28 @@ export default function AttendanceLogSection() {
         <div className="flex flex-col gap-6 font-sans">
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden min-h-[600px] flex flex-col">
                 {/* TABS AREA */}
-                <div className="flex border-b border-gray-100 bg-white px-8">
+                <div className="flex border-b border-gray-100 bg-[#f8f9fc]/50 backdrop-blur-sm px-8">
                     <button
                         onClick={() => setActiveTab('log')}
                         className={`group flex items-center gap-3 py-6 border-b-2 transition-all duration-300 relative ${activeTab === 'log'
-                            ? 'border-[#5e50d1] text-[#5e50d1]'
+                            ? 'border-[#0f766e] text-[#0f766e]'
                             : 'border-transparent text-gray-400 hover:text-gray-600'
                             }`}
                     >
-                        <Calendar size={18} className={`${activeTab === 'log' ? 'text-[#5e50d1]' : 'text-gray-300'} transition-colors`} />
+                        <Calendar size={18} className={`${activeTab === 'log' ? 'text-[#0f766e]' : 'text-gray-300'} transition-colors`} />
                         <span className="text-sm font-black uppercase tracking-widest">Attendance Log</span>
-                        {activeTab === 'log' && <div className="absolute bottom-0 left-0 w-full h-1 bg-[#5e50d1] shadow-[0_0_10px_rgba(94,80,209,0.3)]" />}
+                        {activeTab === 'log' && <div className="absolute bottom-0 left-0 w-full h-1 bg-[#0f766e] shadow-[0_0_10px_rgba(15,118,110,0.3)]" />}
                     </button>
                     <button
                         onClick={() => setActiveTab('requests')}
                         className={`group flex items-center gap-3 py-6 border-b-2 ml-10 transition-all duration-300 relative ${activeTab === 'requests'
-                            ? 'border-[#5e50d1] text-[#5e50d1]'
+                            ? 'border-[#0f766e] text-[#0f766e]'
                             : 'border-transparent text-gray-400 hover:text-gray-600'
                             }`}
                     >
-                        <MessageSquare size={18} className={`${activeTab === 'requests' ? 'text-[#5e50d1]' : 'text-gray-300'} transition-colors`} />
+                        <MessageSquare size={18} className={`${activeTab === 'requests' ? 'text-[#0f766e]' : 'text-gray-300'} transition-colors`} />
                         <span className="text-sm font-black uppercase tracking-widest">Requests</span>
-                        {activeTab === 'requests' && <div className="absolute bottom-0 left-0 w-full h-1 bg-[#5e50d1] shadow-[0_0_10px_rgba(94,80,209,0.3)]" />}
+                        {activeTab === 'requests' && <div className="absolute bottom-0 left-0 w-full h-1 bg-[#0f766e] shadow-[0_0_10px_rgba(15,118,110,0.3)]" />}
                     </button>
                 </div>
 

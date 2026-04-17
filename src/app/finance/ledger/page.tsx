@@ -109,6 +109,15 @@ function LedgerPage() {
         </span>
       )
     },
+    {
+      header: 'Created By',
+      accessor: 'createdBy' as keyof LedgerEntry,
+      render: (item: LedgerEntry) => (
+        <span className="text-sm font-medium text-gray-600">
+          {typeof item.createdBy === 'object' ? (item.createdBy as any).name : (item.createdBy || '--')}
+        </span>
+      )
+    },
   ];
 
   return (

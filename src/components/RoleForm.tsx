@@ -1,24 +1,25 @@
 import { FormikProvider, useFormik } from 'formik';
 import {
   Activity,
-  ArrowLeft,
+  BookOpen,
   Box,
   CheckCircle2,
   Clock,
   CreditCard,
+  Database,
   Edit2,
   Eye,
   FileText,
+  Layers,
   LayoutGrid,
   Plus,
-  ReceiptText,
+  RotateCcw,
   ShieldCheck,
-  ShieldPlus,
   Trash2,
-  TrendingUp,
   Truck,
+  UserPlus,
   Users,
-  Wallet,
+  Wallet
 } from 'lucide-react';
 import React from 'react';
 import * as Yup from 'yup';
@@ -53,25 +54,38 @@ const emptyPermissions = {
   expense: { view: false, create: false, update: false, delete: false },
   attendance: { view: false, create: false, update: false, delete: false },
   payroll: { view: false, create: false, update: false, delete: false },
+  ledger: { view: false, create: false, update: false, delete: false },
+  accounts: { view: false, create: false, update: false, delete: false },
 };
 
 const MODULE_CONFIG: Record<string, { label: string; icon: any; category: string }> = {
-  user: { label: 'Users', icon: Users, category: 'Core' },
-  role: { label: 'Roles', icon: ShieldCheck, category: 'Core' },
-  customer: { label: 'Customers', icon: Users, category: 'Masters' },
-  vendor: { label: 'Vendors', icon: Truck, category: 'Masters' },
-  product: { label: 'Products', icon: Box, category: 'Masters' },
-  inventory: { label: 'Inventory', icon: Box, category: 'Logistics' },
-  delivery_ticket: { label: 'Delivery Ticket', icon: FileText, category: 'Logistics' },
-  return_ticket: { label: 'Return Ticket', icon: Activity, category: 'Logistics' },
-  running_order: { label: 'Running Order', icon: Activity, category: 'Logistics' },
-  sales: { label: 'Sales/CRM', icon: TrendingUp, category: 'Commercial' },
-  quote_track: { label: 'Quote Tracking', icon: TrendingUp, category: 'Commercial' },
-  invoice: { label: 'Invoices', icon: ReceiptText, category: 'Finance' },
-  payment: { label: 'Payments', icon: CreditCard, category: 'Finance' },
+  // CRM
+  sales: { label: 'Leads', icon: UserPlus, category: 'CRM' },
+  quote_track: { label: 'Quote Tracking', icon: FileText, category: 'CRM' },
+
+  // Finance
+  accounts: { label: 'Accounts', icon: BookOpen, category: 'Finance' },
+  ledger: { label: 'Ledger', icon: Database, category: 'Finance' },
   expense: { label: 'Expenses', icon: Wallet, category: 'Finance' },
-  attendance: { label: 'Attendance', icon: Clock, category: 'HR' },
-  payroll: { label: 'Payroll', icon: CreditCard, category: 'HR' },
+  invoice: { label: 'Invoices', icon: FileText, category: 'Finance' },
+  payment: { label: 'Payment', icon: CreditCard, category: 'Finance' },
+
+  // Inventory
+  product: { label: 'Products Catalog', icon: Box, category: 'Inventory' },
+  inventory: { label: 'Stock Status', icon: Layers, category: 'Inventory' },
+  delivery_ticket: { label: 'Delivery Challan', icon: Truck, category: 'Inventory' },
+  return_ticket: { label: 'Return Records', icon: RotateCcw, category: 'Inventory' },
+  running_order: { label: 'Running Order', icon: Activity, category: 'Inventory' },
+
+  // HR & Payroll
+  user: { label: 'Employee', icon: Users, category: 'HR & Payroll' },
+  attendance: { label: 'Attendance', icon: Clock, category: 'HR & Payroll' },
+  payroll: { label: 'Payroll', icon: CreditCard, category: 'HR & Payroll' },
+
+  // Administration
+  role: { label: 'Roles & Permissions', icon: ShieldCheck, category: 'Administration' },
+  customer: { label: 'Customers Master', icon: Users, category: 'Administration' },
+  vendor: { label: 'Vendors Master', icon: Truck, category: 'Administration' },
 };
 
 interface RoleFormProps {
