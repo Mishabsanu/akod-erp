@@ -22,7 +22,7 @@ export const getRunningOrders = async (
     );
 
     return {
-      result: data?.data?.content || [],
+      result: data?.data?.orders || [],
       totalPages: data?.data?.totalPages || 1,
       totalCount: data?.data?.totalCount || 0,
       currentPage: data?.data?.currentPage || page,
@@ -61,4 +61,14 @@ export const deleteRunningOrder = async (id: string) => {
 export const updateRunningOrderStatusApi = async (id: string, status: string) => {
   const { data } = await api.patch<ApiResponse<any>>(`/running-orders/${id}/status`, { status });
   return data;
+};
+
+export const getRunningOrdersDropdown = async () => {
+  const { data } = await api.get<ApiResponse<any>>('/running-orders/dropdown');
+  return data.data;
+};
+
+export const getRunningOrderFulfillment = async (id: string) => {
+  const { data } = await api.get<ApiResponse<any>>(`/running-orders/${id}/fulfillment`);
+  return data.data;
 };

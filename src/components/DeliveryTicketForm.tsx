@@ -6,12 +6,41 @@ import { Section } from '@/components/ui/Section';
 import { DeliveryTicket, PODropdownItem } from '@/lib/types';
 import { getCustomers } from '@/services/customerApi';
 import { GetNextDeliveryTicketNo } from '@/services/deliveryTicketApi';
+import { getAvailableProducts } from '@/services/inventoryApi';
+import { getRunningOrderFulfillment, getRunningOrdersDropdown } from '@/services/runningOrderApi';
 import { FieldArray, FormikProvider, useFormik } from 'formik';
-import { FilePlus, Trash2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { Trash2 } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 import * as Yup from 'yup';
 import { FormikPhoneInput } from './shared/FormikPhoneInput';
-import { getAvailableProducts } from '@/services/inventoryApi';
+
+
+const STAFF_LIST = [
+  { name: 'MANSOOR', phone: '70814261' },
+  { name: 'RASEEM', phone: '70814262' },
+  { name: 'MUSTHAFA', phone: '70814263' },
+  { name: 'THASHNEEB', phone: '70814264' },
+  { name: 'BASIL', phone: '31214455' },
+  { name: 'KARK', phone: '66069200' },
+  { name: 'SHIFAN', phone: '71513931' },
+];
+
+const LOCATION_OPTIONS = [
+  { value: 'Client Yard', label: 'Client Yard' },
+  { value: 'Client Site', label: 'Client Site' },
+  { value: 'Company Yard', label: 'Company Yard' },
+  { value: 'Project Laydown Area', label: 'Project Laydown Area' },
+  { value: 'Fabrication Yard', label: 'Fabrication Yard' },
+  { value: 'Other', label: 'Manual Entry' },
+];
+
+const SOURCE_OPTIONS = [
+  { value: 'Store Mekeinese', label: 'Store Mekeinese' },
+  { value: 'Store Birkat Al Awamer', label: 'Store Birkat Al Awamer' },
+  { value: 'Factory Birkat Al Awamer', label: 'Factory Birkat Al Awamer' },
+  { value: 'Proserve Site', label: 'Proserve Site' },
+  { value: 'Other', label: 'Other' },
+];
 
 /* ---------------- VALIDATION ---------------- */
 const LineItemValidationSchema = Yup.object().shape({
@@ -33,12 +62,12 @@ const LineItemValidationSchema = Yup.object().shape({
 const validationSchema = Yup.object().shape({
   customerId: Yup.string().required('Customer is required'),
   deliveryDate: Yup.date().nullable().required('Delivery date is required'),
-  subject: Yup.string().required('Subject is required'),
+  subject: Yup.string().required('Delivered From is required'),
   projectLocation: Yup.string().required('Project location is required'),
   poNo: Yup.string().required('Purchase Order No is required'),
   invoiceNo: Yup.string().required('Invoice No is required'),
   noteCategory: Yup.string().required('Note category is required'),
-  vehicleNo: Yup.string(),
+  vehicleNo: Yup.string().required('Vehicle number is required'),
 
   items: Yup.array()
     .of(LineItemValidationSchema)
@@ -48,7 +77,7 @@ const validationSchema = Yup.object().shape({
   deliveredBy: Yup.object().shape({
     deliveredByName: Yup.string().required('Delivered by name is required'),
     deliveredByMobile: Yup.string()
-      .matches(/^\+?[1-9]\d{6,14}$/, 'Invalid mobile number')
+      .matches(/^\+?\d{8,15}$/, 'Invalid mobile number')
       .required('Delivered by mobile is required'),
     deliveredDate: Yup.date().nullable().required('Delivered date is required'),
   }),
@@ -56,7 +85,7 @@ const validationSchema = Yup.object().shape({
   receivedBy: Yup.object().shape({
     receivedByName: Yup.string().required('Received by name is required'),
     receivedByMobile: Yup.string()
-      .matches(/^\+?[1-9]\d{6,14}$/, 'Invalid mobile number')
+      .matches(/^\+?\d{8,15}$/, 'Invalid mobile number')
       .required('Received by mobile is required'),
     qatarId: Yup.string(),
     receivedDate: Yup.date().nullable().required('Received date is required'),
@@ -88,9 +117,10 @@ const DeliveryTicketForm = ({
   const [availableProducts, setAvailableProducts] = useState<PODropdownItem[]>(
     []
   );
-  const [customers, setCustomers] = useState<
-    { value: string; label: string }[]
-  >([]);
+  const [runningOrders, setRunningOrders] = useState<any[]>([]);
+  const [selectedOrderItems, setSelectedOrderItems] = useState<any[]>([]);
+  const [customers, setCustomers] = useState<{ value: string; label: string }[]>([]);
+  const [fulfillmentMap, setFulfillmentMap] = useState<Record<string, number>>({});
 
   useEffect(() => {
     const fetchProductsAndCustomers = async () => {
@@ -99,6 +129,16 @@ const DeliveryTicketForm = ({
         if (productRes) {
           setAvailableProducts(productRes);
         }
+
+        const roRes = await getRunningOrdersDropdown();
+        if (roRes) {
+          setRunningOrders(roRes.map((ro: any) => ({
+            ...ro,
+            label: `${ro.invoice_number}`,
+            value: ro._id
+          })));
+        }
+
         const customerRes = await getCustomers({}, 1, 9999);
 
         if (customerRes?.customers) {
@@ -117,6 +157,7 @@ const DeliveryTicketForm = ({
     enableReinitialize: true,
     initialValues: {
       customerId: initialData?.customerId || '',
+      runningOrderId: initialData?.runningOrderId || '',
       customerName: initialData?.customerName || '',
       deliveryDate:
         initialData?.deliveryDate || new Date().toISOString().slice(0, 10),
@@ -179,41 +220,61 @@ const DeliveryTicketForm = ({
         ? selectedCustomer.label
         : values.customerName;
 
-      const payload: Partial<DeliveryTicket> = {
-        ...values,
-        customerName: customerName,
-        items: values.items.map((r) => ({
-          productId: r.productId,
-          name: r.name,
-          itemCode: r.itemCode,
-          unit: r.unit,
-          quantity: Number(r.quantity) || 0,
-          requiredQty: Number(r.requiredQty) || 0,
-          description: r.description || '', // Ensure description is sent
-        })),
-      };
-      onSubmit(payload, { setErrors, setSubmitting });
+      const formData = new FormData();
+      
+      // Add simple fields
+      Object.keys(values).forEach(key => {
+        if (!['items', 'deliveredBy', 'receivedBy'].includes(key)) {
+          formData.append(key, (values as any)[key]);
+        }
+      });
+
+      // Add nested fields as stringified JSON
+      formData.append('customerName', customerName);
+      formData.append('items', JSON.stringify(values.items.map((r) => ({
+        productId: r.productId,
+        name: r.name,
+        itemCode: r.itemCode,
+        unit: r.unit,
+        quantity: Number(r.quantity) || 0,
+        requiredQty: Number(r.requiredQty) || 0,
+        description: r.description || '',
+      }))));
+      formData.append('deliveredBy', JSON.stringify(values.deliveredBy));
+      formData.append('receivedBy', JSON.stringify(values.receivedBy));
+
+      // Add files
+      if (signedTicketFile) {
+        formData.append('signedTicket', signedTicketFile);
+      }
+      supportingDocsFiles.forEach(file => {
+        formData.append('supportingDocs', file);
+      });
+
+      onSubmit(formData as any, { setErrors, setSubmitting });
     },
   });
 
+  const filteredRunningOrders = useMemo(() => {
+    const customer = customers.find(c => c.value === formik.values.customerId);
+    if (customer) {
+      return runningOrders.filter(ro => 
+        (ro.company_name && ro.company_name === customer.label) || 
+        (ro.client_name && ro.client_name === customer.label)
+      );
+    }
+    return [];
+  }, [formik.values.customerId, runningOrders, customers]);
+
   /* ---------------- PREVIEW STATE ---------------- */
   const [isPreviewMode, setIsPreviewMode] = useState(false);
+  const [isCustomLocation, setIsCustomLocation] = useState(false);
+  const [isCustomSource, setIsCustomSource] = useState(false);
 
-  // Set customerName based on selected customerId
-  useEffect(() => {
-    // console.log(formik.values.customerId);
+  // File Upload State
+  const [signedTicketFile, setSignedTicketFile] = useState<File | null>(null);
+  const [supportingDocsFiles, setSupportingDocsFiles] = useState<File[]>([]);
 
-    if (formik.values.customerId) {
-      const customer = customers.find(
-        (c) => c.value === formik.values.customerId
-      );
-      if (customer) {
-        formik.setFieldValue('customerName', customer.label);
-      }
-    } else {
-      formik.setFieldValue('customerName', '');
-    }
-  }, [formik.values.customerId, customers]);
 
   /* ---------------- APPLY BACKEND ERRORS ---------------- */
   useEffect(() => {
@@ -224,7 +285,103 @@ const DeliveryTicketForm = ({
     }
   }, [backendErrors]);
 
+  const handleRunningOrderSelection = (orderId: string) => {
+    formik.setFieldValue('runningOrderId', orderId);
+    if (!orderId) {
+      setSelectedOrderItems([]);
+      return;
+    }
+
+    const order = runningOrders.find((o) => o.value === orderId);
+    if (order) {
+      // Auto-populate related fields
+      formik.setFieldValue('invoiceNo', order.invoice_number);
+      formik.setFieldValue('poNo', order.po_number || '');
+      formik.setFieldValue('noteCategory', order.transaction_type);
+
+      // Try to link customer by name
+      const customer = customers.find((c) => c.label === order.company_name);
+      if (customer) {
+        formik.setFieldValue('customerId', customer.value);
+        formik.setFieldValue('customerName', customer.label);
+      }
+
+      // Store items for filtering the product dropdown
+      setSelectedOrderItems(order.items || []);
+
+      // Fetch fulfillment history and auto-populate items
+      getRunningOrderFulfillment(orderId).then(data => {
+        const map: Record<string, number> = {};
+        if (data && data.items) {
+          data.items.forEach((item: any) => {
+            const pid = item.productId?._id || item.productId;
+            map[pid] = item.deliveredQty || 0;
+          });
+          setFulfillmentMap(map);
+        }
+
+        // Auto-populate items from order with remaining quantities
+        if (order.items && order.items.length > 0) {
+          const populatedItems = order.items.map((item: any) => {
+            const pid = item.productId?._id || item.productId;
+            const delivered = map[pid] || 0;
+            const remaining = (item.quantity || 0) - delivered;
+            
+            // Return item row if there's balance or if it's a new delivery
+            return {
+              productId: pid,
+              name: item.name,
+              itemCode: item.itemCode,
+              unit: item.unit,
+              availableQty: item.availableQty || '', // Needs to be fetched if availableProducts is ready
+              requiredQty: item.quantity, 
+              quantity: remaining > 0 ? remaining : 0, 
+              description: item.description || '',
+            };
+          });
+          
+          if (populatedItems.length > 0) {
+            formik.setFieldValue('items', populatedItems);
+          }
+        }
+      }).catch(err => console.error("Error fetching fulfillment", err));
+    }
+  };
+
+  useEffect(() => {
+    if (formik.values.runningOrderId && runningOrders.length > 0) {
+      const order = runningOrders.find((o) => o.value === formik.values.runningOrderId);
+      if (order) {
+        setSelectedOrderItems(order.items || []);
+      }
+    }
+  }, [formik.values.runningOrderId, runningOrders]);
+
   const handleProductSelection = (index: number, productId: string) => {
+    // If we have a selected order, find the product in THAT order's items
+    if (formik.values.runningOrderId) {
+      const orderItem = selectedOrderItems.find((i) => (i.productId?._id || i.productId) === productId);
+      if (orderItem) {
+        formik.setFieldValue(`items.${index}.productId`, orderItem.productId?._id || orderItem.productId);
+        formik.setFieldValue(`items.${index}.name`, orderItem.name);
+        formik.setFieldValue(`items.${index}.itemCode`, orderItem.itemCode);
+        formik.setFieldValue(`items.${index}.unit`, orderItem.unit);
+        formik.setFieldValue(`items.${index}.description`, orderItem.description);
+        formik.setFieldValue(`items.${index}.requiredQty`, orderItem.quantity);
+        
+        const delivered = fulfillmentMap[orderItem.productId?._id || orderItem.productId] || 0;
+        const remaining = (orderItem.quantity || 0) - delivered;
+        formik.setFieldValue(`items.${index}.quantity`, remaining > 0 ? remaining : 0);
+        
+        // Also find available stock from the main product list if needed
+        const inventoryProduct = availableProducts.find((p) => p._id === (orderItem.productId?._id || orderItem.productId));
+        if (inventoryProduct) {
+          formik.setFieldValue(`items.${index}.availableQty`, inventoryProduct.availableQty);
+        }
+        return;
+      }
+    }
+
     const product = availableProducts.find((p) => p._id === productId);
     if (product) {
       formik.setFieldValue(`items.${index}.productId`, product._id);
@@ -286,15 +443,6 @@ const DeliveryTicketForm = ({
   };
 
   if (isPreviewMode) {
-    // Import dynamically or use the imported component if at top level. 
-    // Since I can't easily add top-level imports with replace_file_content in a clean way if not careful, 
-    // I will assume I need to add the import at the top separately or rely on user to auto-import (but as agent I must do it).
-    // I will use a separate edit to add the import, or include it if I replace the whole file. 
-    // Wait, I am replacing a chunk. I need to make sure I add the import.
-    // Actually, I can use require or just rely on the component being there if I add the import in a previous step? 
-    // No, I should do a multi-replace or just adding the import at top first is safer.
-    // For now, let's assume I will add the import in a separate tool call immediately after this one or before.
-    // Actually, I'll return the component usage here and fix import in next step.
     const DeliveryTicketPreview = require('./delivery-ticket/DeliveryTicketPreview').default;
     return (
       <DeliveryTicketPreview
@@ -331,7 +479,7 @@ const DeliveryTicketForm = ({
           <Section eyebrow="Logistics" title="Delivery" highlight="Details">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               <FormikSelect
-                label="Customer Name"
+                label="Company Name"
                 name="customerId"
                 options={customers}
                 required
@@ -347,6 +495,11 @@ const DeliveryTicketForm = ({
                       selectedCustomer.label
                     );
                   }
+                  // Reset PO selection when Company changes
+                  formik.setFieldValue('runningOrderId', '');
+                  formik.setFieldValue('poNo', '');
+                  formik.setFieldValue('invoiceNo', '');
+                  setSelectedOrderItems([]);
                 }}
               />
 
@@ -358,7 +511,7 @@ const DeliveryTicketForm = ({
               />
 
               <FormikInput
-                label="Ticket No"
+                label="Delivery Ticket No"
                 name="ticketNo"
                 readOnly // Assuming this is auto-generated
                 required
@@ -371,19 +524,80 @@ const DeliveryTicketForm = ({
                 required
               />
 
-              <FormikInput label="PO No" name="poNo" required />
-              <FormikInput label="Invoice No" name="invoiceNo" required />
-              <FormikInput label="Reference No" name="referenceNo" />
-
-              <FormikInput label="Subject" name="subject" required />
-              <FormikInput
-                label="Project Location"
-                name="projectLocation"
+              <FormikSelect
+                label="Invoice Number"
+                name="runningOrderId"
+                options={filteredRunningOrders}
+                onChange={(e) => {
+                  formik.handleChange(e);
+                  handleRunningOrderSelection(e.target.value);
+                }}
                 required
+                disabled={!formik.values.customerId}
               />
 
+              <FormikInput label="PO Number" name="poNo" readOnly required />
+              <FormikInput label="Invoice No" name="invoiceNo" readOnly required />
+              <FormikInput label="Reference No" name="referenceNo" />
+
+              {!isCustomSource ? (
+                <FormikSelect
+                  label="Delivered From"
+                  name="subject"
+                  options={SOURCE_OPTIONS}
+                  required
+                  onChange={(e) => {
+                    if (e.target.value === 'Other') {
+                      setIsCustomSource(true);
+                      formik.setFieldValue('subject', '');
+                    } else {
+                      formik.handleChange(e);
+                    }
+                  }}
+                />
+              ) : (
+                <div className="relative">
+                  <FormikInput label="Delivered From" name="subject" required />
+                  <button 
+                    type="button"
+                    onClick={() => { setIsCustomSource(false); formik.setFieldValue('subject', ''); }}
+                    className="absolute top-0 right-0 text-[10px] text-sky-600 hover:underline"
+                  >
+                    Back to List
+                  </button>
+                </div>
+              )}
+
+              {!isCustomLocation ? (
+                <FormikSelect
+                  label="Project Location"
+                  name="projectLocation"
+                  options={LOCATION_OPTIONS}
+                  required
+                  onChange={(e) => {
+                    if (e.target.value === 'Other') {
+                      setIsCustomLocation(true);
+                      formik.setFieldValue('projectLocation', '');
+                    } else {
+                      formik.handleChange(e);
+                    }
+                  }}
+                />
+              ) : (
+                <div className="relative">
+                  <FormikInput label="Project Location" name="projectLocation" required />
+                  <button 
+                    type="button"
+                    onClick={() => { setIsCustomLocation(false); formik.setFieldValue('projectLocation', ''); }}
+                    className="absolute top-0 right-0 text-[10px] text-sky-600 hover:underline"
+                  >
+                    Back to List
+                  </button>
+                </div>
+              )}
+
               <FormikSelect
-                label="Category"
+                label="Material Transaction Type"
                 name="noteCategory"
                 options={[
                   { value: 'Sale', label: 'Sale' },
@@ -393,7 +607,7 @@ const DeliveryTicketForm = ({
                 ]}
                 required
               />
-              <FormikInput label="Vehicle No" name="vehicleNo" />
+              <FormikInput label="Vehicle Number" name="vehicleNo" required />
             </div>
           </Section>
 
@@ -415,6 +629,9 @@ const DeliveryTicketForm = ({
                         <th className="p-2 border border-gray-200 min-w-[80px]">Unit <span className="text-red-500">*</span></th>
                         <th className="p-2 border border-gray-200 min-w-[100px]">
                           Required Qty <span className="text-red-500">*</span>
+                        </th>
+                        <th className="p-2 border border-gray-200 min-w-[100px]">
+                          Prev. Delivered
                         </th>
                         <th className="p-2 border border-gray-200 min-w-[120px]">
                           Delivery Qty <span className="text-red-500">*</span>
@@ -438,12 +655,18 @@ const DeliveryTicketForm = ({
 
                             <td className="p-2 border border-gray-200">
                               <FormikSelect
-                                label=""
                                 name={`items.${idx}.productId`}
-                                options={availableProducts.map((p) => ({
-                                  value: p._id!,
-                                  label: p.name,
-                                }))}
+                                options={
+                                  formik.values.runningOrderId && selectedOrderItems.length > 0 
+                                    ? selectedOrderItems.map(p => ({ 
+                                        value: p.productId?._id || p.productId, 
+                                        label: `${p.name}` 
+                                      }))
+                                    : availableProducts.map((p) => ({
+                                        value: p._id!,
+                                        label: p.name,
+                                      }))
+                                }
                                 onChange={(e) => {
                                   formik.handleChange(e);
                                   handleProductSelection(idx, e.target.value);
@@ -476,6 +699,11 @@ const DeliveryTicketForm = ({
                                 min={1}
 
                               />
+                            </td>
+                            <td className="p-2 border border-gray-200 text-center">
+                              <span className={`text-xs font-bold px-2 py-1 rounded-full ${fulfillmentMap[item.productId] ? 'bg-blue-50 text-blue-600 border border-blue-100' : 'bg-gray-50 text-gray-400 border border-gray-100'}`}>
+                                {fulfillmentMap[item.productId] || 0} {item.unit}
+                              </span>
                             </td>
                             <td className="p-2 border border-gray-200 align-top">
                               <div className="flex flex-col gap-1.5">
@@ -575,10 +803,18 @@ const DeliveryTicketForm = ({
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             <Section title="Delivery Details">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormikInput
-                  label="Delivered By"
+                <FormikSelect
+                  label="Delivered By (Staff)"
                   name="deliveredBy.deliveredByName"
+                  options={STAFF_LIST.map(s => ({ value: s.name, label: s.name }))}
                   required
+                  onChange={(e) => {
+                    formik.handleChange(e);
+                    const staff = STAFF_LIST.find(s => s.name === e.target.value);
+                    if (staff) {
+                      formik.setFieldValue('deliveredBy.deliveredByMobile', staff.phone);
+                    }
+                  }}
                 />
                 <FormikPhoneInput
                   label="Delivered By Mobile"
@@ -616,6 +852,52 @@ const DeliveryTicketForm = ({
               </div>
             </Section>
           </div>
+
+          {/* 📂 ATTACHMENTS */}
+          <Section title="Attachments (Optional)">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="p-4 border-2 border-dashed border-gray-200 rounded-xl hover:border-sky-300 transition-colors bg-white">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Signed Delivery Ticket
+                </label>
+                <input
+                  type="file"
+                  onChange={(e) => setSignedTicketFile(e.target.files?.[0] || null)}
+                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100"
+                />
+                {initialData?.attachments?.signedTicket && (
+                   <p className="mt-2 text-xs text-green-600">
+                     Current file: <a href={initialData?.attachments?.signedTicket} target="_blank" className="underline">View Signed Ticket</a>
+                   </p>
+                )}
+              </div>
+
+              <div className="p-4 border-2 border-dashed border-gray-200 rounded-xl hover:border-sky-300 transition-colors bg-white">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Supporting Documents
+                </label>
+                <input
+                  type="file"
+                  multiple
+                  onChange={(e) => {
+                    const files = Array.from(e.target.files || []);
+                    setSupportingDocsFiles(files);
+                  }}
+                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100"
+                />
+                 {(initialData?.attachments?.supportingDocs?.length ?? 0) > 0 && (
+                   <div className="mt-2 space-y-1">
+                     <p className="text-xs font-medium text-gray-600">Existing Docs:</p>
+                     {initialData?.attachments?.supportingDocs?.map((url: string, i: number) => (
+                       <p key={i} className="text-xs text-green-600">
+                         <a href={url} target="_blank" className="underline text-[10px]">Document {i + 1}</a>
+                       </p>
+                     ))}
+                   </div>
+                )}
+              </div>
+            </div>
+          </Section>
 
           {/* Buttons */}
           <div className="flex justify-end gap-4 pt-8 border-t border-gray-200">

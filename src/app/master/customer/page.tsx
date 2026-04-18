@@ -9,7 +9,7 @@ import { TableSkeleton } from '@/components/shared/TableSkeleton'; // Import Tab
 import { useAuth } from '@/contexts/AuthContext';
 import { Customer, CustomerFilter } from '@/lib/types';
 import { deleteCustomer, getCustomers } from '@/services/customerApi';
-import { Edit2, Filter, MoreVertical, Plus, Trash2 } from 'lucide-react'; // Import Filter icon
+import { Edit2, Filter, MoreVertical, Plus, Trash2, Eye } from 'lucide-react'; // Import Filter and Eye icon
 import { useRouter } from 'next/navigation';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
@@ -174,6 +174,18 @@ const CustomerPage: React.FC = () => {
         header: 'Actions',
         render: (customer) => (
           <div className="flex items-center gap-2">
+            {can('customer', 'view') && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (customer._id) router.push(`/master/customer/${customer._id}`);
+                }}
+                className="w-9 h-9 flex items-center justify-center text-sky-600 hover:text-sky-700 hover:bg-sky-50 rounded-lg transition-all border border-gray-100 hover:border-sky-200"
+                title="View"
+              >
+                <Eye className="w-4 h-4" />
+              </button>
+            )}
             {can('customer', 'update') && (
               <button
                 onClick={(e) => {

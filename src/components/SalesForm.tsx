@@ -42,10 +42,7 @@ const SaleValidationSchema = Yup.object({
   followUpDate: Yup.string().optional(),
   remarks: Yup.string().optional(),
   businessType: Yup.string().optional(),
-  nearestPort: Yup.string().optional(),
-  platform: Yup.string()
-    .oneOf(['Akod Safe', 'Akod Scaffolding', 'Akod Tech', 'Akod Food', 'Avoma', 'Other'])
-    .required(),
+  contactedBy: Yup.string().optional(),
   status: Yup.string().required('Status is required'),
 });
 
@@ -86,8 +83,7 @@ const SalesForm: React.FC<SalesFormProps> = ({
       followUpDate: toISODate(initialData?.nextFollowUpDate) || '',
       remarks: initialData?.remarks || '',
       businessType: initialData?.businessType || '',
-      nearestPort: initialData?.nearestPort || '',
-      platform: initialData?.platform || 'Akod Safe',
+      contactedBy: initialData?.contactedBy || '',
       status: initialData?.status || 'New Lead',
       attachments: initialData?.attachments || [],
       attachmentPreview:
@@ -183,7 +179,7 @@ const SalesForm: React.FC<SalesFormProps> = ({
           <p className="page-header-description">
             {isEditMode 
               ? `Refining details for Ticket #${formik.values.ticketNo}. Ensure follow-up strategies are updated to maintain lead momentum.` 
-              : 'Capture a new commercial opportunity. Define client needs, platform targeting, and initial contact parameters.'}
+              : 'Capture a new commercial opportunity. Define client needs, communication strategy, and initial contact parameters.'}
           </p>
         </div>
       </div>
@@ -240,9 +236,9 @@ const SalesForm: React.FC<SalesFormProps> = ({
                 placeholder="e.g. Scaffolding, Construction"
               />
               <FormikInput
-                label="Nearest Port"
-                name="nearestPort"
-                placeholder="e.g. JNPT, Chennai Port"
+                label="Contacted By"
+                name="contactedBy"
+                placeholder="e.g. Sales Team / Name"
               />
             </div>
           </Section>
@@ -259,25 +255,6 @@ const SalesForm: React.FC<SalesFormProps> = ({
                 label="Enquiry Date"
                 name="date"
                 type="date"
-                required
-              />
-              <FormikInput
-                label="Next Follow-Up Date"
-                name="followUpDate"
-                type="date"
-                min={new Date().toISOString().split('T')[0]}
-              />
-              <FormikSelect
-                label="Platform"
-                name="platform"
-                options={[
-                  { value: 'Akod Safe', label: 'Akod Safe' },
-                  { value: 'Akod Scaffolding', label: 'Akod Scaffolding' },
-                  { value: 'Akod Tech', label: 'Akod Tech' },
-                  { value: 'Akod Food', label: 'Akod Food' },
-                  { value: 'Avoma', label: 'Avoma' },
-                  { value: 'Other', label: 'Other' },
-                ]}
                 required
               />
               <FormikSelect
@@ -487,7 +464,7 @@ const SalesForm: React.FC<SalesFormProps> = ({
                     <th className="py-4 px-4">Email</th>
                     <th className="py-4 px-4">Mobile</th>
                     <th className="py-4 px-4">Ref No</th>
-                    <th className="py-4 px-4">Platform</th>
+                    <th className="py-4 px-4">Contacted By</th>
                     <th className="py-4 px-4">Status</th>
                     <th className="py-4 px-4">Follow-Up</th>
                   </tr>
@@ -504,8 +481,8 @@ const SalesForm: React.FC<SalesFormProps> = ({
                       <td className="py-4 px-4 font-mono">{enq.contactPersonMobile}</td>
                       <td className="py-4 px-4 group-hover:text-teal-700 font-bold transition-colors">{enq.referenceNo}</td>
                       <td className="py-4 px-4">
-                        <span className="px-2 py-0.5 rounded bg-gray-100 text-[10px] font-black uppercase text-gray-600 border border-gray-200">
-                          {enq.platform}
+                        <span className="text-xs font-medium text-gray-600">
+                          {enq.contactedBy || '—'}
                         </span>
                       </td>
                       <td className="py-4 px-4">

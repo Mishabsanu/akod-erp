@@ -297,6 +297,7 @@ export interface DeliveryTicket {
   ticketType: string;
   deliveryDate: string;
   ticketNo: string;
+  runningOrderId?: string;
   poNo: string;
   invoiceNo: string;
   referenceNo: string;
@@ -314,6 +315,10 @@ export interface DeliveryTicket {
   createdAt?: string;
   updatedAt?: string;
   createdBy?: string | User;
+  attachments?: {
+    signedTicket?: string;
+    supportingDocs?: string[];
+  };
 }
 
 export interface DeliveryTicketFilter {
@@ -340,6 +345,7 @@ export interface ReturnTicket {
   createdBy?: string | User;
   ticketType?: string;
   ticketNo: string;
+  runningOrderId?: string;
   poNo?: string;
   invoiceNo?: string;
   referenceNo?: string;
@@ -373,14 +379,13 @@ export interface Sale {
   remarks?: string;
   ticketNo?: string;
   status?: string;
-  platform?: 'Akod Safe' | 'Akod Tech' | 'Akod Scaffolding' | 'Akod Food' | 'Avoma' | 'Other';
+  contactedBy?: string;
   createdAt?: string;
   updatedAt?: string;
   nextFollowUpDate?: string;
   followUpHistory?: FollowUpEntry[];
   attachments?: string[];
   user?: SaleUser;
-  nearestPort?: string;
   businessType?: string;
   createdBy?: string;
 }
@@ -437,19 +442,28 @@ export interface QuoteTrackFilter {
 
 export interface RunningOrder {
   _id?: string;
-  company_name: string;
-  client_name: string;
+  company_name?: string;
+  client_name?: string;
   ordered_date: string;
   invoice_number: string;
   po_number: string;
-  invoice_amount: string | number;
-  advance_payment: string | number;
-  balance_due: string | number;
-  currency: string;
-  etd: string;
-  eta: string;
-  remarks: string;
+  items?: {
+    productId: string;
+    name: string;
+    itemCode: string;
+    description: string;
+    unit: string;
+    quantity: number;
+  }[];
+  invoice_amount?: string | number;
+  advance_payment?: string | number;
+  balance_due?: string | number;
+  currency?: string;
+  etd?: string;
+  eta?: string;
+  remarks?: string;
   status: string;
+  transaction_type: 'Sale' | 'Hire' | 'Contract';
 }
 
 // New interface for InventoryForm's initialData

@@ -8,19 +8,20 @@ import { TableSkeleton } from '@/components/shared/TableSkeleton';
 import withAuth from '@/components/withAuth';
 import { useDebounce } from '@/hooks/useDebounce';
 import { Sale, SaleFilter } from '@/lib/types';
-import { deleteSale, getSales } from '@/services/salesApi';
+import { deleteSale, getSales, getSalesStats } from '@/services/salesApi';
 import {
-  Edit2,
-  Filter,
-  MoreVertical,
-  Plus,
-  Trash2,
   TrendingUp,
   Upload,
+  Eye,
+  Edit2,
+  Trash2,
+  Plus,
+  Filter,
 } from 'lucide-react';
 
 import ImportSheetModal from '@/components/Modal/ImportSheetModal';
 import StatusUpdateModal from '@/components/StatusUpdateModal';
+import LeadsStatsWidgets from '@/components/leads/LeadsStatsWidgets';
 import { useRouter } from 'next/navigation';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
@@ -49,7 +50,9 @@ const getStatusColor = (status: string) => {
 
 const SalesPage: React.FC = () => {
   const [sales, setSales] = useState<Sale[]>([]);
+  const [stats, setStats] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
+  const [statsLoading, setStatsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
@@ -78,24 +81,23 @@ const SalesPage: React.FC = () => {
 
   const fetchSales = useCallback(async () => {
     setLoading(true);
+    setStatsLoading(true);
     try {
-      const {
-        sales: fetchedSales,
-        totalPages: fetchedTotalPages,
-        totalCount: fetchedTotalCount,
-      } = await getSales(
-        { ...filter, search: debouncedSearchTerm || undefined },
-        currentPage,
-        limit
-      );
-      setSales(fetchedSales || []);
-      setTotalPages(fetchedTotalPages || 1);
-      setTotalCount(fetchedTotalCount || 0);
+      const activeFilter = { ...filter, search: debouncedSearchTerm || undefined };
+      const [salesRes, statsRes] = await Promise.all([
+        getSales(activeFilter, currentPage, limit),
+        getSalesStats(activeFilter)
+      ]);
+      setSales(salesRes.sales || []);
+      setTotalPages(salesRes.totalPages || 1);
+      setTotalCount(salesRes.totalCount || 0);
+      setStats(statsRes || {});
     } catch (error) {
       console.error('Failed to fetch sales:', error);
       toast.error('Failed to load enquiries.');
     } finally {
       setLoading(false);
+      setStatsLoading(false);
     }
   }, [filter, currentPage, limit, debouncedSearchTerm]);
 
@@ -156,11 +158,11 @@ const SalesPage: React.FC = () => {
       { accessor: 'name', header: 'Contact Person' },
       { accessor: 'contactPersonMobile', header: 'Mobile' },
       {
-        accessor: 'platform',
-        header: 'Platform',
+        accessor: 'contactedBy',
+        header: 'Contacted By',
         render: (sale) => (
-          <span className="px-2 py-0.5 text-[10px] font-bold rounded uppercase bg-gray-100 text-gray-700 border border-gray-200">
-            {sale.platform || '-'}
+          <span className="text-sm font-medium text-gray-600">
+            {sale.contactedBy || '--'}
           </span>
         ),
       },
@@ -203,6 +205,18 @@ const SalesPage: React.FC = () => {
         header: 'Actions',
         render: (sale) => (
           <div className="flex items-center gap-2">
+            {can('sales', 'view') && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  router.push(`/sales/${sale._id}`);
+                }}
+                className="w-9 h-9 flex items-center justify-center text-sky-600 hover:text-sky-700 hover:bg-sky-50 rounded-lg transition-all border border-gray-100 hover:border-sky-200"
+                title="View Enquiry"
+              >
+                <Eye className="w-4 h-4" />
+              </button>
+            )}
             {can('sales', 'update') && (
               <button
                 onClick={(e) => {
@@ -261,32 +275,34 @@ const SalesPage: React.FC = () => {
         description="Track leads, follow-ups, enquiry status, and customer conversations."
         actions={
           <>
-          <button
-            onClick={() => setShowImport(true)}
-            className="page-header-button secondary"
-          >
-            <Upload className="w-4 h-4" />
-            Import
-          </button>
-          {can('sales', 'create') && (
             <button
-              onClick={() => router.push('/sales/add')}
-              className="page-header-button"
+              onClick={() => setShowImport(true)}
+              className="page-header-button secondary"
             >
-              <Plus className="w-4 h-4" />
-              Add
+              <Upload className="w-4 h-4" />
+              Import
             </button>
-          )}
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className="page-header-button secondary"
-          >
-            <Filter className="w-4 h-4" />
-            {showFilters ? 'Hide Filters' : 'Show Filters'}
-          </button>
+            {can('sales', 'create') && (
+              <button
+                onClick={() => router.push('/sales/add')}
+                className="page-header-button"
+              >
+                <Plus className="w-4 h-4" />
+                Add
+              </button>
+            )}
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="page-header-button secondary"
+            >
+              <Filter className="w-4 h-4" />
+              {showFilters ? 'Hide Filters' : 'Show Filters'}
+            </button>
           </>
         }
       />
+
+      <LeadsStatsWidgets stats={stats} loading={statsLoading} />
 
       {/* Persistent Filters Section */}
       <div className={showFilters ? 'block mb-6' : 'hidden'}>

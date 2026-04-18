@@ -296,19 +296,17 @@ export const Sidebar = () => {
       bg-[#0f172a] text-white shadow-2xl overflow-hidden`}
     >
       {/* BRANDING SECTION */}
-      <div className={`relative px-6 flex items-center justify-between border-b border-white/10 bg-white/5 backdrop-blur-md h-20 transition-all duration-500`}>
-        <div className="transition-all duration-500 transform opacity-100 scale-100">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg">
-              <Image src="/logocrm.png" alt="Logo" width={30} height={30} className="object-contain" />
-            </div>
-            <div>
-              <h1 className="text-white font-black text-lg tracking-tighter leading-none uppercase">Akod</h1>
-              <p className="text-[10px] text-gray-300 font-bold uppercase tracking-widest mt-1">Enterprise ERP</p>
+      <Link href="/" className="block">
+        <div className={`relative px-6 flex items-center justify-between border-b border-white/10 bg-white/5 backdrop-blur-md h-20 transition-all duration-500`}>
+          <div className="transition-all duration-500 transform opacity-100 scale-100">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg">
+                <Image src="/logo.png" alt="Logo" width={80} height={80} className="object-contain" />
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </Link>
 
       <nav className="flex-1 overflow-y-auto p-4 no-scrollbar">
         <div className="space-y-6">

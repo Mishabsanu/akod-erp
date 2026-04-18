@@ -9,7 +9,7 @@ import { TableSkeleton } from '@/components/shared/TableSkeleton'; // Import Tab
 import { useAuth } from '@/contexts/AuthContext';
 import { Vendor, VendorFilter } from '@/lib/types';
 import { deleteVendor, getVendors } from '@/services/vendorApi';
-import { Edit2, Filter, MoreVertical, Plus, Trash2 } from 'lucide-react'; // Import Filter icon
+import { Edit2, Filter, MoreVertical, Plus, Trash2, Eye } from 'lucide-react'; // Import Filter and Eye icon
 import { useRouter } from 'next/navigation';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
@@ -174,6 +174,18 @@ const VendorPage: React.FC = () => {
         header: 'Actions',
         render: (vendor) => (
           <div className="flex items-center gap-2">
+            {can('vendor', 'view') && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (vendor._id) router.push(`/master/vendor/${vendor._id}`);
+                }}
+                className="w-9 h-9 flex items-center justify-center text-sky-600 hover:text-sky-700 hover:bg-sky-50 rounded-lg transition-all border border-gray-100 hover:border-sky-200"
+                title="View"
+              >
+                <Eye className="w-4 h-4" />
+              </button>
+            )}
             {can('vendor', 'update') && (
               <button
                 onClick={(e) => {

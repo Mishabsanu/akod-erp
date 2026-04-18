@@ -29,35 +29,9 @@ const VendorValidationSchema = Yup.object({
     .oneOf(['active', 'inactive'])
     .required('Status is required'),
 
-  // Address Details
-
-  address: Yup.string()
-    .trim()
-    .min(5, 'Address must be at least 5 characters')
-    .max(200, 'Address cannot exceed 200 characters')
-    .required('Address is required'),
-
-  pincode: Yup.string()
-    .matches(/^[1-9][0-9]{5}$/, 'Enter a valid 6-digit pincode')
-    .required('Pincode is required'),
-
-  city: Yup.string()
-    .trim()
-    .min(2, 'City must be at least 2 characters')
-    .max(50, 'City cannot exceed 50 characters')
-    .required('City is required'),
-
-  district: Yup.string()
-    .trim()
-    .min(2, 'District must be at least 2 characters')
-    .max(50, 'District cannot exceed 50 characters')
-    .required('District is required'),
-
-  state: Yup.string()
-    .trim()
-    .min(2, 'State must be at least 2 characters')
-    .max(50, 'State cannot exceed 50 characters')
-    .required('State is required'),
+  status: Yup.string()
+    .oneOf(['active', 'inactive'])
+    .required('Status is required'),
   // Contact Person Details
   contactPersonName: Yup.string()
     .trim()
@@ -94,11 +68,7 @@ const VendorForm: React.FC<VendorFormProps> = ({
       email: initialData?.email || '',
       mobile: initialData?.mobile || '',
       status: initialData?.status || 'active',
-      address: initialData?.address || '',
-      pincode: initialData?.pincode || '',
-      city: initialData?.city || '',
-      district: initialData?.district || '',
-      state: initialData?.state || '',
+      status: initialData?.status || 'active',
 
       // Contact person (optional)
       contactPersonName: initialData?.contactPersonName || '',
@@ -172,41 +142,6 @@ const VendorForm: React.FC<VendorFormProps> = ({
             </div>
           </Section>
 
-          {/* Address Details */}
-          <Section eyebrow="Commerce" title="Quotation" highlight="Overview">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <FormikInput
-                label="Address"
-                name="address"
-                placeholder="Street, Area"
-                required
-              />
-              <FormikInput
-                label="Pincode"
-                name="pincode"
-                placeholder="560001"
-                required
-              />
-              <FormikInput
-                label="City"
-                name="city"
-                placeholder="Bengaluru"
-                required
-              />
-              <FormikInput
-                label="District"
-                name="district"
-                placeholder="Bangalore Urban"
-                required
-              />
-              <FormikInput
-                label="State"
-                name="state"
-                placeholder="Karnataka"
-                required
-              />
-            </div>
-          </Section>
 
           {/* Contact Person */}
           <Section title="Contact Person Information (Optional)">

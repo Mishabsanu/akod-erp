@@ -11,9 +11,10 @@ import {
   GetNextReturnTicketNo,
   getPODropdown,
 } from '@/services/returnTicketApi';
+import { getRunningOrderById, getRunningOrdersDropdown } from '@/services/runningOrderApi';
 import { FieldArray, FormikProvider, useFormik } from 'formik';
 import { FilePlus } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import * as Yup from 'yup';
 import { FormikPhoneInput } from './shared/FormikPhoneInput';
 import ReturnTicketPreview from './return-ticket/ReturnTicketPreview';
@@ -57,14 +58,14 @@ const validationSchema = Yup.object().shape({
   deliveredBy: Yup.object().shape({
     deliveredByName: Yup.string().required('Delivered by name is required'),
     deliveredByMobile: Yup.string()
-      .matches(/^\+?[1-9]\d{6,14}$/, 'Invalid mobile number')
+      .matches(/^\+?\d{8,15}$/, 'Invalid mobile number')
       .required('Delivered by mobile is required'),
     deliveredDate: Yup.date().nullable().required('Delivered date is required'),
   }),
   receivedBy: Yup.object().shape({
     receivedByName: Yup.string().required('Received by name is required'),
     receivedByMobile: Yup.string()
-      .matches(/^\+?[1-9]\d{6,14}$/, 'Invalid mobile number')
+      .matches(/^\+?\d{8,15}$/, 'Invalid mobile number')
       .required('Received by mobile is required'),
     qatarId: Yup.string(),
     receivedDate: Yup.date().nullable().required('Received date is required'),
@@ -98,16 +99,16 @@ const ReturnTicketForm = ({
   const [purchaseOrders, setPurchaseOrders] = useState<
     { value: string; label: string }[]
   >([]);
+  const [runningOrders, setRunningOrders] = useState<any[]>([]);
   const [isPoSelected, setIsPoSelected] = useState(false);
 
   useEffect(() => {
     const fetchDropdownData = async () => {
       try {
-        const [customerRes, poRes] = await Promise.all([
+        const [customerRes, roRes] = await Promise.all([
           getCustomers({}, 1, 9999),
-          getPODropdown(),
+          getRunningOrdersDropdown(),
         ]);
-        console.log(customerRes, 'customerRes');
 
         if (customerRes?.customers) {
           setCustomers(
@@ -115,10 +116,14 @@ const ReturnTicketForm = ({
           );
         }
 
-        if (poRes && Array.isArray(poRes)) {
-          setPurchaseOrders(
-            poRes.map((po: any) => ({ value: po.poNo, label: po.poNo }))
-          );
+        if (roRes) {
+          setRunningOrders(roRes.map((ro: any) => ({
+            ...ro,
+            label: `${ro.invoice_number} (PO: ${ro.po_number || 'N/A'})`,
+            value: ro._id
+          })));
+          
+          setPurchaseOrders(roRes.map((ro: any) => ({ value: ro.po_number, label: ro.po_number })));
         }
       } catch (error) {
         console.error('Failed to fetch dropdown data:', error);
@@ -127,10 +132,12 @@ const ReturnTicketForm = ({
     fetchDropdownData();
   }, []);
 
+
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
       customerId: initialData?.customerId || '',
+      runningOrderId: initialData?.runningOrderId || '',
       customerName: initialData?.customerName || '',
       parentTicketNo: initialData?.parentTicketNo,
       returnDate: formatDateToYYYYMMDD(initialData?.returnDate || new Date()),
@@ -213,6 +220,17 @@ const ReturnTicketForm = ({
       onSubmit(payload, { setErrors, setSubmitting });
     },
   });
+
+  const filteredRunningOrders = useMemo(() => {
+    const customer = customers.find(c => c.value === formik.values.customerId);
+    if (customer) {
+      return runningOrders.filter(ro => 
+        (ro.company_name && ro.company_name === customer.label) || 
+        (ro.client_name && ro.client_name === customer.label)
+      );
+    }
+    return [];
+  }, [formik.values.customerId, runningOrders, customers]);
 
   /* ---------------- PREVIEW STATE ---------------- */
   const [isPreviewMode, setIsPreviewMode] = useState(false);
@@ -422,20 +440,46 @@ const ReturnTicketForm = ({
           <Section title="Basic Information">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               <FormikSelect
-                label="PO Number"
-                name="poNo"
-                options={purchaseOrders}
+                label="Invoice Number"
+                name="runningOrderId"
+                options={filteredRunningOrders}
                 onChange={(e) => {
                   formik.handleChange(e);
-                  formik.setFieldValue('poNo', e.target.value);
+                  const selected = runningOrders.find(ro => ro.value === e.target.value);
+                  if (selected) {
+                    formik.setFieldValue('poNo', selected.po_number || '');
+                    formik.setFieldValue('invoiceNo', selected.invoice_number);
+                    
+                    // Try to link customer by name
+                    const customer = customers.find((c) => c.label === selected.company_name);
+                    if (customer) {
+                      formik.setFieldValue('customerId', customer.value);
+                      formik.setFieldValue('customerName', customer.label);
+                      setIsPoSelected(true);
+                    }
+                  }
                 }}
+                required
+                disabled={!formik.values.customerId}
               />
+              <FormikInput label="PO Number" name="poNo" readOnly required />
               <FormikSelect
-                label="Customer Name"
+                label="Company Name"
                 name="customerId"
                 options={customers}
                 required
                 disabled={isPoSelected}
+                onChange={(e) => {
+                  formik.handleChange(e);
+                  const selected = customers.find(c => c.value === e.target.value);
+                  if (selected) {
+                    formik.setFieldValue('customerName', selected.label);
+                  }
+                  // Reset PO selection when Company changes
+                  formik.setFieldValue('runningOrderId', '');
+                  formik.setFieldValue('poNo', '');
+                  setIsPoSelected(false);
+                }}
               />
               <FormikInput
                 label="Return Date"

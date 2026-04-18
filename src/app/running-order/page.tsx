@@ -10,11 +10,12 @@ import { RunningOrder } from '@/lib/types';
 import { deleteRunningOrder, getRunningOrders, updateRunningOrderStatusApi } from '@/services/runningOrderApi';
 import { format } from 'date-fns';
 import {
-  Edit2,
   Filter,
-  MoreVertical,
-  Plus,
+  Edit2,
+  BarChart2,
+  Eye,
   Trash2,
+  Plus,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -23,11 +24,16 @@ import { useAuth } from '@/contexts/AuthContext';
 
 const getStatusColor = (status: string) => {
     switch (status) {
-        case 'Pending': return '#f59e0b'; // Amber
-        case 'Production': return '#2563eb'; // Blue
-        case 'Shipped': return '#8b5cf6'; // Purple
-        case 'Delivered': return '#16a34a'; // Green
-        case 'Closed': return '#0f766e'; // Navy
+        case 'Order placed': return '#f59e0b';
+        case 'Production going on': return '#2563eb';
+        case 'Ready to dispatch': return '#8b5cf6';
+        case 'Loaded': return '#3b82f6';
+        case 'On the way to port': return '#06b6d4';
+        case 'Arrive at port': return '#0d9488';
+        case 'Depart from port': return '#0f766e';
+        case 'In transit to destination': return '#6366f1';
+        case 'Arrived at destination': return '#10b981';
+        case 'Completed': return '#047857';
         default: return '#6b7280';
     }
 };
@@ -116,107 +122,94 @@ const RunningOrdersPage = () => {
 
     const columns: Column<RunningOrder>[] = useMemo(() => {
         const baseColumns: Column<RunningOrder>[] = [
-            { 
-                accessor: 'client_name', 
-                header: 'Client & Company',
-                render: (order) => (
-                    <div className="flex flex-col">
-                        <span className="font-semibold text-gray-800">{order.client_name}</span>
-                        <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{order.company_name}</span>
-                    </div>
-                )
-            },
             {
                 accessor: 'invoice_number',
-                header: 'Order Details',
+                header: 'Invoice #',
+                render: (order) => (
+                    <span className="font-black text-[#0f766e] tracking-tight text-sm uppercase">{order.invoice_number}</span>
+                )
+            },
+            {
+                accessor: 'po_number',
+                header: 'PO Number',
+                render: (order) => (
+                    <span className="text-xs font-black text-gray-500 uppercase tracking-widest">{order.po_number || '---'}</span>
+                )
+            },
+            { 
+                accessor: 'ordered_date', 
+                header: 'Order Date',
                 render: (order) => (
                     <div className="flex flex-col">
-                        <span className="text-sm font-medium text-gray-700">INV: {order.invoice_number}</span>
-                        <span className="text-[10px] text-gray-400 font-medium uppercase">PO: {order.po_number}</span>
-                    </div>
-                )
-            },
-            {
-                accessor: 'invoice_amount',
-                header: 'Financials',
-                render: (order) => (
-                    <div className="flex flex-col">
-                        <span className="font-bold text-[#0f766e]">
-                            {order.currency === 'USD' ? '$' : '₹'}
-                            {Number(order.invoice_amount).toLocaleString()}
+                        <span className="text-xs font-bold text-gray-700">
+                            {order.ordered_date ? format(new Date(order.ordered_date), 'dd MMM yyyy') : '--'}
                         </span>
-                        <span className="text-[9px] font-bold text-teal-500 uppercase tracking-widest">
-                            Due: {Number(order.balance_due).toLocaleString()}
-                        </span>
+                        <span className="text-[9px] text-gray-400 font-black uppercase tracking-widest">Scheduled Date</span>
                     </div>
                 )
             },
             {
-                accessor: 'etd',
-                header: 'Logistics (ETD/ETA)',
+                accessor: 'transaction_type',
+                header: 'Type',
                 render: (order) => (
-                    <div className="flex gap-4 items-center">
-                        <div className="flex flex-col">
-                            <span className="text-[8px] font-black text-gray-300 uppercase tracking-widest">ETD</span>
-                            <span className="text-[10px] font-bold text-gray-600">{order.etd ? format(new Date(order.etd), 'dd MMM') : '-'}</span>
+                    <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border 
+                        ${order.transaction_type === 'Sale' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 
+                          order.transaction_type === 'Hire' ? 'bg-blue-50 text-blue-700 border-blue-100' : 
+                          'bg-purple-50 text-purple-700 border-purple-100'}`}>
+                        {order.transaction_type || 'Sale'}
+                    </span>
+                )
+            },
+            {
+                accessor: 'items' as any,
+                header: 'Inventory Metrics',
+                render: (order) => {
+                    const totalQty = order.items?.reduce((sum, item) => sum + (Number(item.quantity) || 0), 0) || 0;
+                    return (
+                        <div className="flex items-center gap-3">
+                            <div className="flex flex-col items-center justify-center bg-gray-50 border border-gray-100 rounded-lg px-2 py-1 min-w-[60px]">
+                                <span className="text-[10px] font-black text-[#0f766e]">{order.items?.length || 0}</span>
+                                <span className="text-[7px] font-black text-gray-300 uppercase">Items</span>
+                            </div>
+                            <div className="flex flex-col items-center justify-center bg-[#0f766e]/5 border border-[#0f766e]/10 rounded-lg px-2 py-1 min-w-[60px]">
+                                <span className="text-[10px] font-black text-[#0f766e]">{totalQty}</span>
+                                <span className="text-[7px] font-black text-[#0f766e]/30 uppercase">Total Qty</span>
+                            </div>
                         </div>
-                        <div className="w-px h-6 bg-gray-100"></div>
-                        <div className="flex flex-col">
-                            <span className="text-[8px] font-black text-gray-300 uppercase tracking-widest">ETA</span>
-                            <span className="text-[10px] font-bold text-gray-600">{order.eta ? format(new Date(order.eta), 'dd MMM') : '-'}</span>
+                    );
+                }
+            },
+            {
+                accessor: '_id' as any,
+                header: 'Brief History',
+                render: (order: any) => (
+                    <div className="flex flex-col gap-1.5 min-w-[140px]">
+                        <div className="flex items-center justify-between bg-sky-50/50 border border-sky-100 rounded-lg px-2 py-1">
+                            <span className="text-[8px] font-black text-sky-600 uppercase">Dispatched</span>
+                            <span className="text-[10px] font-bold text-sky-700">View Detail</span>
+                        </div>
+                        <div className="flex items-center justify-between bg-rose-50/50 border border-rose-100 rounded-lg px-2 py-1">
+                            <span className="text-[8px] font-black text-rose-600 uppercase">Returns</span>
+                            <span className="text-[10px] font-bold text-rose-700">View Detail</span>
                         </div>
                     </div>
                 )
             },
             {
-                accessor: 'status',
-                header: 'Status',
-                render: (order) => (
-                    <div onClick={e => e.stopPropagation()} className="relative">
-                        <select
-                            value={order.status}
-                            onChange={async (e) => {
-                                const newStatus = e.target.value;
-                                const loadingId = toast.loading('Updating...');
-                                try {
-                                    await updateRunningOrderStatusApi((order as any)._id, newStatus);
-                                    order.status = newStatus;
-                                    setOrders([...orders]);
-                                    toast.success('Status updated!');
-                                } catch {
-                                    toast.error('Update failed');
-                                } finally {
-                                    toast.dismiss(loadingId);
-                                }
-                            }}
-                            className={`appearance-none px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest text-white border-0 transition-transform active:scale-95 outline-none ${can('running_order', 'update') ? 'cursor-pointer shadow-sm' : 'cursor-not-allowed opacity-75'}`}
-                            disabled={!can('running_order', 'update')}
-                            style={{ backgroundColor: getStatusColor(order.status) }}
-                        >
-                            <option value="Pending">Pending</option>
-                            <option value="Production">Production</option>
-                            <option value="Shipped">Shipped</option>
-                            <option value="Delivered">Delivered</option>
-                            <option value="Closed">Closed</option>
-                        </select>
-                    </div>
+                accessor: 'createdAt' as any,
+                header: 'Created Date',
+                render: (order: RunningOrder) => (
+                    <span className="text-xs font-bold text-gray-500">
+                        {(order as any).createdAt ? format(new Date((order as any).createdAt), 'dd MMM yyyy') : '--'}
+                    </span>
                 ),
             },
             {
                 accessor: 'createdBy' as any,
                 header: 'Created By',
                 render: (order: RunningOrder) => (
-                    <span className="text-sm font-medium text-gray-600">
-                        {typeof (order as any).createdBy === 'object' ? (order as any).createdBy.name : ((order as any).createdBy || '--')}
-                    </span>
-                ),
-            },
-            {
-                accessor: 'createdAt' as any,
-                header: 'Date Created',
-                render: (order: RunningOrder) => (
-                    <span className="text-sm font-medium text-gray-600">
-                        {(order as any).createdAt ? format(new Date((order as any).createdAt), 'dd MMM yyyy') : '--'}
+                    <span className="text-[9px] text-[#0f766e] font-black uppercase tracking-widest">
+                        {typeof (order as any).createdBy === 'object' ? (order as any).createdBy.name : ((order as any).createdBy || 'System')}
                     </span>
                 ),
             },
@@ -227,6 +220,30 @@ const RunningOrdersPage = () => {
             header: 'Actions',
             render: (order) => (
                 <div className="flex items-center gap-2">
+                    {can('running_order', 'view') && (
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                router.push(`/running-order/${(order as any)._id}/report`);
+                            }}
+                            className="w-9 h-9 flex items-center justify-center text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-all border border-gray-100 hover:border-emerald-200"
+                            title="Lifecycle Report"
+                        >
+                            <BarChart2 className="w-4 h-4" />
+                        </button>
+                    )}
+                    {can('running_order', 'view') && (
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                router.push(`/running-order/${(order as any)._id}`);
+                            }}
+                            className="w-9 h-9 flex items-center justify-center text-sky-600 hover:text-sky-700 hover:bg-sky-50 rounded-lg transition-all border border-gray-100 hover:border-sky-200"
+                            title="View"
+                        >
+                            <Eye className="w-4 h-4" />
+                        </button>
+                    )}
                     {can('running_order', 'update') && (
                         <button
                             onClick={(e) => {
@@ -310,7 +327,7 @@ const RunningOrdersPage = () => {
                     columns={columns}
                     data={orders}
                     onRowClick={(order) => {
-                        if (can('running_order', 'update')) {
+                        if (can('running_order', 'view')) {
                             router.push(`/running-order/${(order as any)._id}`);
                         }
                     }}

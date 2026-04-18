@@ -70,7 +70,7 @@ const EditRunningOrderPage = ({ params: paramsPromise }: EditRunningOrderPagePro
     );
 
     return (
-        <div className="min-h-screen bg-[#f9fafc] p-6 lg:p-10 flex flex-col items-center">
+        <div className="min-h-screen bg-white p-6 lg:p-10">
             <RunningOrderForm
                 initialData={order}
                 onSubmit={handleSubmit}

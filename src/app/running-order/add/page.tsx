@@ -29,7 +29,7 @@ const AddRunningOrderPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-[#f9fafc] p-6 lg:p-10 flex flex-col items-center">
+        <div className="min-h-screen bg-white p-6 lg:p-10">
             <RunningOrderForm
                 onSubmit={handleSubmit}
                 onCancel={() => router.push('/running-order')}

@@ -14,9 +14,10 @@ import {
 import {
   Edit2,
   Filter,
-  MoreVertical, // Appropriate icon for Delivery Ticket
+  MoreVertical,
   Plus,
   Trash2,
+  Eye,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -205,6 +206,18 @@ const DeliveryTicketPage = () => {
         header: 'Actions',
         render: (ticket) => (
           <div className="flex items-center gap-2">
+            {can('delivery_ticket', 'view') && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (ticket._id) router.push(`/delivery-ticket/${ticket._id}`);
+                }}
+                className="w-9 h-9 flex items-center justify-center text-sky-600 hover:text-sky-700 hover:bg-sky-50 rounded-lg transition-all border border-gray-100 hover:border-sky-200"
+                title="View"
+              >
+                <Eye className="w-4 h-4" />
+              </button>
+            )}
             {can('delivery_ticket', 'update') && (
               <button
                 onClick={(e) => {
