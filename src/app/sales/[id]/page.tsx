@@ -6,28 +6,25 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Sale } from '@/lib/types';
 import { getSaleById } from '@/services/salesApi';
 import {
-  ArrowLeft,
-  Calendar,
-  FileText,
-  Info,
-  MapPin,
-  Phone,
-  Tag,
-  User,
-  Mail,
-  Paperclip,
-  Briefcase,
-  Anchor,
-  Clock,
-  ExternalLink,
-  ChevronRight,
-  UserCircle,
-  Globe,
-  MessageSquare,
-  ShieldCheck
+    ArrowLeft,
+    Briefcase,
+    Calendar,
+    ChevronRight,
+    Clock,
+    ExternalLink,
+    FileText,
+    Mail,
+    MapPin,
+    MessageSquare,
+    Paperclip,
+    Phone,
+    ShieldCheck,
+    Tag,
+    User,
+    UserCircle
 } from 'lucide-react';
-import { useParams, useRouter } from 'next/navigation';
-import React, { useEffect, useState, use } from 'react';
+import { useRouter } from 'next/navigation';
+import React, { use, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 const getStatusColor = (status: string) => {
@@ -135,14 +132,12 @@ const SalesViewPage = ({ params: paramsPromise }: SalesViewPageProps) => {
                     <InfoItem label="Position" value={sale.position} icon={Tag} />
                     <InfoItem label="Location" value={`${sale.location}, ${sale.region}`} icon={MapPin} />
                     <InfoItem label="Business Type" value={sale.businessType || 'N/A'} icon={Briefcase} />
-                    <InfoItem label="Nearest Port" value={sale.nearestPort || 'N/A'} icon={Anchor} />
                 </div>
             </DetailSection>
 
             <DetailSection title="Enquiry Logistics" icon={FileText}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
                     <InfoItem label="Reference No" value={sale.referenceNo} icon={Tag} />
-                    <InfoItem label="Origin Platform" value={sale.platform || 'N/A'} icon={Globe} />
                     <InfoItem label="Contact Method" value={sale.contactThrough} icon={MessageSquare} />
                     <InfoItem label="Enquiry Date" value={sale.date} icon={Calendar} />
                     <InfoItem label="Next Follow-Up" value={sale.followUpDate || 'Not Scheduled'} icon={Clock} highlight={!!sale.followUpDate} />

@@ -22,7 +22,7 @@ export const getRunningOrders = async (
     );
 
     return {
-      result: data?.data?.orders || [],
+      result: data?.data?.content || [],
       totalPages: data?.data?.totalPages || 1,
       totalCount: data?.data?.totalCount || 0,
       currentPage: data?.data?.currentPage || page,

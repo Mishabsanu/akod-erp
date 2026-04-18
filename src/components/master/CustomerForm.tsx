@@ -28,10 +28,6 @@ const CustomerValidationSchema = Yup.object({
   status: Yup.string()
     .oneOf(['active', 'inactive'])
     .required('Status is required'),
-
-  status: Yup.string()
-    .oneOf(['active', 'inactive'])
-    .required('Status is required'),
   // Contact Person Details
   contactPersonName: Yup.string()
     .trim()
@@ -69,9 +65,6 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
       email: initialData?.email || '',
       mobile: initialData?.mobile || '',
       status: initialData?.status || 'active',
-
-      status: initialData?.status || 'active',
-
       // Contact person (optional)
       contactPersonName: initialData?.contactPersonName || '',
       contactPersonEmail: initialData?.contactPersonEmail || '',
