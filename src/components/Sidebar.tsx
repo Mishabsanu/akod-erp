@@ -27,6 +27,10 @@ import {
   Users,
   Users2,
   Wallet,
+  Wrench,
+  Building2,
+  HardHat,
+  ClipboardCheck,
   type LucideIcon,
 } from 'lucide-react';
 import Image from 'next/image';
@@ -167,6 +171,53 @@ export const Sidebar = () => {
         can('vendor', 'view') && { name: 'Vendors Master', href: '/master/vendor' },
       ].filter(Boolean) as SubMenuItem[],
     },
+
+    // Fleet & Mechanical Module
+    can('fleet', 'view') && {
+      name: 'Fleet & Workshop',
+      icon: Truck,
+      subItems: [
+        can('fleet', 'view') && {
+          name: 'Vehicle Registry',
+          icon: Truck,
+          href: '/fleet',
+        },
+        can('fleet', 'view') && {
+          name: 'Mechanical Checkup',
+          icon: Wrench,
+          href: '/fleet/mechanical',
+        },
+        can('fleet', 'view') && {
+          name: 'Workshop Reports',
+          icon: FileText,
+          href: '/fleet/reports',
+        },
+      ].filter(Boolean) as SubMenuItem[],
+    },
+ 
+    // Facility & Workforce Module
+    (can('facility', 'view') || can('worker', 'view')) && {
+      name: 'Facility & Workforce',
+      icon: Building2,
+      subItems: [
+        can('facility', 'view') && {
+          name: 'Offices & Camps',
+          icon: Building2,
+          href: '/facilities',
+        },
+        can('facility', 'view') && {
+          name: 'Facility Audits',
+          icon: ClipboardCheck,
+          href: '/facilities/checklist',
+        },
+        can('worker', 'view') && {
+          name: 'Labor Management',
+          icon: HardHat,
+          href: '/workers',
+        },
+      ].filter(Boolean) as SubMenuItem[],
+    },
+
   ].filter(Boolean) as MenuItem[], [can]);
 
   useEffect(() => {
@@ -195,9 +246,14 @@ export const Sidebar = () => {
     setOpenSubMenus(prev => (prev.includes(name) ? prev.filter(n => n !== name) : [...prev, name]));
   };
 
-  const renderSubItem = (sub: SubMenuItem) => {
+  const renderSubItem = (sub: SubMenuItem | MenuItem, siblings: (SubMenuItem | MenuItem)[] = []) => {
     // Precise path matching: exact match OR sub-route match (e.g. /users/add)
-    const isRouteActive = pathname === sub.href || pathname.startsWith(sub.href + '/');
+    // We only match a sub-route if it doesn't match a more specific sibling
+    const isRouteActive = pathname === sub.href || (
+      !!sub.href && 
+      pathname.startsWith(sub.href + '/') && 
+      !siblings.some(other => other.href !== sub.href && other.href && pathname.startsWith(other.href))
+    );
     const hasChildren = sub.subItems && sub.subItems.length > 0;
     const isExpanded = openSubMenus.includes(sub.name);
 
@@ -217,7 +273,7 @@ export const Sidebar = () => {
           </button>
         ) : (
           <Link
-            href={sub.href}
+            href={sub.href || '#'}
             className={`flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-300
               ${isRouteActive ? 'bg-[#0f766e] text-white shadow-sm' : 'text-gray-300 hover:text-white hover:bg-white/5'}`}
           >
@@ -227,7 +283,7 @@ export const Sidebar = () => {
         )}
         {hasChildren && isExpanded && (
           <div className="ml-4 pl-2 border-l border-white/10 mt-1 space-y-1">
-            {sub.subItems!.map(child => renderSubItem(child))}
+            {sub.subItems!.map(child => renderSubItem(child, sub.subItems))}
           </div>
         )}
       </div>
@@ -276,11 +332,11 @@ export const Sidebar = () => {
                   {isOpen && <p className="px-3 text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 mt-2">{item.name}</p>}
                   {item.subItems!.map(sub => {
                     const SubIcon = sub.icon || Box;
-                    const isSubRouteActive = pathname === sub.href || pathname.startsWith(sub.href + '/');
+                    const isSubRouteActive = pathname === sub.href || (pathname.startsWith(sub.href + '/') && !item.subItems!.some(other => other.href !== sub.href && other.href && pathname.startsWith(other.href)));
                     return (
                       <Link
                         key={sub.name}
-                        href={sub.href}
+                        href={sub.href || '#'}
                         className={`group flex items-center gap-4 px-4 py-3 rounded-2xl transition-all duration-300
                           ${isSubRouteActive && isOpen ? 'bg-[#0f766e] text-white shadow-xl' : 'hover:bg-white/10 text-gray-200'}`}
                       >
@@ -314,7 +370,7 @@ export const Sidebar = () => {
                   </button>
                   {isExpanded && isOpen && (
                     <div className="mt-2 ml-4 flex flex-col gap-1 border-l border-white/10 pl-2 animate-in fade-in slide-in-from-left-2 duration-300">
-                      {item.subItems!.map(sub => renderSubItem(sub))}
+                      {item.subItems!.map(sub => renderSubItem(sub, item.subItems))}
                     </div>
                   )}
                 </div>
@@ -323,11 +379,11 @@ export const Sidebar = () => {
             return (
               <Link
                 key={item.name}
-                href={item.href!}
+                href={item.href || '#'}
                 className={`group flex items-center gap-4 px-4 py-3 rounded-2xl transition-all duration-300
-                  ${isDirectActive && isOpen ? 'bg-[#0f766e] text-white shadow-xl' : 'hover:bg-white/10 text-gray-200'}`}
+                  ${isRouteActive && isOpen ? 'bg-[#0f766e] text-white shadow-xl' : 'hover:bg-white/10 text-gray-200'}`}
               >
-                <div className={`p-2 rounded-xl transition-all duration-300 ${isDirectActive ? 'bg-[#14b8a6] text-white shadow-md' : 'bg-white/10 text-gray-300 group-hover:bg-white/20'}`}>
+                <div className={`p-2 rounded-xl transition-all duration-300 ${isRouteActive ? 'bg-[#14b8a6] text-white shadow-md' : 'bg-white/10 text-gray-300 group-hover:bg-white/20'}`}>
                   {ItemIcon && <ItemIcon size={18} />}
                 </div>
                 {isOpen && <span className="text-[14px] font-bold">{item.name}</span>}

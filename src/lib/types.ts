@@ -589,6 +589,89 @@ export interface LedgerEntry {
   createdBy?: string | User;
 }
 
+export interface Vehicle {
+  _id?: string;
+  name: string;
+  plateNo: string;
+  type: string;
+  model?: string;
+  year?: number;
+  engineNo?: string;
+  chassisNo?: string;
+  odometer: number;
+  status: 'active' | 'maintenance' | 'inactive';
+  remarks?: string;
+  createdBy?: string | User;
+  createdAt?: string;
+}
+
+export interface MechanicalCheckup {
+  _id?: string;
+  vehicleId: string | Vehicle;
+  date: string;
+  odometer: number;
+  partsCondition: {
+    engine: { status: string; remarks?: string };
+    oilLevel: { status: string; remarks?: string };
+    tires: { status: string; remarks?: string };
+    brakes: { status: string; remarks?: string };
+    lights: { status: string; remarks?: string };
+    suspension: { status: string; remarks?: string };
+  };
+  isWaterWashed: boolean;
+  isClean: boolean;
+  photos: string[];
+  remarks?: string;
+  inspectorId?: string | User;
+  status: 'Fit' | 'Needs Maintenance' | 'Grounded';
+}
+
+export interface Facility {
+  _id?: string;
+  name: string;
+  type: 'Office' | 'Camp' | 'Room' | 'Warehouse' | 'Workshop';
+  location?: string;
+  capacity?: number;
+  status: 'active' | 'inactive';
+  managerId?: string | User;
+  createdBy?: string | User;
+}
+
+export interface FacilityChecklist {
+  _id?: string;
+  facilityId: string | Facility;
+  date: string;
+  checkFrequency: 'Daily' | 'Weekly';
+  isClean: boolean;
+  isWaterAvailable: boolean;
+  isElectricityOK: boolean;
+  photos: string[];
+  remarks?: string;
+  inspectorId?: string | User;
+}
+
+export interface Worker {
+  _id?: string;
+  workerId: string;
+  name: string;
+  nationality?: string;
+  designation?: string;
+  mobile?: string;
+  passportNo?: string;
+  qidNo?: string;
+  joinDate?: string;
+  facilityId?: string | Facility;
+  documents?: {
+    docType: 'Passport' | 'QID' | 'Contract' | 'Other';
+    filePath: string;
+    expiryDate?: string;
+  }[];
+  status: 'active' | 'on_leave' | 'resigned';
+  remarks?: string;
+  createdBy?: string | User;
+}
+
+
 export interface LedgerFilter {
   search?: string;
   startDate?: string;

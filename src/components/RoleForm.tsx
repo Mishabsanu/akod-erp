@@ -19,7 +19,10 @@ import {
   Truck,
   UserPlus,
   Users,
-  Wallet
+  Wallet,
+  Building2,
+  HardHat,
+  ClipboardCheck
 } from 'lucide-react';
 import React from 'react';
 import * as Yup from 'yup';
@@ -56,6 +59,9 @@ const emptyPermissions = {
   payroll: { view: false, create: false, update: false, delete: false },
   ledger: { view: false, create: false, update: false, delete: false },
   accounts: { view: false, create: false, update: false, delete: false },
+  fleet: { view: false, create: false, update: false, delete: false },
+  facility: { view: false, create: false, update: false, delete: false },
+  worker: { view: false, create: false, update: false, delete: false },
 };
 
 const MODULE_CONFIG: Record<string, { label: string; icon: any; category: string }> = {
@@ -81,6 +87,11 @@ const MODULE_CONFIG: Record<string, { label: string; icon: any; category: string
   user: { label: 'Employee', icon: Users, category: 'HR & Payroll' },
   attendance: { label: 'Attendance', icon: Clock, category: 'HR & Payroll' },
   payroll: { label: 'Payroll', icon: CreditCard, category: 'HR & Payroll' },
+  worker: { label: 'Worker Records', icon: HardHat, category: 'HR & Payroll' },
+
+  // Operations
+  fleet: { label: 'Fleet & Workshop', icon: Truck, category: 'Operations' },
+  facility: { label: 'Facility Audits', icon: Building2, category: 'Operations' },
 
   // Administration
   role: { label: 'Roles & Permissions', icon: ShieldCheck, category: 'Administration' },
