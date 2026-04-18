@@ -171,8 +171,6 @@ const UserForm: React.FC<UserFormProps> = ({
             />
 
             <FormikSelect label="Role" name="role" options={roles} required />
-              required
-            />
 
             {isEditMode && initialData?.createdBy && (
               <div className="flex flex-col">

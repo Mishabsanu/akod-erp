@@ -30,6 +30,7 @@ export interface User {
   password?: string;
   createdAt?: string;
   updatedAt?: string;
+  createdBy?: string | User;
 }
 
 export interface UserFilter {
