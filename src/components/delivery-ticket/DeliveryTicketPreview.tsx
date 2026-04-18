@@ -2,16 +2,20 @@ import { DeliveryTicket } from '@/lib/types';
 
 interface DeliveryTicketPreviewProps {
     data: Partial<DeliveryTicket>;
-    onBack: () => void;
-    onConfirm: () => void;
-    isSubmitting: boolean;
+    onBack?: () => void;
+    onConfirm?: () => void;
+    onEdit?: () => void;
+    isSubmitting?: boolean;
+    mode?: 'create' | 'view';
 }
 
 const DeliveryTicketPreview = ({
     data,
     onBack,
     onConfirm,
-    isSubmitting,
+    onEdit,
+    isSubmitting = false,
+    mode = 'create',
 }: DeliveryTicketPreviewProps) => {
     const formatDate = (dateString?: string) => {
         if (!dateString) return '';
@@ -35,23 +39,42 @@ const DeliveryTicketPreview = ({
             {/* Action Bar */}
             <div className="mb-6 flex gap-4 print:hidden w-full max-w-[210mm] justify-between items-center">
                 <div className="text-sm text-gray-600 font-medium">
-                    Preview Mode - {filledRows.length} Items
+                    {mode === 'create' ? `Preview Mode - ${filledRows.length} Items` : 'Document Viewer'}
                 </div>
                 <div className="flex gap-3">
+                    {onBack && (
+                        <button
+                            onClick={onBack}
+                            className="px-4 py-2 bg-gray-600 text-white rounded shadow hover:bg-gray-700 transition font-medium text-sm"
+                        >
+                            {mode === 'create' ? 'Back' : 'Go Back'}
+                        </button>
+                    )}
+                    {mode === 'view' && onEdit && (
+                        <button
+                            onClick={onEdit}
+                            className="px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition font-bold text-sm"
+                        >
+                            Edit Ticket
+                        </button>
+                    )}
                     <button
-                        onClick={onBack}
-                        className="px-4 py-2 bg-gray-600 text-white rounded shadow hover:bg-gray-700 transition font-medium text-sm"
+                        onClick={() => window.print()}
+                        className="px-4 py-2 bg-emerald-600 text-white rounded shadow hover:bg-emerald-700 transition font-bold flex items-center gap-2 text-sm"
                     >
-                        Back to Edit
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                        Print PDF
                     </button>
-                    <button
-                        onClick={onConfirm}
-                        disabled={isSubmitting}
-                        className={`px-6 py-2 text-white rounded shadow-md transition font-bold flex items-center gap-2 text-sm ${isSubmitting ? 'bg-gray-400' : 'bg-sky-700 hover:bg-sky-800'
-                            }`}
-                    >
-                        {isSubmitting ? 'Confirming...' : 'Confirm & Create'}
-                    </button>
+                    {mode === 'create' && onConfirm && (
+                        <button
+                            onClick={onConfirm}
+                            disabled={isSubmitting}
+                            className={`px-6 py-2 text-white rounded shadow-md transition font-bold flex items-center gap-2 text-sm ${isSubmitting ? 'bg-gray-400' : 'bg-sky-700 hover:bg-sky-800'
+                                }`}
+                        >
+                            {isSubmitting ? 'Confirming...' : 'Confirm & Create'}
+                        </button>
+                    )}
                 </div>
             </div>
 
@@ -60,38 +83,29 @@ const DeliveryTicketPreview = ({
 
                 {/* 1. Header Section */}
                 <div className="flex justify-between items-start mb-6">
-                    {/* Left: English Contact */}
-                    <div className="text-[8pt] text-gray-600 space-y-0.5 pt-2">
-                        <p>Tel: +974 44161483</p>
-                        <p>+974 55299893</p>
-                        <p>Doha - Qatar</p>
-                        <p className="text-slate-900">info@akodgroup.com</p>
-                        <p className="text-slate-900">chooseakod.com</p>
+                    {/* Left: Contact Info */}
+                    <div className="text-[8pt] text-gray-700 space-y-0.5 pt-2">
+                        <p className="font-bold text-[9pt] mb-1 text-[#0f766e]">PROSERVE TRADING & SERVICES</p>
+                        <p>Tel: +974 4421 4042</p>
+                        <p>Mob: +974 3030 3613</p>
+                        <p className="font-semibold mt-1 text-slate-800">info@proservets.com</p>
                     </div>
 
                     {/* Center: Logo */}
                     <div className="flex flex-col items-center">
-                        {/* Logo Icon (Triangle) */}
-                        <div className="mb-1">
-                            <svg width="60" height="50" viewBox="0 0 100 80">
-                                {/* Triangle Shape - Red */}
-                                <path d="M50 5 L90 75 L10 75 Z" fill="none" stroke="#0f766e" strokeWidth="8" />
-                                <path d="M50 25 L75 65 L25 65 Z" fill="#0f766e" />
-                            </svg>
+                        <div className="w-50 h-40">
+                            <img src="/logo.png" alt="Company Logo" className="w-full h-full object-contain" />
                         </div>
-                        <h1 className="text-3xl font-extrabold text-gray-800 tracking-wider">AKOD</h1>
-                        <p className="text-sm font-bold text-gray-500 uppercase tracking-widest text-[#0f766e] -mt-1">Group</p>
-                        <p className="text-[7pt] text-gray-500 mt-1">The Strongest in the Industry</p>
-                        <h2 className="text-lg font-bold uppercase mt-2 text-gray-700">Delivery Note</h2>
+                        <h2 className="text-lg font-bold uppercase text-gray-700 z-10">Delivery Note</h2>
                     </div>
 
-                    {/* Right: Arabic Contact */}
-                    <div className="text-[8pt] text-gray-600 space-y-0.5 pt-2 text-right font-arabic" style={{ direction: 'rtl' }}>
-                        <p>هاتف: ٤٤١٦١٤٨٣ ٩٧٤+</p>
-                        <p>٩٧٤ ٥٥٢٩٩٨٩٣+</p>
-                        <p>الدوحة، قطر</p>
-                        <p className="text-slate-900">info@akodgroup.com</p>
-                        <p className="text-slate-900">chooseakod.com</p>
+                    {/* Right: Address Info */}
+                    <div className="text-[8pt] text-gray-700 space-y-0.5 pt-2 text-right">
+                        <p>C.R. No: 147701</p>
+                        <p>P.O. Box: 9044</p>
+                        <p>Zone: 27, Street: 310</p>
+                        <p>Building No: 43</p>
+                        <p className="font-semibold text-slate-800">Doha - Qatar</p>
                     </div>
                 </div>
 
@@ -255,10 +269,10 @@ const DeliveryTicketPreview = ({
                 <div className="mt-2 text-center text-white font-sans bg-[#0f766e] py-2 -mx-10 px-10 mb-[-32px]">
                     <div className="flex flex-col gap-1 text-[8pt] font-medium leading-tight">
                         <div>
-                            Mob: +974 5016 4817 | Tel: +974 4416 1483 | E-mail: info@akodgroup.com | chooseakod.com
+                            Mob: +974 3030 3613 | Tel: +974 4421 4042 | E-mail: info@proservets.com
                         </div>
                         <div className="border-t border-teal-400 pt-1 mt-0.5 opacity-90 text-[7pt]">
-                            C.R.No: 147701 | P.O.Box: 9044 | Doha - Qatar
+                            C.R.No: 147701 | P.O.Box: 9044 | Zone: 27, Street: 310, Bldg: 43 | Doha - Qatar
                         </div>
                     </div>
                 </div>

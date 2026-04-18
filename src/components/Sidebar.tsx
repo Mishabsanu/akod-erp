@@ -297,12 +297,17 @@ export const Sidebar = () => {
     >
       {/* BRANDING SECTION */}
       <Link href="/" className="block">
-        <div className={`relative px-6 flex items-center justify-between border-b border-white/10 bg-white/5 backdrop-blur-md h-20 transition-all duration-500`}>
-          <div className="transition-all duration-500 transform opacity-100 scale-100">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg">
-                <Image src="/logo.png" alt="Logo" width={80} height={80} className="object-contain" />
-              </div>
+        <div className={`relative px-6 flex items-center justify-center border-b border-white/10 bg-white/5 backdrop-blur-md h-24 transition-all duration-500`}>
+          <div className="transition-all duration-500 transform opacity-100 scale-100 w-full flex justify-center">
+            <div className="w-full max-w-[180px] flex items-center justify-center overflow-hidden">
+              <Image 
+                src="/logo.png" 
+                alt="Logo" 
+                width={160} 
+                height={60} 
+                className="object-contain" 
+                priority 
+              />
             </div>
           </div>
         </div>

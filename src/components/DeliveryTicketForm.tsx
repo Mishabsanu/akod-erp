@@ -224,7 +224,7 @@ const DeliveryTicketForm = ({
       
       // Add simple fields
       Object.keys(values).forEach(key => {
-        if (!['items', 'deliveredBy', 'receivedBy'].includes(key)) {
+        if (!['items', 'deliveredBy', 'receivedBy', 'customerName'].includes(key)) {
           formData.append(key, (values as any)[key]);
         }
       });
@@ -309,7 +309,7 @@ const DeliveryTicketForm = ({
       // Store items for filtering the product dropdown
       setSelectedOrderItems(order.items || []);
 
-      // Fetch fulfillment history and auto-populate items
+      // Fetch fulfillment history
       getRunningOrderFulfillment(orderId).then(data => {
         const map: Record<string, number> = {};
         if (data && data.items) {
@@ -318,31 +318,6 @@ const DeliveryTicketForm = ({
             map[pid] = item.deliveredQty || 0;
           });
           setFulfillmentMap(map);
-        }
-
-        // Auto-populate items from order with remaining quantities
-        if (order.items && order.items.length > 0) {
-          const populatedItems = order.items.map((item: any) => {
-            const pid = item.productId?._id || item.productId;
-            const delivered = map[pid] || 0;
-            const remaining = (item.quantity || 0) - delivered;
-            
-            // Return item row if there's balance or if it's a new delivery
-            return {
-              productId: pid,
-              name: item.name,
-              itemCode: item.itemCode,
-              unit: item.unit,
-              availableQty: item.availableQty || '', // Needs to be fetched if availableProducts is ready
-              requiredQty: item.quantity, 
-              quantity: remaining > 0 ? remaining : 0, 
-              description: item.description || '',
-            };
-          });
-          
-          if (populatedItems.length > 0) {
-            formik.setFieldValue('items', populatedItems);
-          }
         }
       }).catch(err => console.error("Error fetching fulfillment", err));
     }
@@ -630,9 +605,6 @@ const DeliveryTicketForm = ({
                         <th className="p-2 border border-gray-200 min-w-[100px]">
                           Required Qty <span className="text-red-500">*</span>
                         </th>
-                        <th className="p-2 border border-gray-200 min-w-[100px]">
-                          Prev. Delivered
-                        </th>
                         <th className="p-2 border border-gray-200 min-w-[120px]">
                           Delivery Qty <span className="text-red-500">*</span>
                         </th>
@@ -691,19 +663,22 @@ const DeliveryTicketForm = ({
 
                               />
                             </td>
-                            <td className="p-2 border border-gray-200">
-                              <FormikInput
-                                label=""
-                                name={`items.${idx}.requiredQty`}
-                                type="number"
-                                min={1}
-
-                              />
-                            </td>
-                            <td className="p-2 border border-gray-200 text-center">
-                              <span className={`text-xs font-bold px-2 py-1 rounded-full ${fulfillmentMap[item.productId] ? 'bg-blue-50 text-blue-600 border border-blue-100' : 'bg-gray-50 text-gray-400 border border-gray-100'}`}>
-                                {fulfillmentMap[item.productId] || 0} {item.unit}
-                              </span>
+                            <td className="p-2 border border-gray-200 align-top">
+                              <div className="flex flex-col gap-1.5">
+                                <FormikInput
+                                  label=""
+                                  name={`items.${idx}.requiredQty`}
+                                  type="number"
+                                  min={1}
+                                />
+                                {item.productId && (
+                                  <div className="flex justify-start">
+                                    <span className={`text-[11px] font-medium px-2 rounded border ${fulfillmentMap[item.productId] ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-gray-50 text-gray-400 border-gray-100'}`}>
+                                      Prev Delivered: {fulfillmentMap[item.productId] || 0} {item.unit || ''}
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
                             </td>
                             <td className="p-2 border border-gray-200 align-top">
                               <div className="flex flex-col gap-1.5">
@@ -719,7 +694,7 @@ const DeliveryTicketForm = ({
 
                                 {/* Available Qty Badge */}
                                 {availableQty !== '' && (
-                                  <div className="flex justify-end">
+                                  <div className="flex justify-start mt-1">
                                     <span className="text-[11px] font-medium text-green-600 bg-green-50 px-2 rounded border border-green-100">
                                       Available: {availableQty} {item.unit || ''}
                                     </span>
@@ -727,7 +702,7 @@ const DeliveryTicketForm = ({
                                 )}
 
                                 {/* Validation */}
-                                {item.quantity > availableQty && (
+                                {availableQty !== '' && Number(item.quantity) > Number(availableQty) && (
                                   <div className="flex items-center gap-1 text-xs text-red-600">
                                     ⚠ Qty exceeds stock
                                   </div>
@@ -812,7 +787,9 @@ const DeliveryTicketForm = ({
                     formik.handleChange(e);
                     const staff = STAFF_LIST.find(s => s.name === e.target.value);
                     if (staff) {
-                      formik.setFieldValue('deliveredBy.deliveredByMobile', staff.phone);
+                      // Only prefix if it hasn't already been prefixed (though STAFF_LIST is raw numbers)
+                      const phone = staff.phone.startsWith('+') ? staff.phone : `+974${staff.phone}`;
+                      formik.setFieldValue('deliveredBy.deliveredByMobile', phone);
                     }
                   }}
                 />
