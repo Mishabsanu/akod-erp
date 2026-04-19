@@ -10,6 +10,7 @@ interface FormikInputProps extends InputProps {
   uppercase?: boolean;
   wrapperClassName?: string;
   suffix?: React.ReactNode;
+  icon?: React.ReactNode;
 }
 
 export const FormikInput: React.FC<FormikInputProps> = ({
@@ -18,6 +19,7 @@ export const FormikInput: React.FC<FormikInputProps> = ({
   required = false,
   uppercase = false,
   suffix,
+  icon,
   wrapperClassName,
   ...props
 }) => {
@@ -30,6 +32,11 @@ export const FormikInput: React.FC<FormikInputProps> = ({
         {required && <span className="text-red-500 ml-1">*</span>}
       </Label>
       <div className="relative">
+        {icon && (
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+            {icon}
+          </div>
+        )}
         <Input
           id={name}
           {...field}
@@ -48,7 +55,7 @@ export const FormikInput: React.FC<FormikInputProps> = ({
             }
             helpers.setValue(processedValue);
           }}
-          className={`${meta.touched && meta.error ? 'border-red-500' : ''}`}
+          className={`${meta.touched && meta.error ? 'border-red-500' : ''} ${icon ? 'pl-10' : ''}`}
         />
         {suffix && <div className="absolute inset-y-0 right-0 pr-3 flex items-center">{suffix}</div>}
       </div>

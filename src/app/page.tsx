@@ -173,7 +173,7 @@ function Dashboard() {
                             <div className="flex items-center gap-6">
                                 <div className="text-right">
                                     <p className="text-[10px] font-black text-gray-400 uppercase">Est. Net balance</p>
-                                    <p className="text-xl font-black text-green-600">QAR {data.stats.finance.netProfit.toLocaleString()}</p>
+                                    <p className="text-xl font-black text-green-600">{data.stats.finance.netProfit.toLocaleString()}</p>
                                 </div>
                             </div>
                         </div>
@@ -325,7 +325,7 @@ function Dashboard() {
                                 </div>
                                 <div className="px-6 py-4 bg-indigo-50/50 rounded-2xl border border-indigo-100">
                                     <p className="text-[9px] font-black text-indigo-400 uppercase mb-1">Total Payroll</p>
-                                    <p className="text-xl font-black text-indigo-600">QAR {Math.round(data.stats.payroll.totalSalariesProcessed / 1000)}k</p>
+                                    <p className="text-xl font-black text-indigo-600">{Math.round(data.stats.payroll.totalSalariesProcessed / 1000)}k</p>
                                 </div>
                             </div>
                         </div>
@@ -365,7 +365,7 @@ function Dashboard() {
                                         <p className="text-sm font-black text-[#0f766e] line-clamp-1">{activity.desc}</p>
                                         <p className={`text-lg font-black mt-2 ${activity.type.includes('Expense') || activity.type.includes('Payment Paid') ? 'text-teal-500' : 'text-green-500'
                                             }`}>
-                                            QAR {activity.amount?.toLocaleString() || 0}
+                                            {activity.amount?.toLocaleString() || 0}
                                         </p>
                                     </div>
                                 </div>
@@ -414,11 +414,11 @@ const CustomTooltip = ({ active, payload, label }: any) => {
                 <div className="space-y-1">
                     <p className="text-sm font-bold text-teal-50 flex items-center justify-between gap-6">
                         <span className="uppercase text-[9px] tracking-tighter opacity-70">Inflow:</span>
-                        QAR {payload[0]?.value?.toLocaleString() || 0}
+                        {payload[0]?.value?.toLocaleString() || 0}
                     </p>
                     <p className="text-sm font-bold text-rose-300 flex items-center justify-between gap-6">
                         <span className="uppercase text-[9px] tracking-tighter opacity-70">Outflow:</span>
-                        QAR {payload[1]?.value?.toLocaleString() || 0}
+                        {payload[1]?.value?.toLocaleString() || 0}
                     </p>
                 </div>
             </div>

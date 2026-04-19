@@ -12,16 +12,19 @@ import {
   getInventoryItems, // Use Inventory API
 } from '@/services/inventoryApi';
 import {
+  Download,
   Edit2,
   Filter,
   MoreVertical,
   Plus,
+  Printer,
   Trash2,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import withAuth from '@/components/withAuth';
+import { exportToCSV } from '@/lib/exportUtils';
 
 const InventoryPage = () => {
   // Rename component
@@ -150,6 +153,25 @@ const InventoryPage = () => {
     if (item._id && can('inventory', 'update')) {
       router.push(`/inventory/${item._id}`);
     }
+  };
+
+  const handleExport = () => {
+    const exportData = inventoryItems.map(item => ({
+      'PO Number': item.poNo,
+      'Product': item.product?.name || 'N/A',
+      'Item Code': item.itemCode,
+      'Ordered Qty': item.orderedQty,
+      'Available Qty': item.availableQty,
+      'Status': item.status,
+      'Created By': typeof item.createdBy === 'object' ? item.createdBy.name : item.createdBy || 'N/A',
+      'Date': item.createdAt ? new Date(item.createdAt).toLocaleDateString() : 'N/A'
+    }));
+    exportToCSV(exportData, `inventory_stock_${new Date().toISOString().split('T')[0]}.csv`);
+    toast.success('Inventory data exported to CSV');
+  };
+
+  const handlePrint = () => {
+    window.print();
   };
 
   const columns: Column<InventoryItem>[] = useMemo(() => {
@@ -284,6 +306,20 @@ const InventoryPage = () => {
           >
             <Filter className="w-4 h-4" />
             {showFilters ? 'Hide Filters' : 'Show Filters'}
+          </button>
+          <button
+            onClick={handleExport}
+            className="page-header-button secondary !bg-emerald-50 !text-emerald-700 !border-emerald-100 hover:!bg-emerald-100"
+          >
+            <Download className="w-4 h-4" />
+            CSV
+          </button>
+          <button
+            onClick={handlePrint}
+            className="page-header-button secondary !bg-blue-50 !text-blue-700 !border-blue-100 hover:!bg-blue-100"
+          >
+            <Printer className="w-4 h-4" />
+            Print
           </button>
           </>
         }

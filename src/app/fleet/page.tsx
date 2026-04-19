@@ -87,6 +87,48 @@ const FleetPage: React.FC = () => {
       render: (v) => <span className="font-mono text-emerald-600 font-bold">{v.odometer.toLocaleString()} km</span>
     },
     {
+      accessor: 'registrationExpiry',
+      header: 'Registration',
+      render: (v) => {
+        if (!v.registrationExpiry) return <span className="text-gray-300 text-[10px] font-black uppercase">Not Set</span>;
+        const expiry = new Date(v.registrationExpiry);
+        const now = new Date();
+        const diffDays = Math.ceil((expiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+        
+        let colorClass = "text-gray-500 bg-gray-50 border-gray-100";
+        if (diffDays < 0) colorClass = "text-rose-600 bg-rose-50 border-rose-100 animate-pulse";
+        else if (diffDays < 30) colorClass = "text-amber-600 bg-amber-50 border-amber-100";
+
+        return (
+          <div className={`px-3 py-1.5 rounded-lg border text-[10px] font-bold flex flex-col items-center gap-0.5 ${colorClass}`}>
+            <span className="uppercase tracking-widest text-[8px] opacity-70">{diffDays < 0 ? 'Expired' : 'Expiry'}</span>
+            <span>{new Date(v.registrationExpiry).toLocaleDateString()}</span>
+          </div>
+        );
+      }
+    },
+    {
+      accessor: 'insuranceExpiry',
+      header: 'Insurance',
+      render: (v) => {
+        if (!v.insuranceExpiry) return <span className="text-gray-300 text-[10px] font-black uppercase">Not Set</span>;
+        const expiry = new Date(v.insuranceExpiry);
+        const now = new Date();
+        const diffDays = Math.ceil((expiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+        
+        let colorClass = "text-gray-500 bg-gray-50 border-gray-100";
+        if (diffDays < 0) colorClass = "text-rose-600 bg-rose-50 border-rose-100 animate-pulse";
+        else if (diffDays < 30) colorClass = "text-amber-600 bg-amber-50 border-amber-100";
+
+        return (
+          <div className={`px-3 py-1.5 rounded-lg border text-[10px] font-bold flex flex-col items-center gap-0.5 ${colorClass}`}>
+            <span className="uppercase tracking-widest text-[8px] opacity-70">{diffDays < 0 ? 'Expired' : 'Expiry'}</span>
+            <span>{new Date(v.insuranceExpiry).toLocaleDateString()}</span>
+          </div>
+        );
+      }
+    },
+    {
       accessor: 'status',
       header: 'Status',
       render: (v) => {
@@ -119,52 +161,60 @@ const FleetPage: React.FC = () => {
   ], [can]);
 
   return (
-    <div className="min-h-screen w-full bg-white p-6 md:p-10">
-      <ListPageHeader
-        eyebrow="Fleet Management"
-        title="Vehicle"
-        highlight="Registry"
-        description="Manage company vehicles, track condition, and maintenance status."
-        actions={
-          <>
-            {can('fleet', 'create') && (
-              <button onClick={() => router.push('/fleet/add')} className="page-header-button">
-                <Plus size={16} /> Add Vehicle
+    <div className="min-h-screen w-full bg-[#f8fafc] p-6 md:p-10">
+      <div className="max-w-full mx-auto space-y-10">
+        <ListPageHeader
+          eyebrow="Logistics Node"
+          title="Vehicle"
+          highlight="Registry"
+          description="Centralized fleet telemetry and asset management for company logistics."
+          actions={
+            <div className="flex items-center gap-4">
+              {can('fleet', 'create') && (
+                <button
+                  onClick={() => router.push('/fleet/add')}
+                  className="px-8 py-4 bg-amber-600 text-white rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] shadow-2xl shadow-amber-900/20 hover:shadow-amber-900/30 hover:-translate-y-1 transition-all flex items-center gap-3 active:scale-95"
+                >
+                  <Plus size={20} strokeWidth={3} />
+                  Add Vehicle
+                </button>
+              )}
+              <button
+                 onClick={() => setShowFilters(!showFilters)}
+                 className="px-8 py-4 bg-white text-gray-500 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] border-2 border-gray-100/80 hover:bg-gray-50 transition-all flex items-center gap-3 active:scale-95"
+              >
+                <Filter size={20} /> Filters
               </button>
-            )}
-            <button
-               onClick={() => setShowFilters(!showFilters)}
-               className="page-header-button secondary"
-            >
-              <Filter size={16} /> Filters
-            </button>
-          </>
-        }
-      />
-
-      <div className="mb-6">
-        <SearchInput
-          initialSearchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          placeholder="Search by name, plate number or model..."
+            </div>
+          }
         />
+
+        <div className="bg-white p-8 rounded-[3rem] shadow-2xl shadow-slate-900/5 border border-gray-100">
+          <div className="mb-10 w-full max-w-md">
+            <SearchInput
+              initialSearchTerm={searchTerm}
+              onSearchChange={setSearchTerm}
+              placeholder="Search by name, plate number or model..."
+            />
+          </div>
+
+          {loading ? (
+            <TableSkeleton />
+          ) : (
+            <DataTable
+              columns={columns}
+              data={vehicles}
+              serverSidePagination={true}
+              totalCount={totalCount}
+              currentPage={currentPage}
+              limit={limit}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              onLimitChange={setLimit}
+            />
+          )}
+        </div>
       </div>
-
-      {loading ? (
-        <TableSkeleton />
-      ) : (
-        <DataTable
-          columns={columns}
-          data={vehicles}
-          serverSidePagination={true}
-          totalCount={totalCount}
-          currentPage={currentPage}
-          limit={limit}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
-          onLimitChange={setLimit}
-        />
-      )}
     </div>
   );
 };

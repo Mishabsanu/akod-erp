@@ -124,7 +124,6 @@ const CustomerPage: React.FC = () => {
 
   const columns: Column<Customer>[] = useMemo(() => {
     const baseColumns: Column<Customer>[] = [
-      { accessor: 'name', header: 'Customer Name' },
       { accessor: 'company', header: 'Company' },
       { accessor: 'mobile', header: 'Mobile' },
       { accessor: 'contactPersonName', header: 'Contact Person Name' },

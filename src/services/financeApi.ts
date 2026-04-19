@@ -70,6 +70,11 @@ export const updateExpense = async (id: string, formData: any) => {
   return data;
 };
 
+export const approveExpense = async (id: string) => {
+  const { data } = await api.patch<ApiResponse<Expense>>(`/finance/expenses/${id}/approve`);
+  return data;
+};
+
 // --- Invoices ---
 export const getInvoiceById = async (id: string) => {
   const { data } = await api.get<ApiResponse<Invoice>>(`/finance/invoices/${id}`);

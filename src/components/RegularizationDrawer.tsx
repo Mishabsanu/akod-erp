@@ -52,14 +52,25 @@ export default function RegularizationDrawer({ isOpen, onClose, request }: Regul
             {/* Drawer */}
             <div className="absolute inset-y-0 right-0 w-full max-w-xl bg-white shadow-2xl transform transition-transform duration-300 ease-in-out flex flex-col animate-in slide-in-from-right">
 
-                {/* Header */}
-                <div className="flex items-center justify-between p-6 border-b border-gray-100">
-                    <h2 className="text-lg font-semibold text-[#0f766e]">Regularization Request Details</h2>
+                {/* Header with improved styling */}
+                <div className="flex items-center justify-between px-10 py-10 border-b border-gray-100 bg-white relative z-10">
+                    <div className="flex items-center gap-6">
+                        <div className="w-16 h-16 bg-gradient-to-br from-[#0f766e] to-[#14b8a6] rounded-3xl flex items-center justify-center text-white shadow-xl shadow-teal-900/10">
+                            <MessageSquare size={32} />
+                        </div>
+                        <div>
+                            <div className="flex items-center gap-2 mb-1">
+                                <div className="w-1 h-3 bg-[#0f766e] rounded-full" />
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Workforce Node</p>
+                            </div>
+                            <h2 className="text-3xl font-black text-[#0f172a] tracking-tight uppercase">Appeal <span className="text-[#0f766e]">Context</span></h2>
+                        </div>
+                    </div>
                     <button
                         onClick={onClose}
-                        className="p-2 hover:bg-gray-100 rounded-full text-gray-400 hover:text-gray-600 transition-colors"
+                        className="w-12 h-12 flex items-center justify-center hover:bg-gray-100 rounded-2xl text-gray-400 hover:text-gray-600 transition-all active:scale-90"
                     >
-                        <X size={20} />
+                        <X size={24} />
                     </button>
                 </div>
 
@@ -74,9 +85,9 @@ export default function RegularizationDrawer({ isOpen, onClose, request }: Regul
                             </div>
                         </div>
                         <div className="flex flex-col">
-                            <h3 className="font-bold text-[#0f766e] text-[16px]">{request.user?.name || 'User Name'}</h3>
-                            <p className="text-[12px] text-gray-500">
-                                Requested by {request.user?.name || 'User'} on {format(parseSafeDate(request.requestedOn)!, 'd MMM yyyy hh:mm a')}
+                            <h3 className="font-bold text-[#0f766e] text-[0.9rem] tracking-tight">{request.user?.name || 'User Name'}</h3>
+                            <p className="text-[10px] text-gray-400 font-black uppercase tracking-[0.2em] mt-1 opacity-70">
+                                Worker Instance • {format(parseSafeDate(request.requestedOn)!, 'd MMM yyyy')}
                             </p>
                         </div>
                     </div>
@@ -84,13 +95,13 @@ export default function RegularizationDrawer({ isOpen, onClose, request }: Regul
                     {/* Date Block - Calendar Card Style */}
                     <div className="flex items-center gap-6 p-2">
                         <div className="w-[100px] bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden flex flex-col items-center">
-                            <div className="w-full bg-gray-50 py-1.5 text-center text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100">
+                            <div className="w-full bg-gray-50 py-2 text-center text-xs font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 opacity-70">
                                 {format(parseSafeDate(request.date)!, 'MMM')}
                             </div>
-                            <div className="py-3 text-3xl font-black text-gray-800">
+                            <div className="py-4 text-4xl font-black text-gray-800 tracking-tight">
                                 {format(parseSafeDate(request.date)!, 'd')}
                             </div>
-                            <div className="w-full bg-white pb-2 text-center text-[10px] font-bold text-gray-400 uppercase">
+                            <div className="w-full bg-white pb-2.5 text-center text-xs font-bold text-gray-400 uppercase tracking-widest opacity-70">
                                 {format(parseSafeDate(request.date)!, 'EEE')}
                             </div>
                         </div>
@@ -107,12 +118,12 @@ export default function RegularizationDrawer({ isOpen, onClose, request }: Regul
                                 <User size={18} className="text-gray-400" />
                             </div>
                             <div className="flex-1 space-y-1.5">
-                                <div className="flex items-center gap-3">
-                                    <span className="text-[14px] font-bold text-gray-900">{request.user?.name || 'Self'}</span>
-                                    <span className="text-[12px] text-gray-400">{format(parseSafeDate(request.requestedOn)!, 'd MMM yyyy hh:mm a')}</span>
+                                <div className="flex items-center gap-4">
+                                    <span className="text-sm font-bold text-gray-900">{request.user?.name || 'Self'}</span>
+                                    <span className="text-xs text-gray-400 font-medium">{format(parseSafeDate(request.requestedOn)!, 'd MMM yyyy hh:mm a')}</span>
                                 </div>
-                                <div className="text-[14px] text-gray-600 bg-[#f8f9fb] p-5 rounded-tr-2xl rounded-br-2xl rounded-bl-2xl border border-gray-100 shadow-sm leading-relaxed">
-                                    <span className="font-bold text-[#5e50d1] mr-1">Note :</span>
+                                <div className="text-[0.9rem] text-gray-600 bg-[#f8f9fb] p-6 rounded-tr-3xl rounded-br-3xl rounded-bl-3xl border border-gray-100 shadow-sm leading-relaxed">
+                                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#0f766e] mr-3 block mb-2 opacity-70">Initial Subject Note</span>
                                     {request.note}
                                 </div>
                             </div>
@@ -125,11 +136,11 @@ export default function RegularizationDrawer({ isOpen, onClose, request }: Regul
                                     {c.user?.name?.charAt(0) || 'U'}
                                 </div>
                                 <div className="flex-1 space-y-1.5">
-                                    <div className="flex items-center gap-3">
-                                        <span className="text-[14px] font-bold text-gray-900">{c.user?.name || 'User'}</span>
-                                        <span className="text-[12px] text-gray-400">{format(parseSafeDate(c.timestamp)!, 'd MMM yyyy hh:mm a')}</span>
+                                    <div className="flex items-center gap-4">
+                                        <span className="text-sm font-bold text-gray-900">{c.user?.name || 'User'}</span>
+                                        <span className="text-xs text-gray-400 font-medium">{format(parseSafeDate(c.timestamp)!, 'd MMM yyyy hh:mm a')}</span>
                                     </div>
-                                    <div className="text-[14px] text-gray-600 bg-white p-4 rounded-tr-2xl rounded-br-2xl rounded-bl-2xl border border-gray-100">
+                                    <div className="text-sm text-gray-600 bg-white p-5 rounded-tr-3xl rounded-br-3xl rounded-bl-3xl border border-gray-100 shadow-sm">
                                         {c.text}
                                     </div>
                                 </div>
@@ -149,7 +160,7 @@ export default function RegularizationDrawer({ isOpen, onClose, request }: Regul
                             onKeyDown={(e) => e.key === 'Enter' && handleAddComment()}
                             placeholder="Add comment"
                             disabled={sending}
-                            className="flex-1 px-4 py-4 bg-transparent border-0 focus:ring-0 focus:outline-none text-[14px] text-gray-800 placeholder:text-gray-400 disabled:opacity-50"
+                            className="flex-1 px-6 py-5 bg-transparent border-0 focus:ring-0 focus:outline-none text-sm text-gray-800 font-medium placeholder:text-gray-400 disabled:opacity-50"
                         />
                         <button
                             onClick={handleAddComment}

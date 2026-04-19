@@ -146,12 +146,11 @@ function SalaryBreakupsPage() {
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white p-6 md:p-10">
       <ListPageHeader
-        eyebrow="Payroll Configuration"
+        eyebrow="Finance Node"
         title="Salary"
         highlight="Breakups"
-        description="Review employee salary structures and compensation components."
+        description="Personnel compensation frameworks and automated fiscal ledger configurations."
         actions={
-          <>
           <button
             onClick={() => setShowFilters(!showFilters)}
             className="page-header-button secondary"
@@ -159,20 +158,27 @@ function SalaryBreakupsPage() {
             <Filter className="w-4 h-4" />
             {showFilters ? 'Hide Filters' : 'Show Filters'}
           </button>
-          </>
         }
       />
 
-      {/* Search Input Area */}
-      <div className={`space-y-6 transition-all duration-300 ${showFilters ? 'mb-8' : 'mb-6'}`}>
+      {showFilters && (
+        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-xl mb-8 animate-in slide-in-from-top-2 duration-300">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-1 h-3 bg-teal-600 rounded-full" />
+            <h3 className="text-[10px] font-black text-[#0f172a] uppercase tracking-[0.3em]">Filtering Criteria</h3>
+          </div>
+          <p className="text-xs text-gray-400 italic">Advanced filters coming soon...</p>
+        </div>
+      )}
+
+      <div className="mb-6 mt-10">
         <SearchInput
-            initialSearchTerm={searchTerm}
-            onSearchChange={setSearchTerm}
-            placeholder="Search employees by name or email..."
+          initialSearchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          placeholder="Search employees by name or email..."
         />
       </div>
 
-      {/* Data Table */}
       {loading ? (
         <TableSkeleton />
       ) : (

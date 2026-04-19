@@ -14,7 +14,8 @@ import {
   Globe,
   Calendar,
   Contact,
-  ClipboardList
+  ClipboardList,
+  Package
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -75,7 +76,7 @@ const WorkforcePage: React.FC = () => {
       header: 'Full Name',
       render: (w) => (
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-teal-50 rounded-full flex items-center justify-center text-teal-600 font-black text-sm border border-teal-100">
+          <div className="w-9 h-9 bg-amber-50 rounded-full flex items-center justify-center text-amber-600 font-black text-sm border border-amber-100">
             {w.name.charAt(0)}
           </div>
           <div className="flex flex-col">
@@ -133,62 +134,69 @@ const WorkforcePage: React.FC = () => {
       accessor: '_id' as any,
       render: (w) => (
         <div className="flex items-center gap-2">
+          {can('worker', 'view') && (
+            <button onClick={() => router.push(`/workers/${w._id}`)} className="p-2 hover:bg-amber-50 rounded-lg text-gray-400 hover:text-amber-600 transition-colors" title="View Profile">
+              <Package size={16} />
+            </button>
+          )}
           {can('worker', 'update') && (
-            <button onClick={() => router.push(`/workers/edit/${w._id}`)} className="p-2 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-teal-600 transition-colors">
+            <button onClick={() => router.push(`/workers/edit/${w._id}`)} className="p-2 hover:bg-amber-50 rounded-lg text-gray-400 hover:text-amber-600 transition-colors" title="Edit">
               <Edit2 size={16} />
             </button>
           )}
           {can('worker', 'delete') && (
-            <button onClick={() => handleDelete(w._id!)} className="p-2 hover:bg-red-50 rounded-lg text-red-400 hover:text-red-600 transition-colors">
+            <button onClick={() => handleDelete(w._id!)} className="p-2 hover:bg-rose-50 rounded-lg text-red-400 hover:text-red-600 transition-colors" title="Delete">
               <Trash2 size={16} />
             </button>
           )}
         </div>
       )
     }
-  ], [can]);
+  ], [can, router, handleDelete]);
 
   return (
-    <div className="min-h-screen w-full bg-white p-6 md:p-10">
+    <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white p-6 md:p-10">
       <ListPageHeader
-        eyebrow="Facilities & Workforce"
+        eyebrow="Workforce Node"
         title="Labor"
         highlight="Management"
-        description="Manage manual laborers, track work permits (QID), passports, and housing allocations."
+        description="Personnel registry for manufacturing laborers, work permits, and housing allocation."
         actions={
-          <button onClick={() => router.push('/workers/add')} className="page-header-button">
-            <Plus size={16} /> Add Worker
+          <button
+            onClick={() => router.push('/workers/add')}
+            className="page-header-button"
+          >
+            <Plus className="w-4 h-4" />
+            Enroll Worker
           </button>
         }
       />
 
-      <div className="mt-8">
-        <div className="mb-6">
-          <SearchInput
-            initialSearchTerm={searchTerm}
-            onSearchChange={setSearchTerm}
-            placeholder="Search by name, ID, Passport or QID..."
-          />
-        </div>
-
-        {loading ? (
-          <TableSkeleton />
-        ) : (
-          <DataTable
-            columns={columns}
-            data={workers}
-            serverSidePagination={true}
-            totalCount={totalCount}
-            currentPage={currentPage}
-            limit={limit}
-            totalPages={Math.ceil(totalCount / limit)}
-            onPageChange={setCurrentPage}
-            onLimitChange={setLimit}
-          />
-        )}
+      <div className="mb-6 mt-10">
+        <SearchInput
+          initialSearchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          placeholder="Search by name, ID, Passport or QID..."
+        />
       </div>
+
+      {loading ? (
+        <TableSkeleton />
+      ) : (
+        <DataTable
+          columns={columns}
+          data={workers}
+          serverSidePagination={true}
+          totalCount={totalCount}
+          currentPage={currentPage}
+          limit={limit}
+          totalPages={Math.ceil(totalCount / limit)}
+          onPageChange={setCurrentPage}
+          onLimitChange={setLimit}
+        />
+      )}
     </div>
   );
-};
+}
 
 export default withAuth(WorkforcePage, [{ module: 'worker', action: 'view' }]);

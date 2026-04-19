@@ -39,69 +39,102 @@ const FacilityForm: React.FC<FacilityFormProps> = ({ initialData, onSubmit, onCa
   });
 
   return (
-    <div className="w-full min-h-[calc(100vh-4rem)] bg-white px-10 py-12 rounded-[2rem] border border-gray-100 shadow-xl shadow-slate-200/50">
-      <div className="flex items-center justify-between mb-12">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-900/20">
-            <Building2 size={24} />
+    <div className="w-full min-h-screen bg-white px-8 py-10 rounded-[3.5rem] border border-gray-100 shadow-2xl shadow-slate-200/60 relative overflow-hidden">
+      {/* Premium Background Accents */}
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-amber-50/40 rounded-full blur-[120px] -mr-64 -mt-64 pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-sky-50/30 rounded-full blur-[120px] -ml-64 -mb-64 pointer-events-none" />
+      
+      <div className="flex items-center justify-between mb-16 relative z-10">
+        <div className="flex items-center gap-8">
+          <div className="w-20 h-20 bg-amber-700 rounded-[2.5rem] flex items-center justify-center text-white shadow-[0_20px_40px_-10px_rgba(180,83,9,0.4)] transition-transform hover:rotate-6">
+            <Building2 size={36} strokeWidth={2.5} />
           </div>
           <div>
-            <h2 className="text-2xl font-black text-gray-900 tracking-tight uppercase">
-              {isEditMode ? 'Modify' : 'Architect'} <span className="text-indigo-600">Facility</span>
+            <div className="flex items-center gap-2 mb-2">
+               <div className="w-1.5 h-4 bg-amber-700 rounded-full" />
+               <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.4em]">Infrastructure Ledger</p>
+            </div>
+            <h2 className="text-4xl font-black text-[#0f172a] tracking-tight uppercase">
+              {isEditMode ? 'Modify' : 'Architect'} <span className="text-amber-700">Personnel Hub</span>
             </h2>
-            <p className="text-gray-400 text-xs font-bold uppercase tracking-widest mt-1">
-              Infrastructure & Housing Management
-            </p>
           </div>
         </div>
       </div>
 
       <FormikProvider value={formik}>
-        <form onSubmit={formik.handleSubmit} className="space-y-10">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <FormikInput label="Facility Name" name="name" placeholder="e.g. Main HQ / Camp Al-Khor" required />
-            <FormikSelect 
-              label="Facility Type" 
-              name="type" 
-              options={[
-                { value: 'Office', label: 'Corporate Office' },
-                { value: 'Camp', label: 'Labor Camp' },
-                { value: 'Room', label: 'Individual Room' },
-                { value: 'Warehouse', label: 'Inventory Warehouse' },
-                { value: 'Workshop', label: 'Mechanical Workshop' },
-              ]} 
-              required 
-            />
-            
-            <FormikInput label="Geographic Location" name="location" placeholder="e.g. Street 10, Industrial Area" />
-            <FormikInput label="Max Occupancy / Capacity" name="capacity" type="number" placeholder="50" />
+        <form onSubmit={formik.handleSubmit} className="space-y-10 relative z-10">
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+             {/* Core Identity */}
+             <div className="bg-gray-50/30 p-10 rounded-[3rem] border border-gray-100/50 backdrop-blur-sm shadow-sm space-y-10">
+                <div className="flex items-center gap-3">
+                   <div className="w-1 h-5 bg-amber-700 rounded-full shadow-[0_0_10px_rgba(180,83,9,0.5)]" />
+                   <h3 className="text-[11px] font-black text-[#0f172a] uppercase tracking-[0.3em]">Identity & Logic</h3>
+                </div>
+                
+                <div className="space-y-6">
+                   <FormikInput label="Unit Nomenclature" name="name" placeholder="e.g. Al-Rayyan HQ / Site 42" required />
+                   <div className="space-y-4">
+                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">Functional Class</label>
+                      <FormikSelect 
+                        label="" 
+                        name="type" 
+                        options={[
+                          { value: 'Office', label: 'Corporate Office' },
+                          { value: 'Camp', label: 'Labor Housing' },
+                          { value: 'Warehouse', label: 'Strategic Warehouse' },
+                          { value: 'Workshop', label: 'Technical Workshop' },
+                        ]} 
+                        required 
+                      />
+                   </div>
+                </div>
+             </div>
 
-            <FormikSelect 
-              label="Operational Status" 
-              name="status" 
-              options={[
-                { value: 'active', label: 'Operational' },
-                { value: 'inactive', label: 'Closed / Under Renovation' },
-              ]} 
-              required 
-            />
+             {/* Logistics */}
+             <div className="bg-gray-50/30 p-10 rounded-[3rem] border border-gray-100/50 backdrop-blur-sm shadow-sm space-y-10">
+                <div className="flex items-center gap-3">
+                   <div className="w-1 h-5 bg-amber-700 rounded-full shadow-[0_0_10px_rgba(180,83,9,0.5)]" />
+                   <h3 className="text-[11px] font-black text-[#0f172a] uppercase tracking-[0.3em]">Logistical Coordinates</h3>
+                </div>
+                
+                <div className="space-y-6">
+                   <FormikInput label="Geographic Coordinate" name="location" placeholder="e.g. Street 302, Industrial Node" />
+                   <FormikInput label="Operational Capacity" name="capacity" type="number" placeholder="0" />
+                   
+                   <div className="space-y-4">
+                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">Operational Lifecycle</label>
+                      <FormikSelect 
+                        label="" 
+                        name="status" 
+                        options={[
+                          { value: 'active', label: 'Operational (ONLINE)' },
+                          { value: 'inactive', label: 'Decommissioned (OFFLINE)' },
+                        ]} 
+                        required 
+                      />
+                   </div>
+                </div>
+             </div>
           </div>
 
-          <div className="flex justify-end items-center gap-4 pt-8 border-t border-gray-100">
+          <div className="flex justify-end items-center gap-10 pt-12 border-t border-gray-100">
             <button
                type="button"
                onClick={onCancel}
-               className="px-8 py-4 rounded-xl border-2 border-gray-100 text-gray-400 text-[10px] font-black uppercase tracking-[0.2em] hover:bg-gray-50 transition-all"
+               className="text-sm font-black text-gray-400 uppercase tracking-widest hover:text-gray-600 transition-colors"
             >
-              Discard
+              Discard Changes
             </button>
             <button
               type="submit"
               disabled={formik.isSubmitting}
-              className="px-10 py-4 rounded-xl bg-indigo-800 text-white text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-indigo-950/20 hover:bg-indigo-900 transition-all disabled:opacity-50 flex items-center gap-2"
+              className="px-16 py-6 rounded-[1.5rem] bg-amber-700 text-white text-[11px] font-black uppercase tracking-[0.2em] shadow-[0_20px_40px_-5px_rgba(180,83,9,0.3)] hover:shadow-[0_25px_50px_-5px_rgba(180,83,9,0.4)] hover:-translate-y-1 transition-all disabled:opacity-50 flex items-center gap-4 active:scale-95"
             >
-              {formik.isSubmitting ? 'Architecting...' : isEditMode ? 'Commit Structure' : 'Launch Facility'}
-              {!formik.isSubmitting && <CheckCircle2 size={16} />}
+              {formik.isSubmitting ? (
+                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : isEditMode ? 'Authorize Update' : 'Finalize Hub Creation'}
+              {!formik.isSubmitting && <CheckCircle2 size={18} strokeWidth={3} />}
             </button>
           </div>
         </form>

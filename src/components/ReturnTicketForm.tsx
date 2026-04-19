@@ -19,6 +19,25 @@ import * as Yup from 'yup';
 import { FormikPhoneInput } from './shared/FormikPhoneInput';
 import ReturnTicketPreview from './return-ticket/ReturnTicketPreview';
 
+const STAFF_LIST = [
+  { name: 'MANSOOR', phone: '70814261' },
+  { name: 'RASEEM', phone: '70814262' },
+  { name: 'MUSTHAFA', phone: '70814263' },
+  { name: 'THASHNEEB', phone: '70814264' },
+  { name: 'BASIL', phone: '31214455' },
+  { name: 'KARK', phone: '66069200' },
+  { name: 'SHIFAN', phone: '71513931' },
+];
+
+const LOCATION_OPTIONS = [
+  { value: 'Client Yard', label: 'Client Yard' },
+  { value: 'Client Site', label: 'Client Site' },
+  { value: 'Company Yard', label: 'Company Yard' },
+  { value: 'Project Laydown Area', label: 'Project Laydown Area' },
+  { value: 'Fabrication Yard', label: 'Fabrication Yard' },
+  { value: 'Other', label: 'Manual Entry' },
+];
+
 const LineItemValidationSchema = Yup.object().shape({
   productId: Yup.string().required('Product is required'),
   name: Yup.string().required('Product name is required'),
@@ -222,14 +241,18 @@ const ReturnTicketForm = ({
   });
 
   const filteredRunningOrders = useMemo(() => {
+    if (!formik.values.customerId) return runningOrders;
+    
     const customer = customers.find(c => c.value === formik.values.customerId);
     if (customer) {
-      return runningOrders.filter(ro => 
+      const filtered = runningOrders.filter(ro => 
         (ro.company_name && ro.company_name === customer.label) || 
         (ro.client_name && ro.client_name === customer.label)
       );
+      // If no invoices found for this specific customer, show all to avoid "empty dropdown" confusion
+      return filtered.length > 0 ? filtered : runningOrders;
     }
-    return [];
+    return runningOrders;
   }, [formik.values.customerId, runningOrders, customers]);
 
   /* ---------------- PREVIEW STATE ---------------- */
@@ -255,6 +278,7 @@ const ReturnTicketForm = ({
       // Define a base empty/default state for the form
       const baseEmptyFormState = {
         customerId: '',
+        runningOrderId: formik.values.runningOrderId || '',
         customerName: '',
         returnDate: new Date().toISOString().slice(0, 10), // Default to today
         reason: '',
@@ -333,6 +357,7 @@ const ReturnTicketForm = ({
             // NEW MODE: Full Auto-fill
             formik.setValues({
               ...baseEmptyFormState, // Start with empty state to clear all previous autofilled data
+              runningOrderId: formik.values.runningOrderId, 
               poNo: formik.values.poNo, // Keep the selected PO number
               ticketNo: formik.values.ticketNo,
               customerId: deliveryTicket.customerId,
@@ -356,7 +381,7 @@ const ReturnTicketForm = ({
                   unit: item.unit,
                   quantity: deliveredQty, // Delivered Qty
                   totalReturnedQty: returnedQty, // UI field
-                  returnQty: availableQty, // Editable default
+                  returnQty: availableQty, // Default to full return as requested
                 };
               }),
 
@@ -449,9 +474,14 @@ const ReturnTicketForm = ({
                   if (selected) {
                     formik.setFieldValue('poNo', selected.po_number || '');
                     formik.setFieldValue('invoiceNo', selected.invoice_number);
+                    formik.setFieldValue('subject', selected.location_from || '');
+                    formik.setFieldValue('projectLocation', selected.location_to || '');
+                    formik.setFieldValue('noteCategory', selected.transaction_type || 'Sale');
                     
-                    // Try to link customer by name
-                    const customer = customers.find((c) => c.label === selected.company_name);
+                    // Auto-link customer
+                    const customer = customers.find((c) => 
+                      c.label === selected.company_name || c.label === selected.client_name
+                    );
                     if (customer) {
                       formik.setFieldValue('customerId', customer.value);
                       formik.setFieldValue('customerName', customer.label);
@@ -460,7 +490,6 @@ const ReturnTicketForm = ({
                   }
                 }}
                 required
-                disabled={!formik.values.customerId}
               />
               <FormikInput label="PO Number" name="poNo" readOnly required />
               <FormikSelect
@@ -644,10 +673,19 @@ const ReturnTicketForm = ({
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             <Section title="Delivered Details">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormikInput
-                  label="Delivered By"
+                <FormikSelect
+                  label="Delivered By (Staff)"
                   name="deliveredBy.deliveredByName"
+                  options={STAFF_LIST.map(s => ({ value: s.name, label: s.name }))}
                   required
+                  onChange={(e) => {
+                    formik.handleChange(e);
+                    const staff = STAFF_LIST.find(s => s.name === e.target.value);
+                    if (staff) {
+                      const phone = staff.phone.startsWith('+') ? staff.phone : `+974${staff.phone}`;
+                      formik.setFieldValue('deliveredBy.deliveredByMobile', phone);
+                    }
+                  }}
                 />
                 <FormikPhoneInput
                   label="Delivered By Mobile"

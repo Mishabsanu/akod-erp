@@ -507,6 +507,7 @@ export interface Expense {
   category: string;
   amount: number;
   taxAmount?: number;
+  isApproved?: number;
   totalAmount: number;
   paymentMethod: 'Cash' | 'Bank Transfer' | 'Cheque' | 'Credit Card' | 'Other';
   referenceNo?: string;
@@ -615,6 +616,8 @@ export interface Vehicle {
   odometer: number;
   status: 'active' | 'maintenance' | 'inactive';
   remarks?: string;
+  insuranceExpiry?: string;
+  registrationExpiry?: string;
   createdBy?: string | User;
   createdAt?: string;
 }
@@ -675,14 +678,36 @@ export interface Worker {
   qidNo?: string;
   joinDate?: string;
   facilityId?: string | Facility;
+  photo?: string;
+  cv?: string;
+  qidDoc?: string;
+  passportDoc?: string;
+  insuranceDoc?: string;
+  healthCardDoc?: string;
+  certificateDoc?: string;
+  certificateName?: string;
+  remarks?: string;
   documents?: {
     docType: 'Passport' | 'QID' | 'Contract' | 'Other';
     filePath: string;
     expiryDate?: string;
   }[];
   status: 'active' | 'on_leave' | 'resigned';
+  createdBy?: string | User;
+}
+
+export interface WorkerUtility {
+  _id?: string;
+  worker: string;
+  itemName: string;
+  quantity: number;
+  issueDate: string;
+  expiryDate?: string;
+  status: 'issued' | 'returned' | 'replaced' | 'expired';
   remarks?: string;
   createdBy?: string | User;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 

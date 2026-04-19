@@ -7,6 +7,11 @@ export const getWorkers = async (params?: any) => {
   return response.data;
 };
 
+export const getWorkersDropdown = async () => {
+  const response = await api.get<{ data: Worker[] }>('/workers/dropdown');
+  return response.data.data;
+};
+
 export const getWorker = async (id: string) => {
   const response = await api.get<ApiResponse<Worker>>(`/workers/${id}`);
   return response.data.data;

@@ -10,7 +10,7 @@ import {
 
 export interface Column<T> {
   accessor: keyof T;
-  header: string;
+  header: React.ReactNode;
   render?: (item: T) => React.ReactNode;
 }
 

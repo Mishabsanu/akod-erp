@@ -177,8 +177,8 @@ const SalesForm: React.FC<SalesFormProps> = ({
             {isEditMode ? 'Modify' : 'Register'} <span className="gradient-text">Enquiry</span>
           </h1>
           <p className="page-header-description">
-            {isEditMode 
-              ? `Refining details for Ticket #${formik.values.ticketNo}. Ensure follow-up strategies are updated to maintain lead momentum.` 
+            {isEditMode
+              ? `Refining details for Ticket #${formik.values.ticketNo}. Ensure follow-up strategies are updated to maintain lead momentum.`
               : 'Capture a new commercial opportunity. Define client needs, communication strategy, and initial contact parameters.'}
           </p>
         </div>

@@ -170,7 +170,7 @@ function FinanceDashboard() {
                     <div className="w-2 h-2 rounded-full" style={{ backgroundColor: chartColors[idx % chartColors.length] }} />
                     <span className="font-bold text-gray-700 text-sm whitespace-nowrap overflow-hidden text-ellipsis max-w-[150px]">{item.name}</span>
                   </div>
-                  <span className="font-black text-gray-900 text-sm">QAR {item.value?.toLocaleString()}</span>
+                  <span className="font-black text-gray-900 text-sm">{item.value?.toLocaleString()}</span>
                 </div>
               ))}
             </div>

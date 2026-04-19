@@ -63,20 +63,29 @@ const FacilitiesPage: React.FC = () => {
   const columns: Column<Facility>[] = useMemo(() => [
     {
       accessor: 'name',
-      header: 'Facility Name',
+      header: 'Infrastructure Asset',
       render: (f) => (
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-slate-100 rounded-lg">
-            {f.type === 'Office' ? <Briefcase size={16} className="text-blue-600" /> : <Home size={16} className="text-orange-600" />}
+        <div className="flex items-center gap-4 py-2">
+          <div className={`w-12 h-12 rounded-[1.25rem] flex items-center justify-center border transition-all hover:scale-110 shadow-sm ${f.type === 'Office' ? 'bg-[#0f766e]/5 border-[#0f766e]/20 text-[#0f766e]' : 'bg-[#d97706]/5 border-[#d97706]/20 text-[#d97706]'}`}>
+            {f.type === 'Office' ? <Briefcase size={22} strokeWidth={2.5} /> : <Home size={22} strokeWidth={2.5} />}
           </div>
-          <span className="font-bold text-gray-800">{f.name}</span>
+          <div>
+            <div className="font-black text-[#0f172a] text-[15px] tracking-tight leading-none mb-1.5">{f.name}</div>
+            <div className="text-[9px] font-black text-gray-400 uppercase tracking-[0.3em] flex items-center gap-2 opacity-70">
+              <span className={f.type === 'Office' ? 'text-[#0f766e]' : 'text-[#d97706]'}>{f.type} NODE</span>
+            </div>
+          </div>
         </div>
       )
     },
     { 
       accessor: 'type', 
-      header: 'Type',
-      render: (f) => <span className="text-[10px] font-black uppercase tracking-widest bg-gray-100 px-2 py-1 rounded">{f.type}</span>
+      header: 'Logistics Type',
+      render: (f) => (
+        <span className={`px-3 py-1 text-[9px] font-black uppercase tracking-[0.2em] rounded-lg border ${f.type === 'Office' ? 'bg-[#0f766e]/5 text-[#0f766e] border-[#0f766e]/10' : 'bg-[#d97706]/5 text-[#d97706] border-[#d97706]/10'}`}>
+           {f.type} UNIT
+        </span>
+      )
     },
     { 
       accessor: 'location', 
@@ -93,23 +102,32 @@ const FacilitiesPage: React.FC = () => {
       accessor: 'status',
       header: 'Status',
       render: (f) => (
-        <span className={`px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-full ${f.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
-          {f.status}
-        </span>
+        <div className="flex items-center gap-2">
+          <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${f.status === 'active' ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+          <span className={`px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-full ${f.status === 'active' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-rose-50 text-rose-700 border border-rose-100'}`}>
+            {f.status}
+          </span>
+        </div>
       )
     },
     {
       header: 'Actions',
       accessor: '_id' as any,
       render: (f) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 justify-end">
           {can('facility', 'update') && (
-            <button onClick={() => router.push(`/facilities/edit/${f._id}`)} className="p-2 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-blue-600 transition-colors">
+            <button
+               onClick={() => router.push(`/facilities/edit/${f._id}`)}
+               className="w-10 h-10 flex items-center justify-center bg-white text-slate-400 hover:text-[#d97706] hover:bg-[#d97706]/5 rounded-xl border border-slate-100 transition-all active:scale-95 shadow-sm"
+            >
               <Edit2 size={16} />
             </button>
           )}
           {can('facility', 'delete') && (
-            <button onClick={() => handleDelete(f._id!)} className="p-2 hover:bg-red-50 rounded-lg text-red-400 hover:text-red-600 transition-colors">
+            <button
+               onClick={() => handleDelete(f._id!)}
+               className="w-10 h-10 flex items-center justify-center bg-white text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl border border-slate-100 transition-all active:scale-95 shadow-sm"
+            >
               <Trash2 size={16} />
             </button>
           )}
@@ -132,7 +150,7 @@ const FacilitiesPage: React.FC = () => {
         }
       />
 
-      <div className="mt-8">
+      <div className="mt-12 bg-white/30 backdrop-blur-sm">
         {loading ? (
           <TableSkeleton />
         ) : (

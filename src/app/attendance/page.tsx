@@ -18,44 +18,46 @@ function AttendancePage() {
     const canViewAll = can('attendance', 'view');
 
     return (
-        <div className="min-h-screen w-full p-6 md:p-10 bg-[#f8f9fc]">
-            <ListPageHeader
-                eyebrow="Attendance Control"
-                title={view === 'my' ? 'My' : 'Team'}
-                highlight={view === 'my' ? 'Attendance' : 'Report'}
-                description={view === 'my' ? 'Manage your daily logs and requests.' : 'Overview of staff presence and activity.'}
-                actions={canViewAll && (
-                    <>
-                        <button
-                            onClick={() => setView('my')}
-                            className={`page-header-button ${view === 'my' ? '' : 'secondary'}`}
-                        >
-                            <UserCheck className="w-4 h-4" />
-                            My Space
-                        </button>
-                        <button
-                            onClick={() => setView('admin')}
-                            className={`page-header-button ${view === 'admin' ? '' : 'secondary'}`}
-                        >
-                            <LayoutGrid className="w-4 h-4" />
-                            Team Report
-                        </button>
-                    </>
-                )}
-            />
+        <div className="min-h-screen w-full py-8 px-4 md:px-10 bg-[#f8fafc]">
+            <div className="max-w-[1600px] mx-auto space-y-8">
+                <ListPageHeader
+                    eyebrow="Presence & Productivity"
+                    title={view === 'my' ? 'Personal' : 'Operational'}
+                    highlight={view === 'my' ? 'Terminal' : 'Intelligence'}
+                    description={view === 'my' ? 'Biometric synchronization and personal uptime analytics.' : 'Real-time workforce distribution and activity monitoring.'}
+                    actions={canViewAll && (
+                        <div className="flex bg-gray-100 p-1.5 rounded-2xl border border-gray-100 shadow-sm">
+                            <button
+                                onClick={() => setView('my')}
+                                className={`flex items-center gap-3 px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${view === 'my' ? 'bg-white text-[#0f766e] shadow-lg shadow-teal-900/5' : 'text-gray-400 hover:text-gray-600'}`}
+                            >
+                                <UserCheck className="w-4 h-4" />
+                                Personal Hub
+                            </button>
+                            <button
+                                onClick={() => setView('admin')}
+                                className={`flex items-center gap-3 px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${view === 'admin' ? 'bg-white text-[#0f766e] shadow-lg shadow-teal-900/5' : 'text-gray-400 hover:text-gray-600'}`}
+                            >
+                                <LayoutGrid className="w-4 h-4" />
+                                Team Analytics
+                            </button>
+                        </div>
+                    )}
+                />
 
-            <div className="relative">
-                {view === 'my' ? (
-                    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        {/* Stats/Timings Section */}
-                        <AttendanceStats />
+                <div className="relative">
+                    {view === 'my' ? (
+                        <div className="space-y-10 animate-in fade-in slide-in-from-bottom-6 duration-700">
+                            {/* Stats/Timings Section */}
+                            <AttendanceStats />
 
-                        {/* Logs Section */}
-                        <AttendanceLogSection />
-                    </div>
-                ) : (
-                    <AdminAttendanceDashboard />
-                )}
+                            {/* Logs Section */}
+                            <AttendanceLogSection />
+                        </div>
+                    ) : (
+                        <AdminAttendanceDashboard />
+                    )}
+                </div>
             </div>
         </div>
     );

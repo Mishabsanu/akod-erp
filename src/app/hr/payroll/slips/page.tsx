@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useMemo, useCallback } from 'react';
-import { Plus, Eye, Trash2, Filter, MoreVertical } from 'lucide-react';
+import { Plus, Eye, Trash2, Filter, ReceiptText } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Column, DataTable } from '@/components/shared/DataTable';
 import ListPageHeader from '@/components/shared/ListPageHeader';
@@ -18,7 +18,6 @@ function SalarySlipsPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [showFilters, setShowFilters] = useState(false);
-  const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [selectedSlip, setSelectedSlip] = useState<any>(null);
   const [isViewOpen, setIsViewOpen] = useState(false);
   
@@ -45,10 +44,6 @@ function SalarySlipsPage() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
-
-  const toggleActionMenu = (id: string) => {
-    setOpenMenu(openMenu === id ? null : id);
-  };
 
   const filteredSlips = useMemo(() => {
     return slips.filter((slip) =>
@@ -84,7 +79,7 @@ function SalarySlipsPage() {
       header: 'Employee',
       render: (slip) => (
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-sky-50 flex items-center justify-center text-[#0f766e] font-bold text-sm">
+          <div className="w-10 h-10 rounded-full bg-sky-50 flex items-center justify-center text-[#be123c] font-bold text-sm">
             {slip.user?.name?.charAt(0) || '?'}
           </div>
           <div>
@@ -114,7 +109,7 @@ function SalarySlipsPage() {
       accessor: 'netSalary',
       header: 'Net Payable',
       render: (slip) => (
-        <span className="font-bold text-teal-700">₹{slip.netSalary.toLocaleString()}</span>
+        <span className="font-bold text-[#be123c]">₹{slip.netSalary.toLocaleString()}</span>
       ),
     },
     {
@@ -159,81 +154,83 @@ function SalarySlipsPage() {
         </div>
       ),
     },
-  ], [slips, openMenu, can, handleDelete, setSelectedSlip, setIsViewOpen]);
+  ], [slips, can, handleDelete, setSelectedSlip, setIsViewOpen]);
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white p-6 md:p-10">
       <ListPageHeader
-        eyebrow="Payroll Registry"
+        eyebrow="Finance Node"
         title="Salary"
         highlight="Slips"
-        description="Generate, review, and maintain monthly payroll slip records."
+        description="Authorized payroll registry and monthly disbursement records for institutional audit."
         actions={
           <>
-          {can('payroll', 'create') && (
+            {can('payroll', 'create') && (
+              <button
+                onClick={() => router.push('/hr/payroll/slips/generate')}
+                className="page-header-button"
+              >
+                <Plus className="w-4 h-4" />
+                Generate Slips
+              </button>
+            )}
             <button
-              onClick={() => router.push('/hr/payroll/slips/generate')}
-              className="page-header-button"
+              onClick={() => setShowFilters(!showFilters)}
+              className="page-header-button secondary"
             >
-              <Plus className="w-4 h-4" />
-              Add
+              <Filter className="w-4 h-4" />
+              {showFilters ? 'Hide Filters' : 'Show Filters'}
             </button>
-          )}
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className="page-header-button secondary"
-          >
-            <Filter className="w-4 h-4" />
-            {showFilters ? 'Hide Filters' : 'Show Filters'}
-          </button>
           </>
         }
       />
 
       {/* Filters Area */}
       {showFilters && (
-        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm mb-6 animate-in slide-in-from-top-2 duration-300">
-           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                 <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Work Month</label>
-                 <select
-                    value={monthFilter}
-                    onChange={(e) => setMonthFilter(Number(e.target.value))}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl text-sm font-semibold text-gray-700 outline-none focus:border-teal-500/20 transition-all"
-                 >
-                    {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
-                        <option key={m} value={m}>
-                            {new Date(0, m - 1).toLocaleString('default', { month: 'long' })}
-                        </option>
-                    ))}
-                 </select>
-              </div>
-              <div className="space-y-2">
-                 <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Year</label>
-                 <select
-                    value={yearFilter}
-                    onChange={(e) => setYearFilter(Number(e.target.value))}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl text-sm font-semibold text-gray-700 outline-none focus:border-teal-500/20 transition-all"
-                 >
-                    {[2024, 2025, 2026].map(y => (
-                        <option key={y} value={y}>{y}</option>
-                    ))}
-                 </select>
-              </div>
-           </div>
+        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-xl mb-8 animate-in slide-in-from-top-2 duration-300">
+          <div className="flex items-center gap-2 mb-6">
+            <div className="w-1 h-3 bg-[#be123c] rounded-full" />
+            <h3 className="text-[10px] font-black text-[#0f172a] uppercase tracking-[0.3em]">Chronological Filtering</h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="label-premium">Institutional Month</label>
+              <select
+                value={monthFilter}
+                onChange={(e) => setMonthFilter(Number(e.target.value))}
+                className="input-premium"
+              >
+                {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+                  <option key={m} value={m}>
+                    {new Date(0, m - 1).toLocaleString('default', { month: 'long' })}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label className="label-premium">Fiscal Year</label>
+              <select
+                value={yearFilter}
+                onChange={(e) => setYearFilter(Number(e.target.value))}
+                className="input-premium"
+              >
+                {[2024, 2025, 2026].map(y => (
+                  <option key={y} value={y}>{y}</option>
+                ))}
+              </select>
+            </div>
+          </div>
         </div>
       )}
 
-      {/* Search Bar */}
-      <div className="mb-6">
+      <div className="mb-6 mt-10">
         <SearchInput
-            initialSearchTerm={searchTerm}
-            onSearchChange={setSearchTerm}
-            placeholder="Search slips by employee name..."
+          initialSearchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          placeholder="Search slips by employee name or details..."
         />
       </div>
 
-      {/* Data Table */}
       {loading ? (
         <TableSkeleton />
       ) : (

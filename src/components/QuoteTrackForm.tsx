@@ -119,7 +119,7 @@ const QuoteTrackForm: React.FC<any> = ({
     },
     validationSchema,
     onSubmit: (values) => {
-      onSubmit(values);
+      onSubmit({ ...values, ...totals });
     },
     enableReinitialize: true,
   });

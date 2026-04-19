@@ -75,11 +75,11 @@ const LoginPage = () => {
           className="object-cover transition-transform duration-[10000ms] hover:scale-110"
         />
         <div className="absolute inset-0 bg-gradient-to-tr from-[#0f172a]/95 via-[#0f172a]/70 to-[#0f172a]/40" />
-        
+
         <div className="absolute inset-0 flex flex-col justify-between p-16">
           <div className="flex items-center gap-4 animate-in fade-in slide-in-from-top-10 duration-1000">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-2xl">
-              <Image src="/logocrm.png" alt="Logo" width={32} height={32} />
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl  shadow-2xl p-2 overflow-hidden">
+              <Image src="/logo.png" alt="Logo" width={80} height={50} className="object-contain" />
             </div>
             <div className="text-white">
               <h1 className="text-2xl font-black tracking-tighter uppercase italic">Akod</h1>
@@ -92,36 +92,36 @@ const LoginPage = () => {
               Elevate Your <span className="text-teal-400">Business</span> Horizon.
             </h2>
             <p className="text-lg font-medium leading-relaxed text-gray-200 opacity-90">
-              Experience the next generation of enterprise resource planning. 
+              Experience the next generation of enterprise resource planning.
               Seamless accounting, logistics, and CRM all in one unified, high-performance workspace.
             </p>
-            
+
             <div className="flex gap-10 pt-4">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 backdrop-blur-md">
-                   <ShieldCheck className="text-teal-400" size={20} />
+                  <ShieldCheck className="text-teal-400" size={20} />
                 </div>
                 <div className="text-white">
-                   <p className="text-sm font-bold">Secure</p>
-                   <p className="text-[10px] opacity-60">Bank-grade encryption</p>
+                  <p className="text-sm font-bold">Secure</p>
+                  <p className="text-[10px] opacity-60">Bank-grade encryption</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 backdrop-blur-md">
-                   <Zap className="text-teal-400" size={20} />
+                  <Zap className="text-teal-400" size={20} />
                 </div>
                 <div className="text-white">
-                   <p className="text-sm font-bold">Fast</p>
-                   <p className="text-[10px] opacity-60">Real-time processing</p>
+                  <p className="text-sm font-bold">Fast</p>
+                  <p className="text-[10px] opacity-60">Real-time processing</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 backdrop-blur-md">
-                   <Globe className="text-teal-400" size={20} />
+                  <Globe className="text-teal-400" size={20} />
                 </div>
                 <div className="text-white">
-                   <p className="text-sm font-bold">Global</p>
-                   <p className="text-[10px] opacity-60">Multi-region support</p>
+                  <p className="text-sm font-bold">Global</p>
+                  <p className="text-[10px] opacity-60">Multi-region support</p>
                 </div>
               </div>
             </div>
@@ -138,13 +138,20 @@ const LoginPage = () => {
       {/* RIGHT PARTITION - LOGIN FORM */}
       <div className="flex h-full w-full flex-col items-center justify-center bg-[#f8fafc] px-6 md:w-[40%] lg:px-20">
         <div className="w-full max-w-[420px] space-y-12 animate-in fade-in zoom-in-95 duration-700">
-          <div className="space-y-4">
-            <h3 className="text-4xl font-black tracking-tight text-gray-900">
-              Welcome <span className="text-[#0f766e]">Back</span>
-            </h3>
-            <p className="text-sm font-semibold text-gray-500">
-              Please enter your credentials to access the ERP dashboard.
-            </p>
+          <div className="space-y-6">
+            <div className="flex justify-start">
+              <div className="rounded-2xl shadow-sm border border-gray-100 p-2 flex items-center justify-center">
+                <Image src="/logo.png" alt="Official Logo" width={80} height={64} className="object-contain" />
+              </div>
+            </div>
+            <div className="space-y-4">
+              <h3 className="text-4xl font-black tracking-tight text-gray-900">
+                Welcome <span className="text-[#0f766e]">Back</span>
+              </h3>
+              <p className="text-sm font-semibold text-gray-500">
+                Please enter your credentials to access the ERP dashboard.
+              </p>
+            </div>
           </div>
 
           <form onSubmit={formik.handleSubmit} className="space-y-8">
@@ -222,11 +229,11 @@ const LoginPage = () => {
 
           <div className="flex flex-col items-center gap-8 pt-6">
             <div className="flex items-center gap-4 text-xs font-bold text-gray-400">
-               <span className="h-[1px] w-12 bg-gray-200" />
-               <span>Official Group Access Only</span>
-               <span className="h-[1px] w-12 bg-gray-200" />
+              <span className="h-[1px] w-12 bg-gray-200" />
+              <span>Official Group Access Only</span>
+              <span className="h-[1px] w-12 bg-gray-200" />
             </div>
-            
+
             <p className="text-[10px] font-bold uppercase tracking-widest text-gray-300">
               © {currentYear} AKOD GROUP PVT LTD. All Rights Reserved.
             </p>

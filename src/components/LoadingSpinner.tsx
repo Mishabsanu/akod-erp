@@ -3,14 +3,27 @@ import React from 'react';
 
 const LoadingSpinner: React.FC = () => {
   return (
-    <div className="loading-bar-wrapper">
-      <Image
-        src="/loading.jpeg"
-        alt="Loading..."
-        fill
-        className="object-contain rounded-full shadow-lg border-2 border-[#14b8a6]/20"
-        priority
-      />
+    <div className="loading-overlay">
+      <div className="flex flex-col items-center gap-6 animate-pulse-subtle">
+        <div className="relative w-24 h-24">
+          <div className="absolute inset-0 rounded-full border-4 border-teal-500/20 animate-ping" />
+          <div className="absolute inset-2 rounded-full border-4 border-t-teal-500 border-r-transparent border-b-teal-500 border-l-transparent animate-spin duration-1000" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Image
+              src="/logo.png"
+              alt="Loading..."
+              width={48}
+              height={48}
+              className="object-contain"
+              priority
+            />
+          </div>
+        </div>
+        <div className="flex flex-col items-center gap-1">
+          <span className="text-white text-lg font-black uppercase tracking-[0.3em] ml-[0.3em]">Loading</span>
+          <span className="text-teal-400 text-[10px] font-black uppercase tracking-widest opacity-70">Synchronizing Data</span>
+        </div>
+      </div>
     </div>
   );
 };

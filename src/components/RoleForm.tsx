@@ -22,7 +22,8 @@ import {
   Wallet,
   Building2,
   HardHat,
-  ClipboardCheck
+  ClipboardCheck,
+  Package
 } from 'lucide-react';
 import React from 'react';
 import * as Yup from 'yup';
@@ -62,6 +63,7 @@ const emptyPermissions = {
   fleet: { view: false, create: false, update: false, delete: false },
   facility: { view: false, create: false, update: false, delete: false },
   worker: { view: false, create: false, update: false, delete: false },
+  utility: { view: false, create: false, update: false, delete: false },
 };
 
 const MODULE_CONFIG: Record<string, { label: string; icon: any; category: string }> = {
@@ -97,6 +99,7 @@ const MODULE_CONFIG: Record<string, { label: string; icon: any; category: string
   role: { label: 'Roles & Permissions', icon: ShieldCheck, category: 'Administration' },
   customer: { label: 'Customers Master', icon: Users, category: 'Administration' },
   vendor: { label: 'Vendors Master', icon: Truck, category: 'Administration' },
+  utility: { label: 'Utility & Safety Master', icon: Package, category: 'Administration' },
 };
 
 interface RoleFormProps {

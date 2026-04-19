@@ -19,6 +19,9 @@ export const getQuoteTracks = async (
       params,
     });
 
+    console.log('--- DEBUG: quote-tracks data ---', data);
+
+
     return {
       quoteTracks: data?.data?.content || [],
       totalPages: data?.data?.totalPages || 1,

@@ -13,6 +13,7 @@ import {
   CreditCard,
   Database,
   FileText,
+  Calendar,
   IndianRupee,
   Layers,
   LayoutDashboard,
@@ -67,11 +68,10 @@ export const Sidebar = () => {
       href: '/',
     },
 
-    // CRM Module
+    // Sales & CRM Module
     (can('sales', 'view') || can('quote_track', 'view')) && {
-      name: 'CRM',
+      name: 'Sales & CRM',
       icon: Users2,
-      noCollapse: true,
       subItems: [
         can('sales', 'view') && {
           name: 'Leads',
@@ -86,25 +86,10 @@ export const Sidebar = () => {
       ].filter(Boolean) as SubMenuItem[],
     },
 
-    // Finance Module
-    (can('accounts', 'view') || can('ledger', 'view') || can('expense', 'view') || can('invoice', 'view') || can('payment', 'view')) && {
-      name: 'Finance',
-      icon: IndianRupee,
-      noCollapse: true,
-      subItems: [
-        can('accounts', 'view') && { name: 'Accounts', icon: BookOpen, href: '/finance/accounts' },
-        can('ledger', 'view') && { name: 'Ledger', icon: Database, href: '/finance/ledger' },
-        can('expense', 'view') && { name: 'Expenses', icon: Wallet, href: '/finance/expenses' },
-        can('invoice', 'view') && { name: 'Invoices', icon: FileText, href: '/finance/invoices' },
-        can('payment', 'view') && { name: 'Payment', icon: CreditCard, href: '/finance/payment' },
-      ].filter(Boolean) as SubMenuItem[],
-    },
-
-    // Inventory Module
+    // Inventory & Logistics Module
     (can('inventory', 'view') || can('delivery_ticket', 'view') || can('return_ticket', 'view') || can('product', 'view') || can('running_order', 'view')) && {
-      name: 'Inventory',
+      name: 'Inventory & Logistics',
       icon: Package,
-      noCollapse: true,
       subItems: [
         can('product', 'view') && {
           name: 'Products Catalog',
@@ -134,23 +119,58 @@ export const Sidebar = () => {
       ].filter(Boolean) as SubMenuItem[],
     },
 
-    // HR & Payroll Module
-    (can('user', 'view') || can('attendance', 'view')) && {
-      name: 'HR & Payroll',
-      icon: Contact,
+    // Finance & Accounts Module
+    (can('accounts', 'view') || can('ledger', 'view') || can('expense', 'view')  || can('payment', 'view')) && {
+      name: 'Finance & Accounts',
+      icon: IndianRupee,
+      subItems: [
+        can('accounts', 'view') && { name: 'Accounts', icon: BookOpen, href: '/finance/accounts' },
+        can('ledger', 'view') && { name: 'Ledger', icon: Database, href: '/finance/ledger' },
+        can('expense', 'view') && { name: 'Expenses', icon: Wallet, href: '/finance/expenses' },
+        can('payment', 'view') && { name: 'Payment', icon: CreditCard, href: '/finance/payment' },
+      ].filter(Boolean) as SubMenuItem[],
+    },
+
+    // Production & Factory Module
+    can('production', 'view') && {
+      name: 'Production & Factory',
+      icon: Building2,
+      subItems: [
+        {
+          name: 'Factory Entry',
+          icon: Building2,
+          href: '/production/factory',
+        },
+      ],
+    },
+
+    // HR & Workforce Module
+    (can('user', 'view') || can('worker', 'view') || can('attendance', 'view') || can('leave', 'view') || can('payroll', 'view')) && {
+      name: 'HR & Workforce',
+      icon: Users,
       subItems: [
         can('user', 'view') && {
-          name: 'Employee',
-          icon: Users,
+          name: 'Employee Management',
+          icon: Contact,
           href: '/users',
         },
+        can('worker', 'view') && {
+          name: 'Labor Management',
+          icon: HardHat,
+          href: '/workers',
+        },
         can('attendance', 'view') && {
-          name: 'Attendance',
+          name: 'Attendance Hub',
           icon: Clock,
           href: '/attendance',
         },
+        can('leave', 'view') && {
+          name: 'Labor Leaves',
+          icon: Calendar,
+          href: '/workers/leaves',
+        },
         can('payroll', 'view') && {
-          name: 'Payroll',
+          name: 'Payroll & Salary',
           icon: Banknote,
           href: '/hr/payroll',
           subItems: [
@@ -161,60 +181,40 @@ export const Sidebar = () => {
       ].filter(Boolean) as SubMenuItem[],
     },
 
-    // Admin / Master
-    (can('role', 'view') || can('customer', 'view') || can('vendor', 'view') || can('user', 'view')) && {
-      name: 'Administration',
-      icon: ShieldCheck,
-      subItems: [
-        can('role', 'view') && { name: 'Roles & Permissions', href: '/roles' },
-        can('customer', 'view') && { name: 'Customers Master', href: '/master/customer' },
-        can('vendor', 'view') && { name: 'Vendors Master', href: '/master/vendor' },
-      ].filter(Boolean) as SubMenuItem[],
-    },
-
-    // Fleet & Mechanical Module
+    // Operations & Fleet Module
     can('fleet', 'view') && {
-      name: 'Fleet & Workshop',
+      name: 'Operations & Fleet',
       icon: Truck,
       subItems: [
-        can('fleet', 'view') && {
+        {
           name: 'Vehicle Registry',
           icon: Truck,
           href: '/fleet',
         },
-        can('fleet', 'view') && {
+        {
           name: 'Mechanical Checkup',
           icon: Wrench,
           href: '/fleet/mechanical',
         },
-        can('fleet', 'view') && {
+        {
           name: 'Workshop Reports',
           icon: FileText,
           href: '/fleet/reports',
         },
       ].filter(Boolean) as SubMenuItem[],
     },
- 
-    // Facility & Workforce Module
-    (can('facility', 'view') || can('worker', 'view')) && {
-      name: 'Facility & Workforce',
-      icon: Building2,
+
+    // Administration Module
+    (can('role', 'view') || can('customer', 'view') || can('vendor', 'view') || can('facility', 'view')) && {
+      name: 'Administration',
+      icon: ShieldCheck,
       subItems: [
-        can('facility', 'view') && {
-          name: 'Offices & Camps',
-          icon: Building2,
-          href: '/facilities',
-        },
-        can('facility', 'view') && {
-          name: 'Facility Audits',
-          icon: ClipboardCheck,
-          href: '/facilities/checklist',
-        },
-        can('worker', 'view') && {
-          name: 'Labor Management',
-          icon: HardHat,
-          href: '/workers',
-        },
+        can('role', 'view') && { name: 'Roles & Permissions', icon: ShieldCheck, href: '/roles' },
+        can('customer', 'view') && { name: 'Customers Master', icon: Users2, href: '/master/customer' },
+        can('vendor', 'view') && { name: 'Vendors Master', icon: Building2, href: '/master/vendor' },
+        can('utility', 'view') && { name: 'Utility & Safety Master', icon: Package, href: '/master/utilities' },
+        can('facility', 'view') && { name: 'Offices & Camps', icon: Building2, href: '/facilities' },
+        can('facility', 'view') && { name: 'Facility Audits', icon: ClipboardCheck, href: '/facilities/checklist' },
       ].filter(Boolean) as SubMenuItem[],
     },
 
@@ -223,7 +223,6 @@ export const Sidebar = () => {
   useEffect(() => {
     const findAndOpenSubMenus = (items: (MenuItem | SubMenuItem)[], currentPath: string): boolean => {
       for (const item of items) {
-        // Precise matching for the auto-open check
         const itemHref = item.href;
         const isMatch = itemHref && (itemHref === '/' ? currentPath === '/' : (currentPath === itemHref || currentPath.startsWith(itemHref + '/')));
 
@@ -247,8 +246,6 @@ export const Sidebar = () => {
   };
 
   const renderSubItem = (sub: SubMenuItem | MenuItem, siblings: (SubMenuItem | MenuItem)[] = []) => {
-    // Precise path matching: exact match OR sub-route match (e.g. /users/add)
-    // We only match a sub-route if it doesn't match a more specific sibling
     const isRouteActive = pathname === sub.href || (
       !!sub.href && 
       pathname.startsWith(sub.href + '/') && 
@@ -256,35 +253,41 @@ export const Sidebar = () => {
     );
     const hasChildren = sub.subItems && sub.subItems.length > 0;
     const isExpanded = openSubMenus.includes(sub.name);
+    const SubIcon = sub.icon || (hasChildren ? ChevronDown : Box);
 
     return (
       <div key={sub.name} className="flex flex-col">
         {hasChildren ? (
-          <button
-            onClick={() => toggleSubMenu(sub.name)}
-            className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-300
-              ${isExpanded ? 'text-white' : 'text-gray-300 hover:text-white hover:bg-white/5'}`}
-          >
-            <div className="flex items-center gap-2">
-              <span className={`w-1 h-1 rounded-full ${isRouteActive ? 'bg-[#14b8a6]' : 'bg-gray-500'}`} />
-              {sub.name}
-            </div>
-            <ChevronDown className={`w-3 h-3 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
-          </button>
+          <div className="flex flex-col">
+            <button
+              onClick={() => toggleSubMenu(sub.name)}
+              className={`flex items-center justify-between px-4 py-2.5 rounded-xl text-[13px] font-semibold transition-all duration-300
+                ${isExpanded ? 'text-white' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+            >
+              <div className="flex items-center gap-3">
+                <div className={`p-1.5 rounded-lg transition-all duration-300 ${isExpanded ? 'bg-[#14b8a6]/20 text-[#14b8a6]' : 'text-gray-500'}`}>
+                  <SubIcon size={16} />
+                </div>
+                {sub.name}
+              </div>
+              <ChevronRight className={`w-3.5 h-3.5 transition-transform duration-300 ${isExpanded ? 'rotate-90' : ''}`} />
+            </button>
+            {isExpanded && (
+              <div className="ml-6 pl-4 border-l border-white/10 mt-1 space-y-1">
+                {sub.subItems!.map(child => renderSubItem(child, sub.subItems))}
+              </div>
+            )}
+          </div>
         ) : (
           <Link
             href={sub.href || '#'}
-            className={`flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-300
-              ${isRouteActive ? 'bg-[#0f766e] text-white shadow-sm' : 'text-gray-300 hover:text-white hover:bg-white/5'}`}
+            className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-[13px] font-semibold transition-all duration-300
+              ${isRouteActive ? 'bg-[#14b8a6]/20 text-[#14b8a6] border border-[#14b8a6]/30 shadow-sm' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
           >
-            <span className={`w-1 h-1 rounded-full ${isRouteActive ? 'bg-[#14b8a6]' : 'bg-gray-500'}`} />
+            <SubIcon size={16} className={isRouteActive ? 'text-[#14b8a6]' : 'text-gray-500'} />
             <span>{sub.name}</span>
+            {isRouteActive && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-[#14b8a6] shadow-[0_0_8px_rgba(20,184,166,0.8)]" />}
           </Link>
-        )}
-        {hasChildren && isExpanded && (
-          <div className="ml-4 pl-2 border-l border-white/10 mt-1 space-y-1">
-            {sub.subItems!.map(child => renderSubItem(child, sub.subItems))}
-          </div>
         )}
       </div>
     );
@@ -297,14 +300,14 @@ export const Sidebar = () => {
     >
       {/* BRANDING SECTION */}
       <Link href="/" className="block">
-        <div className={`relative px-6 flex items-center justify-center border-b border-white/10 bg-white/5 backdrop-blur-md h-24 transition-all duration-500`}>
+        <div className={`relative px-6 flex items-center justify-center border-b border-white/10 bg-gradient-to-br from-white/5 to-transparent backdrop-blur-md h-24 transition-all duration-500`}>
           <div className="transition-all duration-500 transform opacity-100 scale-100 w-full flex justify-center">
-            <div className="w-full max-w-[180px] flex items-center justify-center overflow-hidden">
+            <div className="w-full max-w-[160px] flex items-center justify-center overflow-hidden">
               <Image 
                 src="/logo.png" 
                 alt="Logo" 
-                width={160} 
-                height={60} 
+                width={150} 
+                height={50} 
                 className="object-contain" 
                 priority 
               />
@@ -314,9 +317,9 @@ export const Sidebar = () => {
       </Link>
 
       <nav className="flex-1 overflow-y-auto p-4 no-scrollbar">
-        <div className="space-y-6">
+        <div className="space-y-4">
           {menuItems.map((item) => {
-            const ItemIcon = item.icon;
+            const ItemIcon = item.icon || Box;
             const hasSubItems = item.subItems && item.subItems.length > 0;
             const isExpanded = openSubMenus.includes(item.name);
             const isChildActive = item.subItems?.some(sub =>
@@ -325,81 +328,65 @@ export const Sidebar = () => {
               sub.subItems?.some(child => pathname === child.href || pathname.startsWith(child.href + '/'))
             );
             const isDirectActive = item.href === '/' ? pathname === '/' : (item.href && (pathname === item.href || pathname.startsWith(item.href + '/')));
-
-            // isRouteActive determines if the module should have the active background highlight
             const isRouteActive = isChildActive || isDirectActive;
-
-            if (item.noCollapse && hasSubItems) {
-              return (
-                <div key={item.name} className="flex flex-col gap-1">
-                  {isOpen && <p className="px-3 text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 mt-2">{item.name}</p>}
-                  {item.subItems!.map(sub => {
-                    const SubIcon = sub.icon || Box;
-                    const isSubRouteActive = pathname === sub.href || (pathname.startsWith(sub.href + '/') && !item.subItems!.some(other => other.href !== sub.href && other.href && pathname.startsWith(other.href)));
-                    return (
-                      <Link
-                        key={sub.name}
-                        href={sub.href || '#'}
-                        className={`group flex items-center gap-4 px-4 py-3 rounded-2xl transition-all duration-300
-                          ${isSubRouteActive && isOpen ? 'bg-[#0f766e] text-white shadow-xl' : 'hover:bg-white/10 text-gray-200'}`}
-                      >
-                        <div className={`p-2 rounded-xl transition-all duration-300 ${isSubRouteActive ? 'bg-[#14b8a6] text-white shadow-md' : 'bg-white/10 text-gray-300 group-hover:bg-white/20'}`}>
-                          <SubIcon size={18} />
-                        </div>
-                        {isOpen && <span className="text-[14px] font-bold">{sub.name}</span>}
-                      </Link>
-                    )
-                  })}
-                </div>
-              );
-            }
 
             if (hasSubItems) {
               return (
                 <div key={item.name} className="flex flex-col gap-1">
-                  {isOpen && <p className="px-3 text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">{item.name}</p>}
                   <button
                     onClick={() => toggleSubMenu(item.name)}
-                    className={`group w-full flex items-center justify-between px-4 py-3 rounded-2xl transition-all duration-300
-                      ${isRouteActive && isOpen ? 'bg-[#0f766e] text-white shadow-lg' : 'hover:bg-white/10 text-gray-100'}`}
+                    className={`group w-full flex items-center justify-between px-4 py-3.5 rounded-2xl transition-all duration-300
+                      ${isExpanded ? 'bg-white/5 shadow-inner' : 'hover:bg-white/5'}`}
                   >
                     <div className="flex items-center gap-4">
-                      <div className={`p-2 rounded-xl transition-all duration-300 ${isRouteActive ? 'bg-[#14b8a6] text-white shadow-md' : 'bg-white/10 text-gray-200 group-hover:bg-white/20'}`}>
-                        {ItemIcon && <ItemIcon size={18} />}
+                      <div className={`p-2.5 rounded-xl transition-all duration-300 
+                        ${isRouteActive 
+                          ? 'bg-[#14b8a6] text-white shadow-[0_0_15px_rgba(20,184,166,0.3)]' 
+                          : 'bg-white/5 text-gray-400 group-hover:text-gray-200'}`}>
+                        <ItemIcon size={20} />
                       </div>
-                      {isOpen && <span className="text-[14px] font-bold">{item.name}</span>}
+                      <div className="flex flex-col items-start">
+                        <span className={`text-[14px] font-bold ${isRouteActive ? 'text-white' : 'text-gray-300'}`}>
+                          {item.name}
+                        </span>
+                        {isOpen && <span className="text-[10px] text-gray-500 font-medium uppercase tracking-tighter">Module</span>}
+                      </div>
                     </div>
-                    {isOpen && <ChevronRight className={`w-4 h-4 transition-transform duration-300 ${isExpanded ? 'rotate-90' : ''}`} />}
+                    {isOpen && <ChevronRight className={`w-4 h-4 transition-transform duration-300 ${isExpanded ? 'rotate-90 text-[#14b8a6]' : 'text-gray-600'}`} />}
                   </button>
                   {isExpanded && isOpen && (
-                    <div className="mt-2 ml-4 flex flex-col gap-1 border-l border-white/10 pl-2 animate-in fade-in slide-in-from-left-2 duration-300">
+                    <div className="mt-1 ml-4 flex flex-col gap-1 border-l border-[#14b8a6]/20 pl-4 animate-in fade-in slide-in-from-left-2 duration-300">
                       {item.subItems!.map(sub => renderSubItem(sub, item.subItems))}
                     </div>
                   )}
                 </div>
               );
             }
+
             return (
               <Link
                 key={item.name}
                 href={item.href || '#'}
-                className={`group flex items-center gap-4 px-4 py-3 rounded-2xl transition-all duration-300
-                  ${isRouteActive && isOpen ? 'bg-[#0f766e] text-white shadow-xl' : 'hover:bg-white/10 text-gray-200'}`}
+                className={`group flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all duration-300
+                  ${isDirectActive ? 'bg-[#14b8a6] text-white shadow-[0_0_20px_rgba(20,184,166,0.4)]' : 'hover:bg-white/5 text-gray-300'}`}
               >
-                <div className={`p-2 rounded-xl transition-all duration-300 ${isRouteActive ? 'bg-[#14b8a6] text-white shadow-md' : 'bg-white/10 text-gray-300 group-hover:bg-white/20'}`}>
-                  {ItemIcon && <ItemIcon size={18} />}
+                <div className={`p-2.5 rounded-xl transition-all duration-300 ${isDirectActive ? 'bg-white/20 text-white' : 'bg-white/10 text-gray-400 group-hover:bg-white/20'}`}>
+                  <ItemIcon size={20} />
                 </div>
-                {isOpen && <span className="text-[14px] font-bold">{item.name}</span>}
+                <div className="flex flex-col">
+                  <span className="text-[14px] font-bold">{item.name}</span>
+                  {isOpen && <span className={`text-[10px] font-medium uppercase tracking-tighter ${isDirectActive ? 'text-white/70' : 'text-gray-500'}`}>Quick Access</span>}
+                </div>
               </Link>
             );
           })}
         </div>
       </nav>
 
-      <div className="p-4 border-t border-white/10 bg-white/5 backdrop-blur-3xl">
-        <button onClick={logout} className="w-full flex items-center justify-center gap-3 py-3.5 bg-[#0f766e] hover:bg-[#134e4a] text-white font-black rounded-2xl shadow-xl transition-all uppercase tracking-widest text-xs">
-          <LogOut size={18} />
-          {isOpen && 'Sign Out'}
+      <div className="p-4 border-t border-white/10 bg-[#0f172a]/80 backdrop-blur-xl">
+        <button onClick={logout} className="w-full flex items-center justify-center gap-3 py-4 bg-gradient-to-r from-[#0f766e] to-[#0d9488] hover:from-[#0d9488] hover:to-[#0f766e] text-white font-black rounded-2xl shadow-xl transition-all duration-300 uppercase tracking-widest text-[11px] group">
+          <LogOut size={18} className="group-hover:-translate-x-1 transition-transform" />
+          {isOpen && 'Sign Out System'}
         </button>
       </div>
     </aside>

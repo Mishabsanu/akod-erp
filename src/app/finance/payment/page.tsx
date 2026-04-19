@@ -105,7 +105,7 @@ function PaymentsPage() {
         accessor: 'amount' as keyof Payment,
         render: (item: Payment) => (
           <span className={`text-sm font-bold ${item.type === 'Received' ? 'text-green-600' : 'text-teal-700'}`}>
-            {item.type === 'Received' ? '+' : '-'} QAR {item.amount?.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+            {item.type === 'Received' ? '+' : '-'} {item.amount?.toLocaleString(undefined, { minimumFractionDigits: 2 })}
           </span>
         )
       },

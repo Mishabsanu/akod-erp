@@ -124,7 +124,6 @@ const VendorPage: React.FC = () => {
 
   const columns: Column<Vendor>[] = useMemo(() => {
     const baseColumns: Column<Vendor>[] = [
-      { accessor: 'name', header: 'Vendor Name' },
       { accessor: 'company', header: 'Company' },
       { accessor: 'mobile', header: 'Mobile' },
       { accessor: 'contactPersonName', header: 'Contact Person Name' },
@@ -133,8 +132,8 @@ const VendorPage: React.FC = () => {
         accessor: 'createdBy' as any,
         header: 'Created By',
         render: (vendor: any) => {
-          const creator = vendor.createdBy;
-          const name = typeof creator === 'object' ? creator?.name : creator;
+          const creator = vendor.user || vendor.createdBy;
+          const name = typeof creator === 'object' ? creator?.name : (typeof vendor.createdBy === 'object' ? vendor.createdBy?.name : (vendor.createdBy || '--'));
           return (
             <span className="text-sm font-medium text-gray-600">
               {name || 'System'}

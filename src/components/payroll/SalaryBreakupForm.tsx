@@ -46,18 +46,29 @@ export const SalaryBreakupForm: React.FC<SalaryBreakupFormProps> = ({
   };
 
   return (
-    <div className="w-full min-h-[calc(100vh-4rem)] bg-white px-8 py-6 rounded-lg shadow-sm">
+    <div className="w-full min-h-[calc(100vh-4rem)] bg-white px-10 py-12 rounded-[3rem] border border-gray-100 shadow-2xl shadow-slate-200/50 relative overflow-hidden">
+      <div className="absolute top-0 right-0 w-96 h-96 bg-rose-50/30 rounded-full blur-3xl -mr-48 -mt-48 pointer-events-none" />
+      
       {/* Header */}
-      <div className="flex items-center justify-between mb-8 border-b border-gray-200 pb-4">
-        <div className="flex items-center gap-3">
-          <PieChart className="text-teal-700 w-6 h-6" />
-          <h2 className="text-2xl font-semibold text-gray-800">
-            Configure Salary: <span className="text-teal-700">{userName}</span>
-          </h2>
+      <div className="flex items-center justify-between mb-16 relative z-10">
+        <div className="flex items-center gap-6">
+          <div className="w-16 h-16 bg-[#be123c] rounded-[2rem] flex items-center justify-center text-white shadow-2xl shadow-rose-900/20 transition-transform hover:rotate-6">
+            <PieChart size={32} />
+          </div>
+          <div>
+            <div className="flex items-center gap-2 mb-1.5">
+               <div className="w-1 h-3 bg-[#be123c] rounded-full" />
+               <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Finance Node</p>
+            </div>
+            <h2 className="text-3xl font-black text-[#0f172a] tracking-tight uppercase">
+              Configure <span className="text-[#be123c]">Salary</span>
+            </h2>
+            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1 opacity-70">Employee: {userName}</p>
+          </div>
         </div>
         <button 
           onClick={() => router.back()}
-          className="text-sm text-gray-500 hover:text-gray-800 flex items-center gap-1 transition-colors font-medium"
+          className="px-6 py-3 rounded-xl border-2 border-gray-100 text-gray-400 text-[11px] font-black uppercase tracking-[0.2em] hover:bg-gray-50 transition-all flex items-center gap-2"
         >
           <ArrowLeft size={16} /> Back
         </button>
@@ -70,70 +81,84 @@ export const SalaryBreakupForm: React.FC<SalaryBreakupFormProps> = ({
         enableReinitialize
       >
         {({ values, isSubmitting }) => (
-          <Form className="space-y-10">
+          <Form className="space-y-12 relative z-10">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
               {/* Earnings Section */}
-              <Section title="Earnings Components">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormikInput label="Basic Salary" name="basic" type="number" required />
-                  <FormikInput label="HRA" name="hra" type="number" required />
-                  <FormikInput label="Conveyance" name="conveyance" type="number" />
-                  <FormikInput label="Special Allowance" name="specialAllowance" type="number" />
-                </div>
-              </Section>
+              <div className="bg-gray-50/50 p-10 rounded-[3rem] border border-gray-100 shadow-inner">
+                 <div className="flex items-center gap-3 mb-10">
+                    <div className="w-1 h-4 bg-emerald-500 rounded-full" />
+                    <h3 className="text-[10px] font-black text-[#0f172a] uppercase tracking-[0.3em]">Earnings Components</h3>
+                 </div>
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                   <FormikInput label="Basic Salary" name="basic" type="number" required />
+                   <FormikInput label="HRA" name="hra" type="number" required />
+                   <FormikInput label="Conveyance" name="conveyance" type="number" />
+                   <FormikInput label="Special Allowance" name="specialAllowance" type="number" />
+                 </div>
+              </div>
 
               {/* Deductions Section */}
-              <Section title="Deductions Components">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormikInput label="PF (Provident Fund)" name="pf" type="number" />
-                  <FormikInput label="ESI (Insurance)" name="esi" type="number" />
-                  <FormikInput label="TDS (Income Tax)" name="tds" type="number" />
-                  <FormikInput label="Other Deductions" name="otherDeductions" type="number" />
-                </div>
-              </Section>
+              <div className="bg-gray-50/50 p-10 rounded-[3rem] border border-gray-100 shadow-inner">
+                 <div className="flex items-center gap-3 mb-10">
+                    <div className="w-1 h-4 bg-rose-500 rounded-full" />
+                    <h3 className="text-[10px] font-black text-[#0f172a] uppercase tracking-[0.3em]">Deductions Ledger</h3>
+                 </div>
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                   <FormikInput label="PF (Provident Fund)" name="pf" type="number" />
+                   <FormikInput label="ESI (Insurance)" name="esi" type="number" />
+                   <FormikInput label="TDS (Income Tax)" name="tds" type="number" />
+                   <FormikInput label="Other Deductions" name="otherDeductions" type="number" />
+                 </div>
+              </div>
             </div>
 
             {/* Summary Block */}
-            <div className="bg-gray-50 p-8 rounded-2xl border border-gray-100">
-               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  <div>
-                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Total Earnings</p>
-                    <p className="text-xl font-bold text-gray-800">
+            <div className="bg-white p-10 rounded-[3rem] border-2 border-dashed border-gray-100 shadow-sm overflow-hidden relative group">
+               <div className="absolute top-0 right-0 w-32 h-32 bg-gray-50/50 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-rose-50/50 transition-colors duration-500" />
+               <div className="grid grid-cols-1 md:grid-cols-3 gap-10 relative z-10">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">Gross Yield</p>
+                    <p className="text-3xl font-black text-[#0f172a] tracking-tighter tabular-nums">
                       ₹{(Number(values.basic) + Number(values.hra) + Number(values.conveyance) + Number(values.specialAllowance)).toLocaleString()}
                     </p>
+                    <div className="w-8 h-1 bg-emerald-500/20 rounded-full" />
                   </div>
-                  <div>
-                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Total Deductions</p>
-                    <p className="text-xl font-bold text-gray-800">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">Total Fiscal Attrition</p>
+                    <p className="text-3xl font-black text-gray-900 tracking-tighter tabular-nums">
                       ₹{(Number(values.pf) + Number(values.esi) + Number(values.tds) + Number(values.otherDeductions)).toLocaleString()}
                     </p>
+                    <div className="w-8 h-1 bg-rose-500/20 rounded-full" />
                   </div>
-                  <div className="md:border-l border-gray-200 md:pl-8">
-                    <p className="text-[10px] font-bold text-teal-700 uppercase tracking-widest mb-1">Net Monthly Take Home</p>
-                    <p className="text-3xl font-black text-[#0f766e]">
-                      ₹{(
-                        (Number(values.basic) + Number(values.hra) + Number(values.conveyance) + Number(values.specialAllowance)) -
-                        (Number(values.pf) + Number(values.esi) + Number(values.tds) + Number(values.otherDeductions))
-                      ).toLocaleString()}
-                    </p>
+                  <div className="md:border-l-2 border-gray-100 md:pl-10 space-y-1">
+                    <p className="text-[10px] font-black text-[#be123c] uppercase tracking-[0.2em] px-1">Net Disposable Income</p>
+                    <div className="flex items-baseline gap-2">
+                       <span className="text-4xl font-black text-[#be123c] tracking-tighter tabular-nums">
+                        ₹{(
+                          (Number(values.basic) + Number(values.hra) + Number(values.conveyance) + Number(values.specialAllowance)) -
+                          (Number(values.pf) + Number(values.esi) + Number(values.tds) + Number(values.otherDeductions))
+                        ).toLocaleString()}
+                       </span>
+                       <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">/ M</span>
+                    </div>
                   </div>
                </div>
             </div>
 
             {/* Actions */}
-            <div className="flex justify-end gap-4 pt-8 border-t border-gray-200">
+            <div className="flex justify-end gap-6 pt-12 border-t border-gray-50">
               <button
                 type="button"
                 onClick={() => router.back()}
-                className="px-6 py-2.5 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-100 transition"
+                className="px-10 py-5 rounded-2xl border-2 border-gray-100 text-gray-400 text-[11px] font-black uppercase tracking-[0.2em] hover:bg-gray-50 transition-all active:scale-95"
               >
-                Cancel
+                Cancel Configuration
               </button>
               <button
                 type="submit"
                 disabled={loading || isSubmitting}
-                className={`flex items-center gap-2 px-8 py-2.5 rounded-lg text-white font-semibold shadow-sm transition ${
-                  loading || isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-teal-700 hover:bg-teal-800'
+                className={`flex items-center gap-4 px-12 py-5 rounded-2xl text-white text-[11px] font-black uppercase tracking-[0.2em] shadow-2xl transition-all active:scale-95 ${
+                  loading || isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#be123c] shadow-rose-900/30 hover:bg-[#9f1239]'
                 }`}
               >
                 {loading || isSubmitting ? (
@@ -141,7 +166,7 @@ export const SalaryBreakupForm: React.FC<SalaryBreakupFormProps> = ({
                 ) : (
                   <Save size={18} />
                 )}
-                Save Configuration
+                Commit Configuration
               </button>
             </div>
           </Form>

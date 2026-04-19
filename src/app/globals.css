@@ -490,7 +490,7 @@ button {
 }
 
 .akod-table-footer-text strong {
-  color: var(--primary);
+  color: var(--text-muted);
   font-weight: 950;
 }
 
@@ -510,13 +510,29 @@ button {
   box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.08);
 }
 
+.akod-page-current {
+  min-width: 40px;
+  height: 40px;
+  padding: 0 0.85rem;
+  border: 1.5px solid var(--primary);
+  border-radius: 12px;
+  background: rgba(15, 118, 110, 0.05);
+  color: var(--primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 800;
+  box-shadow: 0 4px 12px rgba(15, 118, 110, 0.1);
+}
+
 .akod-page-button {
   width: 40px;
   height: 40px;
   border: 1px solid var(--border-subtle);
-  border-radius: 8px;
+  border-radius: 12px;
   background: white;
-  color: var(--text-main);
+  color: var(--text-muted);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -526,28 +542,9 @@ button {
 .akod-page-button:hover:not(:disabled) {
   border-color: var(--primary);
   color: var(--primary);
-  transform: translateY(-1px);
-}
-
-.akod-page-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.3;
-}
-
-.akod-page-current {
-  min-width: 40px;
-  height: 40px;
-  padding: 0 0.85rem;
-  border: 0;
-  border-radius: 8px;
-  background: var(--primary);
-  color: white;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.85rem;
-  font-weight: 900;
-  box-shadow: 0 10px 20px -5px rgba(15, 118, 110, 0.4);
+  background: rgba(15, 118, 110, 0.02);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px -8px rgba(0,0,0,0.15);
 }
 
 .slot-hover:hover {
@@ -669,22 +666,16 @@ button {
   }
 }
 
-.loading-bar-wrapper {
+.loading-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 3px;
-  z-index: 9999;
-  overflow: hidden;
-  background: transparent;
-}
-
-.loading-bar {
-  height: 100%;
-  width: 100%;
-  background-color: var(--primary);
-  animation: loading-bar 1.2s ease-in-out infinite;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 10000;
 }
 
 /* ---------- Custom Global Scrollbar ---------- */

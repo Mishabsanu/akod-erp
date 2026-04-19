@@ -237,74 +237,89 @@ const LeadsPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white p-6 md:p-10">
-      <ListPageHeader
-        eyebrow="Pipeline Management"
-        title="Leads"
-        highlight="Dashboard"
-        description="Monitor lead generation, track follow-ups, and manage your enquiry funnel."
-        actions={
-          <>
-            <button onClick={() => setShowImport(true)} className="page-header-button secondary">
-              <Upload className="w-4 h-4" /> Import
-            </button>
-            {can('sales', 'create') && (
-              <button onClick={() => router.push('/sales/add')} className="page-header-button">
-                <Plus className="w-4 h-4" /> Add Lead
+    <div className="min-h-screen p-6 md:p-10 bg-[#f8fafc]">
+      <div className="max-w-full mx-auto space-y-12">
+        <ListPageHeader
+          eyebrow="Pipeline Management"
+          title="Leads"
+          highlight="Dashboard"
+          description="Monitor lead generation, track follow-ups, and manage your enquiry funnel."
+          actions={
+            <div className="flex items-center gap-4">
+              <button 
+                onClick={() => setShowImport(true)} 
+                className="px-6 py-4 bg-white text-gray-400 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-sm border border-gray-100 hover:bg-gray-50 transition-all flex items-center gap-2 active:scale-95"
+              >
+                <Upload size={18} /> Import
               </button>
-            )}
-            <button onClick={() => setShowFilters(!showFilters)} className="page-header-button secondary">
-              <Filter className="w-4 h-4" /> {showFilters ? 'Hide Filters' : 'Filters'}
-            </button>
-          </>
-        }
-      />
-
-      {/* 📊 STATISTICS WIDGETS */}
-      <LeadsStatsWidgets stats={stats} loading={statsLoading} />
-
-      <div className={showFilters ? 'block mb-6' : 'hidden'}>
-        <SalesFilterBar
-          onStatusChange={(status) => setFilter(prev => ({ ...prev, status }))}
-          onStartDateChange={(startDate) => setFilter(prev => ({ ...prev, startDate }))}
-          onEndDateChange={(endDate) => setFilter(prev => ({ ...prev, endDate }))}
-          onFollowUpDateChange={(nextFollowUpDate) => setFilter(prev => ({ ...prev, nextFollowUpDate }))}
-          onClearFilters={() => {
-            setFilter({ status: undefined, startDate: undefined, endDate: undefined, nextFollowUpDate: undefined });
-            setSearchTerm('');
-            setCurrentPage(1);
-          }}
-          initialStatus={filter.status}
-          initialStartDate={filter.startDate}
-          initialEndDate={filter.endDate}
-          initialFollowUpDate={filter.nextFollowUpDate}
+              {can('sales', 'create') && (
+                <button 
+                  onClick={() => router.push('/sales/add')} 
+                  className="px-8 py-5 bg-[#0f766e] text-white rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] shadow-2xl shadow-teal-900/30 hover:shadow-teal-900/40 hover:-translate-y-1 transition-all flex items-center gap-3 active:scale-95"
+                >
+                  <Plus size={20} strokeWidth={3} /> Add Lead
+                </button>
+              )}
+              <button 
+                onClick={() => setShowFilters(!showFilters)} 
+                className={`px-6 py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all flex items-center gap-2 active:scale-95 border ${showFilters ? 'bg-[#0f766e] text-white border-teal-800 shadow-lg shadow-teal-900/20' : 'bg-white text-gray-400 border-gray-100 shadow-sm hover:bg-gray-50'}`}
+              >
+                <Filter size={18} /> {showFilters ? 'Hide Filters' : 'Filters'}
+              </button>
+            </div>
+          }
         />
+
+        {/* 📊 STATISTICS WIDGETS */}
+        <LeadsStatsWidgets stats={stats} loading={statsLoading} />
+
+        <div className="bg-white p-8 rounded-[3rem] shadow-2xl shadow-slate-900/5 border border-gray-100">
+          <div className="flex flex-col md:flex-row items-center gap-8 mb-10">
+            <div className="w-full md:w-1/2">
+                <SearchInput
+                  initialSearchTerm={searchTerm}
+                  onSearchChange={setSearchTerm}
+                  placeholder="Search leads by company, contact, or ticket number..."
+                />
+            </div>
+            
+            <div className={showFilters ? 'w-full md:w-1/2 animate-in slide-in-from-right duration-500' : 'hidden'}>
+                <SalesFilterBar
+                  onStatusChange={(status) => setFilter(prev => ({ ...prev, status }))}
+                  onStartDateChange={(startDate) => setFilter(prev => ({ ...prev, startDate }))}
+                  onEndDateChange={(endDate) => setFilter(prev => ({ ...prev, endDate }))}
+                  onFollowUpDateChange={(nextFollowUpDate) => setFilter(prev => ({ ...prev, nextFollowUpDate }))}
+                  onClearFilters={() => {
+                    setFilter({ status: undefined, startDate: undefined, endDate: undefined, nextFollowUpDate: undefined });
+                    setSearchTerm('');
+                    setCurrentPage(1);
+                  }}
+                  initialStatus={filter.status}
+                  initialStartDate={filter.startDate}
+                  initialEndDate={filter.endDate}
+                  initialFollowUpDate={filter.nextFollowUpDate}
+                />
+            </div>
+          </div>
+
+          {loading && leads.length === 0 ? (
+            <TableSkeleton />
+          ) : (
+            <DataTable
+              columns={columns}
+              data={leads}
+              onRowClick={handleRowClick}
+              serverSidePagination={true}
+              totalCount={totalCount}
+              currentPage={currentPage}
+              limit={limit}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              onLimitChange={setLimit}
+            />
+          )}
+        </div>
       </div>
-
-      <div className="mb-6">
-        <SearchInput
-          initialSearchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          placeholder="Search leads by company, contact, or ticket number..."
-        />
-      </div>
-
-      {loading && leads.length === 0 ? (
-        <TableSkeleton />
-      ) : (
-        <DataTable
-          columns={columns}
-          data={leads}
-          onRowClick={handleRowClick}
-          serverSidePagination={true}
-          totalCount={totalCount}
-          currentPage={currentPage}
-          limit={limit}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
-          onLimitChange={setLimit}
-        />
-      )}
 
       {showStatusModal && selectedLead && (
         <StatusUpdateModal

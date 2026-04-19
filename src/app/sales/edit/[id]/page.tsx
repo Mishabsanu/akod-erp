@@ -64,7 +64,7 @@ const EditSalePage = ({ params: paramsPromise }: EditSalePageProps) => {
 
   if (loading) {
     return (
-        <div className="min-h-screen bg-[#f9fafc] flex items-center justify-center">
+        <div className="min-h-screen bg-white flex items-center justify-center">
             <LoadingSpinner />
         </div>
     );
@@ -72,17 +72,18 @@ const EditSalePage = ({ params: paramsPromise }: EditSalePageProps) => {
 
   if (!sale) {
     return (
-        <div className="min-h-screen bg-[#f9fafc] flex items-center justify-center">
+        <div className="min-h-screen bg-white flex items-center justify-center">
             <div className="text-center space-y-4">
-                <h2 className="text-2xl font-bold text-[#0f766e]">Enquiry not found</h2>
-                <button onClick={handleCancel} className="text-[#0f766e] font-bold hover:underline">Go back to list</button>
+                <h2 className="text-2xl font-black text-amber-700 uppercase tracking-widest">Enquiry Node Not Found</h2>
+                <button onClick={handleCancel} className="text-amber-600 font-black uppercase text-[10px] tracking-widest hover:text-amber-700 transition-colors">Terminate & Return</button>
             </div>
         </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#f9fafc] p-6 lg:p-10">
+  return (
+    <div className="min-h-screen bg-white p-6 lg:p-10">
       <SalesForm
         initialData={sale}
         onSubmit={handleSubmit}
