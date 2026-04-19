@@ -687,6 +687,8 @@ export interface Worker {
   certificateDoc?: string;
   certificateName?: string;
   remarks?: string;
+  createdAt?: string;
+  updatedAt?: string;
   documents?: {
     docType: 'Passport' | 'QID' | 'Contract' | 'Other';
     filePath: string;

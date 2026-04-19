@@ -12,12 +12,12 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         <Header />
         <main className="page-content flex-1 overflow-y-auto custom-scrollbar flex flex-col">
           <div className="max-w-[1800px] mx-auto animate-fade-in flex-1 w-full">{children}</div>
-          
+
           {/* Global Footer */}
           <footer className="w-full text-center pt-8 mt-auto text-[11px] font-semibold text-gray-400 tracking-wide">
-            <p>&copy; {new Date().getFullYear()} AKOD CRM. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} PROSERVE. All rights reserved.</p>
             <p className="mt-1">
-              Powered by <span className="text-[#0f766e] font-bold">AKODTech</span>
+              Powered by <span className="text-[#0f766e] font-bold">AKODTECH</span>
             </p>
           </footer>
         </main>
