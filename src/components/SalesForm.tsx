@@ -13,6 +13,7 @@ import { FormikSelect } from '@/components/shared/FormikSelect';
 import { FormikPhoneInput } from '@/components/shared/FormikPhoneInput';
 import { FormikTextarea } from '@/components/shared/FormikTextarea';
 import { Section } from '@/components/ui/Section';
+import { getFileUrl } from '@/app/utils/fileUtils';
 
 const toISODate = (value?: string) => {
   if (!value) return '';
@@ -37,7 +38,6 @@ const SaleValidationSchema = Yup.object({
   position: Yup.string().trim().required('Position is required'),
   name: Yup.string().trim().required('Name is required'),
   location: Yup.string().trim().required('Location is required'),
-  region: Yup.string().trim().required('Region is required'),
   date: Yup.string().required('Date is required'),
   followUpDate: Yup.string().optional(),
   remarks: Yup.string().optional(),
@@ -78,7 +78,6 @@ const SalesForm: React.FC<SalesFormProps> = ({
       referenceNo: initialData?.referenceNo || '',
       name: initialData?.name || '',
       location: initialData?.location || '',
-      region: initialData?.region || '',
       date: toISODate(initialData?.date) || today,
       followUpDate: toISODate(initialData?.nextFollowUpDate) || '',
       remarks: initialData?.remarks || '',
@@ -185,7 +184,7 @@ const SalesForm: React.FC<SalesFormProps> = ({
       </div>
 
       <FormikProvider value={formik}>
-        <form onSubmit={formik.handleSubmit} className="space-y-10">
+        <form onSubmit={formik.handleSubmit} className="space-y-10" autoComplete="off">
           <Section eyebrow="Account Setup" title="Client" highlight="Information">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               <FormikInput
@@ -222,12 +221,6 @@ const SalesForm: React.FC<SalesFormProps> = ({
                 label="Location"
                 name="location"
                 placeholder="e.g. Mumbai"
-                required
-              />
-              <FormikInput
-                label="Region"
-                name="region"
-                placeholder="e.g. Maharashtra"
                 required
               />
               <FormikInput
@@ -377,7 +370,7 @@ const SalesForm: React.FC<SalesFormProps> = ({
                           </div>
                           <div className="min-w-0">
                             <a
-                              href={file.url}
+                              href={getFileUrl(file.url)}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-sm font-bold text-gray-800 hover:text-teal-700 truncate block"

@@ -10,6 +10,7 @@ const PRIMARY = '#0f766e';
 interface InventoryFilterBarProps {
   onStatusChange: (status: InventoryFilter['status']) => void;
   onStockRangeChange: (min?: number, max?: number) => void;
+  onLowStockToggle: (onlyLow: boolean) => void; // New prop
   onClearFilters: () => void;
   initialStatus?: InventoryFilter['status'];
 }
@@ -17,12 +18,14 @@ interface InventoryFilterBarProps {
 export const InventoryFilterBar: React.FC<InventoryFilterBarProps> = ({
   onStatusChange,
   onStockRangeChange,
+  onLowStockToggle,
   onClearFilters,
   initialStatus = undefined,
 }) => {
   const [selectedStatus, setSelectedStatus] = useState(initialStatus || '');
   const [minStock, setMinStock] = useState<string>('');
   const [maxStock, setMaxStock] = useState<string>('');
+  const [onlyLowStock, setOnlyLowStock] = useState(false);
 
   /* ---------------- Effects ---------------- */
   useEffect(() => {
@@ -40,14 +43,19 @@ export const InventoryFilterBar: React.FC<InventoryFilterBarProps> = ({
     );
   }, [minStock, maxStock, onStockRangeChange]);
 
+  useEffect(() => {
+    onLowStockToggle(onlyLowStock);
+  }, [onlyLowStock, onLowStockToggle]);
+
   const handleClear = () => {
     setSelectedStatus('');
     setMinStock('');
     setMaxStock('');
+    setOnlyLowStock(false);
     onClearFilters();
   };
 
-  const hasFilters = selectedStatus || minStock || maxStock;
+  const hasFilters = selectedStatus || minStock || maxStock || onlyLowStock;
 
   return (
     <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-5 mb-6">
@@ -66,6 +74,15 @@ export const InventoryFilterBar: React.FC<InventoryFilterBarProps> = ({
               value={selectedStatus}
               onRemove={() => setSelectedStatus('')}
               color="green"
+            />
+          )}
+
+          {onlyLowStock && (
+            <FilterChip
+              label="Stock Level"
+              value="Below Reorder Qty"
+              onRemove={() => setOnlyLowStock(false)}
+              color="red"
             />
           )}
 
@@ -91,7 +108,7 @@ export const InventoryFilterBar: React.FC<InventoryFilterBarProps> = ({
 
       {/* Filters */}
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
-        <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex flex-col sm:flex-row gap-4 items-end">
           {/* Status */}
           <div className="w-full sm:w-56">
             <label className="text-xs font-medium text-gray-600 mb-1 block">
@@ -110,6 +127,20 @@ export const InventoryFilterBar: React.FC<InventoryFilterBarProps> = ({
                 <option value="OUT_OF_STOCK">OUT_OF_STOCK</option>
               </Select>
             </div>
+          </div>
+
+          {/* Low Stock Toggle */}
+          <div className="flex items-center gap-2 mb-2 bg-red-50/50 px-3 py-2 rounded-xl border border-red-100/50 hover:bg-red-50 transition-colors">
+            <input 
+              type="checkbox" 
+              id="low-stock-only" 
+              checked={onlyLowStock}
+              onChange={(e) => setOnlyLowStock(e.target.checked)}
+              className="w-4 h-4 rounded text-red-600 focus:ring-red-500 border-red-300"
+            />
+            <label htmlFor="low-stock-only" className="text-xs font-black text-red-700 cursor-pointer select-none">
+              Below Reorder Qty Only
+            </label>
           </div>
 
           {/* Min Stock */}
@@ -153,7 +184,7 @@ export const InventoryFilterBar: React.FC<InventoryFilterBarProps> = ({
         {hasFilters && (
           <button
             onClick={handleClear}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border transition hover:bg-gray-50"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border transition hover:bg-gray-50 mb-1"
             style={{ borderColor: PRIMARY, color: PRIMARY }}
           >
             <XCircle className="w-4 h-4" />

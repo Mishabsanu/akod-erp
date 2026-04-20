@@ -72,64 +72,79 @@ function PaymentsPage() {
   const columns: Column<Payment>[] = useMemo(() => {
     const baseColumns: Column<Payment>[] = [
       { 
-        header: 'Date', 
-        accessor: 'date' as keyof Payment,
-        render: (item: Payment) => <span className="text-gray-600 font-bold">{new Date(item.date).toLocaleDateString()}</span>
-      },
-      { 
-        header: 'Flow Type', 
-        accessor: 'type' as keyof Payment,
-        render: (item: Payment) => (
-          <div className={`flex items-center gap-2 px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest border ${
-            item.type === 'Received' ? 'bg-green-50 text-green-700 border-green-100' : 'bg-teal-50 text-teal-800 border-teal-100'
-          }`}>
-            {item.type === 'Received' ? <ArrowDownCircle size={10} /> : <ArrowUpCircle size={10} />}
-            {item.type}
+        header: 'ID / Date', 
+        accessor: 'paymentId' as any,
+        render: (item: any) => (
+          <div className="flex flex-col">
+            <span className="font-bold text-gray-900">#{item.paymentId || 'COL-AUTO'}</span>
+            <span className="text-[10px] text-gray-400 font-bold uppercase tracking-tight">{new Date(item.date).toLocaleDateString()}</span>
           </div>
         )
       },
       { 
-        header: 'Reference', 
-        accessor: 'transactionId' as keyof Payment,
-        render: (item: Payment) => <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{item.transactionId || 'GENERAL'}</span>
-      },
-      { 
-        header: 'Company', 
-        accessor: 'companyName' as keyof Payment,
-        render: (item: Payment) => (
-          <span className="text-sm font-semibold text-[#0f766e]">{item.companyName || '—'}</span>
+        header: 'Flow & Category', 
+        accessor: 'type' as keyof Payment,
+        render: (item: any) => (
+          <div className="flex flex-col gap-1">
+             <div className={`flex items-center gap-2 px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest border w-fit ${
+                item.type === 'Received' ? 'bg-emerald-600 text-white border-emerald-700' : 'bg-teal-700 text-white border-teal-800'
+              }`}>
+                {item.type === 'Received' ? <ArrowDownCircle size={10} /> : <ArrowUpCircle size={10} />}
+                {item.type}
+              </div>
+              <span className="text-[10px] font-bold text-[#0f766e] uppercase tracking-tighter px-1">{item.category || 'General'}</span>
+          </div>
         )
       },
       { 
-        header: 'Amount', 
+        header: 'Payer / Entity', 
+        accessor: 'companyName' as keyof Payment,
+        render: (item: Payment) => (
+          <div className="flex flex-col">
+            <span className="text-sm font-bold text-gray-900">{item.companyName || '—'}</span>
+            <span className="text-[10px] text-gray-400 font-bold uppercase tracking-tight italic">
+              {item.referenceType}: {item.referenceId ? 'Linked' : 'Manual'}
+            </span>
+          </div>
+        )
+      },
+      { 
+        header: 'Settlement Amount', 
         accessor: 'amount' as keyof Payment,
         render: (item: Payment) => (
-          <span className={`text-sm font-bold ${item.type === 'Received' ? 'text-green-600' : 'text-teal-700'}`}>
-            {item.type === 'Received' ? '+' : '-'} {item.amount?.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-          </span>
+          <div className="flex flex-col">
+            <span className={`text-sm font-black ${item.type === 'Received' ? 'text-emerald-600' : 'text-teal-700'}`}>
+              {item.amount?.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+            </span>
+            <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{item.modeOfPayment}</span>
+          </div>
         )
       },
       {
-        header: 'Method',
-        accessor: 'paymentMethod' as keyof Payment,
-        render: (item: Payment) => <span className="text-xs font-bold text-gray-500 italic">{item.paymentMethod}</span>
+        header: 'Registry Status',
+        accessor: 'status' as keyof Payment,
+        render: (item: Payment) => (
+          <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest text-center ${
+            item.status === 'completed' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 
+            item.status === 'pending' ? 'bg-amber-50 text-amber-600 border border-amber-100' : 
+            'bg-rose-50 text-rose-600 border border-rose-100'
+          }`}>
+            {item.status}
+          </span>
+        )
       },
       {
         accessor: 'createdBy' as any,
-        header: 'Created By',
+        header: 'Audit Trail',
         render: (item: Payment) => (
-          <span className="text-sm font-medium text-gray-600">
-            {typeof item.createdBy === 'object' ? item.createdBy.name : item.createdBy || '--'}
-          </span>
-        ),
-      },
-      {
-        accessor: 'createdAt',
-        header: 'Date Created',
-        render: (item: Payment) => (
-          <span className="text-sm font-medium text-gray-600">
-            {item.createdAt ? new Date(item.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '--'}
-          </span>
+          <div className="flex flex-col">
+             <span className="text-[11px] font-bold text-gray-700">
+               {typeof item.createdBy === 'object' ? (item.createdBy as any).name : item.createdBy || '--'}
+             </span>
+             <span className="text-[9px] text-gray-400 font-medium">
+               {item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '--'}
+             </span>
+          </div>
         ),
       },
     ];
@@ -174,7 +189,7 @@ function PaymentsPage() {
     <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white p-6 md:p-10">
       <ListPageHeader
         eyebrow="Finance Registry"
-        title="Payment"
+        title="Collections"
         highlight="Registry"
         description="Review received and paid transactions across accounts."
         actions={
@@ -185,7 +200,7 @@ function PaymentsPage() {
               className="page-header-button"
             >
               <Plus className="w-4 h-4" />
-              Post Payment
+              Post Collection
             </button>
           )}
           <button 

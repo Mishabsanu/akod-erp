@@ -12,13 +12,17 @@ import {
     Hash,
     Layers,
     Save,
-    ArrowRight
+    ArrowRight,
+    AlertCircle
 } from 'lucide-react';
 import { RunningOrder } from '@/lib/types';
 import ListPageHeader from './shared/ListPageHeader';
 import { getProductDropdown, getProductById } from '@/services/catalogApi';
 import { getCustomers } from '@/services/customerApi';
+import { getAvailableProducts } from '@/services/inventoryApi';
+import { getLatestRunningOrderNo } from '@/services/runningOrderApi';
 import { toast } from 'sonner';
+import { Loader2, RefreshCcw } from 'lucide-react';
 
 import { FormikInput } from '@/components/shared/FormikInput';
 import { FormikSelect } from '@/components/shared/FormikSelect';
@@ -33,7 +37,8 @@ interface RunningOrderFormProps {
 }
 
 const validationSchema = Yup.object().shape({
-    invoice_number: Yup.string().required('Required'),
+    order_number: Yup.string().required('Required'),
+    invoice_number: Yup.string().optional(),
     ordered_date: Yup.string().required('Required'),
     transaction_type: Yup.string().oneOf(['Sale', 'Hire', 'Contract'], 'Invalid').required('Required'),
     items: Yup.array().of(
@@ -52,18 +57,34 @@ const RunningOrderForm: React.FC<RunningOrderFormProps> = ({
     isLoading
 }) => {
     const [products, setProducts] = useState<any[]>([]);
+    const [availableStock, setAvailableStock] = useState<Record<string, number>>({});
     const [customers, setCustomers] = useState<{ value: string; label: string }[]>([]);
+    const [isSyncingNo, setIsSyncingNo] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [productData, customerData] = await Promise.all([
+                const [productData, customerData, stockData] = await Promise.all([
                     getProductDropdown(),
-                    getCustomers({}, 1, 9999)
+                    getCustomers({}, 1, 9999),
+                    getAvailableProducts()
                 ]);
                 setProducts(productData);
                 if (customerData?.customers) {
                     setCustomers(customerData.customers.map((c: any) => ({ value: c.name, label: c.name })));
+                }
+                
+                const stockMap: Record<string, number> = {};
+                stockData.forEach(item => {
+                    if (item.productId) {
+                        stockMap[item.productId] = item.availableQty;
+                    }
+                });
+                setAvailableStock(stockMap);
+
+                if (!isEditMode && !formik.values.order_number) {
+                    const nextNo = await getLatestRunningOrderNo();
+                    formik.setFieldValue('order_number', nextNo);
                 }
             } catch (error) {
                 toast.error('Failed to load form data');
@@ -76,6 +97,7 @@ const RunningOrderForm: React.FC<RunningOrderFormProps> = ({
         initialValues: {
             company_name: initialData?.company_name || '',
             client_name: initialData?.client_name || '',
+            order_number: initialData?.order_number || '',
             invoice_number: initialData?.invoice_number || '',
             po_number: initialData?.po_number || '',
             ordered_date: initialData?.ordered_date ? new Date(initialData.ordered_date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
@@ -136,11 +158,36 @@ const RunningOrderForm: React.FC<RunningOrderFormProps> = ({
                                     label="Client Name" 
                                     name="client_name" 
                                 />
+                                <div className="relative group">
+                                    <FormikInput 
+                                        label="Order Number (Auto)" 
+                                        name="order_number" 
+                                        placeholder="RO-0000"
+                                        required
+                                        readOnly
+                                        suffix={<FileText size={14} className="text-gray-300" />}
+                                    />
+                                    {!isEditMode && (
+                                        <button
+                                            type="button"
+                                            onClick={async () => {
+                                                setIsSyncingNo(true);
+                                                const nextNo = await getLatestRunningOrderNo();
+                                                formik.setFieldValue('order_number', nextNo);
+                                                setIsSyncingNo(false);
+                                                toast.success('Order number synchronized');
+                                            }}
+                                            className="absolute right-10 top-[34px] p-1 text-slate-400 hover:text-[#0f766e] transition-colors"
+                                            title="Sync Latest Order Number"
+                                        >
+                                            <RefreshCcw size={14} className={isSyncingNo ? 'animate-spin' : ''} />
+                                        </button>
+                                    )}
+                                </div>
                                 <FormikInput 
                                     label="Invoice Number" 
                                     name="invoice_number" 
                                     placeholder="INV-0000"
-                                    required
                                     suffix={<FileText size={14} className="text-gray-300" />}
                                 />
                                 <FormikInput 
@@ -208,11 +255,11 @@ const RunningOrderForm: React.FC<RunningOrderFormProps> = ({
                                         <thead>
                                             <tr className="bg-[#f8f9fc] text-[11px] font-black uppercase tracking-[0.1em] text-gray-500">
                                                 <th className="p-4 w-12 text-center rounded-l-xl">S.No</th>
-                                                <th className="p-4 min-w-[300px] text-left">Product Details</th>
-                                                <th className="p-4 min-w-[250px] text-left italic">Description</th>
-                                                <th className="p-4 w-32 text-center">Item Code</th>
-                                                <th className="p-4 w-32 text-center">Unit</th>
-                                                <th className="p-4 w-48 text-center text-[#0f766e]">Quantity</th>
+                                                <th className="p-4 min-w-[350px] text-left">Product & Code</th>
+                                                <th className="p-4 w-40 text-center">Available Stock</th>
+                                                <th className="p-4 min-w-[200px] text-left">Manual Description</th>
+                                                <th className="p-4 w-28 text-center">Unit</th>
+                                                <th className="p-4 w-32 text-center text-[#0f766e]">Quantity</th>
                                                 <th className="p-4 w-16 text-center rounded-r-xl">Action</th>
                                             </tr>
                                         </thead>
@@ -223,24 +270,57 @@ const RunningOrderForm: React.FC<RunningOrderFormProps> = ({
                                                         <span className="text-[10px] font-black text-gray-300">#{index + 1}</span>
                                                     </td>
                                                     <td className="p-4 border-b border-gray-50">
-                                                        <FormikSelect
-                                                            name={`items.${index}.productId`}
-                                                            options={products.map(p => ({ value: p._id, label: p.name }))}
-                                                            onChange={(e) => {
-                                                                formik.handleChange(e);
-                                                                handleProductSelect(index, e.target.value);
-                                                            }}
+                                                        <div className="space-y-2">
+                                                            <FormikSelect
+                                                                name={`items.${index}.productId`}
+                                                                options={products.map(p => ({ 
+                                                                    value: p._id, 
+                                                                    label: `${p.name} ${availableStock[p._id] !== undefined ? `(Stock: ${availableStock[p._id]})` : ''}` 
+                                                                }))}
+                                                                onChange={(e) => {
+                                                                    formik.handleChange(e);
+                                                                    handleProductSelect(index, e.target.value);
+                                                                }}
+                                                            />
+                                                            {item.itemCode && (
+                                                                <div className="flex items-center gap-2 px-2 mt-1">
+                                                                    <Hash size={10} className="text-gray-400" />
+                                                                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{item.itemCode}</span>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </td>
+                                                    <td className="p-4 border-b border-gray-50">
+                                                        <div className="flex justify-center">
+                                                            {availableStock[item.productId] !== undefined ? (
+                                                                <div className={`inline-flex flex-col items-center gap-1 px-4 py-2 rounded-2xl border transition-all
+                                                                    ${availableStock[item.productId] > 0 
+                                                                        ? (Number(item.quantity) > availableStock[item.productId] 
+                                                                            ? 'bg-rose-50 border-rose-200 text-rose-700 animate-pulse outline outline-2 outline-rose-500/20' 
+                                                                            : 'bg-emerald-50 border-emerald-100 text-emerald-700') 
+                                                                        : 'bg-slate-50 border-slate-200 text-slate-400 opacity-60'}
+                                                                `}>
+                                                                    <span className="text-[10px] font-black uppercase tracking-widest leading-none">In Stock</span>
+                                                                    <span className="text-sm font-black tracking-tighter">
+                                                                        {availableStock[item.productId].toLocaleString()}
+                                                                    </span>
+                                                                    {Number(item.quantity) > availableStock[item.productId] && availableStock[item.productId] > 0 && (
+                                                                        <span className="text-[8px] font-black uppercase text-rose-500 tracking-tighter mt-1 italic">Stock Exceeded!</span>
+                                                                    )}
+                                                                </div>
+                                                            ) : (
+                                                                <div className="text-[10px] font-black text-slate-300 uppercase tracking-widest italic">Not Checked</div>
+                                                            )}
+                                                        </div>
+                                                    </td>
+                                                    <td className="p-4 border-b border-gray-50">
+                                                        <textarea
+                                                            name={`items.${index}.description`}
+                                                            value={item.description}
+                                                            onChange={formik.handleChange}
+                                                            placeholder="Enter item specifications..."
+                                                            className="w-full min-h-[44px] p-3 text-xs font-medium text-gray-600 bg-gray-50/50 rounded-xl border border-transparent focus:bg-white focus:border-teal-200 outline-none transition-all resize-none italic"
                                                         />
-                                                    </td>
-                                                    <td className="p-4 border-b border-gray-50">
-                                                        <div className="h-11 flex items-center px-4 text-xs font-medium text-gray-500 bg-gray-50/50 rounded-xl border border-transparent italic truncate max-w-[250px]">
-                                                            {item.description || 'Auto-fills...'}
-                                                        </div>
-                                                    </td>
-                                                    <td className="p-4 border-b border-gray-50">
-                                                        <div className="h-11 flex items-center justify-center font-mono text-xs font-bold text-gray-400 bg-gray-50/50 rounded-xl px-4 border border-transparent">
-                                                            {item.itemCode || '---'}
-                                                        </div>
                                                     </td>
                                                     <td className="p-4 border-b border-gray-50">
                                                         <div className="h-11 flex items-center justify-center text-xs font-black text-[#0f766e] uppercase tracking-widest bg-emerald-50 rounded-xl">
@@ -248,13 +328,23 @@ const RunningOrderForm: React.FC<RunningOrderFormProps> = ({
                                                         </div>
                                                     </td>
                                                     <td className="p-4 border-b border-gray-50">
-                                                        <input
-                                                            type="number"
-                                                            name={`items.${index}.quantity`}
-                                                            value={item.quantity}
-                                                            onChange={formik.handleChange}
-                                                            className="w-full h-11 px-3 bg-teal-50/30 border border-teal-100/50 rounded-xl text-center font-black text-[#0f766e] focus:bg-white focus:border-[#0f766e] transition-all outline-none"
-                                                        />
+                                                        <div className="relative">
+                                                            <input
+                                                                type="number"
+                                                                name={`items.${index}.quantity`}
+                                                                value={item.quantity}
+                                                                onChange={formik.handleChange}
+                                                                className={`w-full h-11 px-3 border rounded-xl text-center font-black transition-all outline-none
+                                                                    ${Number(item.quantity) > (availableStock[item.productId] || 0) && (availableStock[item.productId] !== undefined)
+                                                                        ? 'bg-rose-50 border-rose-300 text-rose-700'
+                                                                        : 'bg-teal-50/30 border-teal-100/50 text-[#0f766e] focus:bg-white focus:border-[#0f766e]'
+                                                                    }
+                                                                `}
+                                                            />
+                                                            {Number(item.quantity) > (availableStock[item.productId] || 0) && (availableStock[item.productId] !== undefined) && (
+                                                                <div className="absolute -top-2 left-1/2 -translate-x-1/2 bg-rose-600 text-white text-[7px] font-black uppercase px-1.5 py-0.5 rounded shadow-sm">Overstock</div>
+                                                            )}
+                                                        </div>
                                                     </td>
                                                     <td className="p-4 text-center border-b border-gray-50">
                                                         <button

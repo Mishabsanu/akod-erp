@@ -65,7 +65,7 @@ export interface SaleUser {
 
 export interface Vendor {
   _id?: string;
-  name: string;
+  name?: string;
   company: string;
   email: string;
   mobile: string;
@@ -90,7 +90,7 @@ export interface VendorFilter {
 
 export interface Customer {
   _id?: string;
-  name: string;
+  name?: string;
   company: string;
   email: string;
   mobile: string;
@@ -165,6 +165,10 @@ export interface HistoryItem {
   note?: string;
   date?: string;
   ticketNo?: string;
+  vendorId?: string; // Added vendor tracking
+  vendor?: {
+    name?: string;
+  };
   customer?: {
     name?: string;
   };
@@ -180,6 +184,7 @@ export interface Product {
   name: string;
   itemCode: string;
   unit: string;
+  reorderLevel: number;
   description: string;
   status: string;
   price: number;
@@ -213,33 +218,33 @@ export interface Product {
 }
 export interface PODropdownItem {
   _id: string;
+  productId: string;
   name: string;
   availableQty: number;
   itemCode: string;
   unit: string;
+  reorderLevel?: number;
 }
 export interface InventoryItem {
   _id: string;
-  poNo: string;
+  poNo?: string;
   date?: string;
   reference?: string;
-  vendor: string;
+  remarks?: string;
+  deliveryNote?: string;
+  productImage?: string;
+  vendor: string | Vendor;
   product: {
     _id: string;
     name: string;
     itemCode?: string;
     unit: string;
-  };
-  items: {
-    id: string;
-    productId: string;
-    itemCode: string;
-    unit: string;
-    stock: number;
+    reorderLevel?: number;
   };
   itemCode: string;
   orderedQty: number;
   availableQty: number;
+  totalSold?: number; // Calculated on server
   history: HistoryItem[];
   status: 'OUT_OF_STOCK' | 'LOW_STOCK' | 'IN_STOCK';
   createdAt: string;
@@ -249,14 +254,18 @@ export interface InventoryItem {
 
 export interface CreateInventoryPayload {
   date: string;
-  poNumber: string;
+  poNo?: string;
   reference?: string;
+  remarks?: string;
+  deliveryNote?: File | null;
+  productImage?: File | null;
   vendor: string;
   items: {
     productId: string;
     itemCode: string;
     unit?: string;
     quantity: number;
+    reorderLevel?: number;
   }[];
 }
 export interface InventoryResponse {
@@ -445,7 +454,8 @@ export interface RunningOrder {
   company_name?: string;
   client_name?: string;
   ordered_date: string;
-  invoice_number: string;
+  order_number: string;
+  invoice_number?: string;
   po_number: string;
   items?: {
     productId: string;
@@ -470,7 +480,10 @@ export interface RunningOrder {
 export interface InventoryFormData {
   date: string;
   reference?: string;
-  poNo: string;
+  remarks?: string;
+  deliveryNote?: File | null;
+  productImage?: File | null;
+  poNo?: string;
   vendor?: string; // Assuming vendor is string ID here
   items: {
     id: string; // For formik internal use, not necessarily part of API payload
@@ -478,6 +491,7 @@ export interface InventoryFormData {
     itemCode: string;
     unit?: string;
     stock: number;
+    reorderLevel?: number;
   }[];
 }
 
@@ -503,19 +517,31 @@ export interface AccountFilter {
 
 export interface Expense {
   _id?: string;
+  expenseId?: string;
   date: string;
   category: string;
   amount: number;
+  paidTotal?: number;
+  balance?: number;
   taxAmount?: number;
-  isApproved?: number;
+  isApproved?: boolean;
   totalAmount: number;
-  paymentMethod: 'Cash' | 'Bank Transfer' | 'Cheque' | 'Credit Card' | 'Other';
+  modeOfPayment: 'Cash' | 'Bank Transfer' | 'Cheque' | 'Credit Card' | 'Other';
+  chequeNo?: string;
+  chequeDate?: string;
+  bank?: string;
+  transactionId?: string;
+  voucherNo?: string;
   referenceNo?: string;
   description?: string;
   companyName?: string;
   vendorId?: string | Vendor;
-  status: 'pending' | 'paid' | 'cancelled';
-  attachments?: string[];
+  status: 'pending' | 'paid' | 'partially_paid' | 'cancelled';
+  attachments?: {
+    name: string;
+    url: string;
+    type: 'bill' | 'receipt' | 'proof';
+  }[];
   createdAt?: string;
   createdBy?: string | User;
 }
@@ -569,16 +595,22 @@ export interface InvoiceFilter {
 
 export interface Payment {
   _id?: string;
+  paymentId?: string;
   date: string;
   type: 'Received' | 'Paid';
+  category?: string;
   amount: number;
-  paymentMethod: 'Cash' | 'Bank Transfer' | 'Cheque' | 'Credit Card' | 'Other';
+  modeOfPayment: 'Cash' | 'Bank Transfer' | 'Cheque' | 'Credit Card' | 'Other';
+  chequeNo?: string;
+  chequeDate?: string;
+  bank?: string;
+  transactionId?: string;
+  voucherNo?: string;
   referenceId?: string; // Link to Invoice or Expense
   referenceType?: 'Invoice' | 'Expense' | 'General';
-  transactionId?: string;
   remarks?: string;
   companyName?: string;
-  status: 'completed' | 'pending' | 'failed';
+  status: 'completed' | 'pending' | 'failed' | 'cancelled';
   createdAt?: string;
   createdBy?: string | User;
 }
@@ -589,6 +621,8 @@ export interface PaymentFilter {
   startDate?: string;
   endDate?: string;
   companyName?: string;
+  referenceId?: string;
+  referenceType?: 'Invoice' | 'Expense' | 'General';
 }
 
 export interface LedgerEntry {
@@ -674,18 +708,22 @@ export interface Worker {
   nationality?: string;
   designation?: string;
   mobile?: string;
+  facilityId?: string;
   passportNo?: string;
   qidNo?: string;
+  qidExpiryDate?: string;
+  passportExpiryDate?: string;
   joinDate?: string;
-  facilityId?: string | Facility;
   photo?: string;
   cv?: string;
   qidDoc?: string;
   passportDoc?: string;
   insuranceDoc?: string;
   healthCardDoc?: string;
-  certificateDoc?: string;
-  certificateName?: string;
+  skills: {
+    skillName: string;
+    certificateDoc: string;
+  }[];
   remarks?: string;
   createdAt?: string;
   updatedAt?: string;

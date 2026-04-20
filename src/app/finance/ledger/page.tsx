@@ -7,11 +7,13 @@ import { DataTable } from '@/components/shared/DataTable';
 import ListPageHeader from '@/components/shared/ListPageHeader';
 import { SearchInput } from '@/components/shared/SearchInput';
 import { LedgerFilterBar } from '@/components/finance/LedgerFilterBar';
-import { Database, Filter, Download, Printer, PieChart } from 'lucide-react';
+import { Database, Filter, Download, Printer, TrendingUp, TrendingDown, PlusCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 import withAuth from '@/components/withAuth';
 
 function LedgerPage() {
+  const router = useRouter();
   const [entries, setEntries] = useState<LedgerEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalPages, setTotalPages] = useState(1);
@@ -83,20 +85,20 @@ function LedgerPage() {
       )
     },
     {
-      header: 'Debit',
-      accessor: 'debit' as keyof LedgerEntry,
-      render: (item: LedgerEntry) => item.debit > 0 ? (
-        <span className="font-semibold text-teal-700">
-          {item.debit?.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+      header: 'Credit (In)',
+      accessor: 'credit' as keyof LedgerEntry,
+      render: (item: LedgerEntry) => item.credit > 0 ? (
+        <span className="font-bold text-green-600 bg-green-50 px-3 py-1 rounded-lg border border-green-100">
+          {item.credit?.toLocaleString(undefined, { minimumFractionDigits: 2 })}
         </span>
       ) : <span className="text-gray-300">—</span>
     },
     {
-      header: 'Credit',
-      accessor: 'credit' as keyof LedgerEntry,
-      render: (item: LedgerEntry) => item.credit > 0 ? (
-        <span className="font-semibold text-green-600">
-          {item.credit?.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+      header: 'Debit (Out)',
+      accessor: 'debit' as keyof LedgerEntry,
+      render: (item: LedgerEntry) => item.debit > 0 ? (
+        <span className="font-bold text-rose-600 bg-rose-50 px-3 py-1 rounded-lg border border-rose-100">
+          {item.debit?.toLocaleString(undefined, { minimumFractionDigits: 2 })}
         </span>
       ) : <span className="text-gray-300">—</span>
     },
@@ -104,7 +106,7 @@ function LedgerPage() {
       header: 'Balance',
       accessor: 'balance' as keyof LedgerEntry,
       render: (item: LedgerEntry) => (
-        <span className="font-bold text-gray-900 bg-gray-100 px-3 py-1 rounded-lg">
+        <span className="font-black text-gray-900 bg-gray-100 px-3 py-1 rounded-lg border border-gray-200">
           {item.balance?.toLocaleString(undefined, { minimumFractionDigits: 2 })}
         </span>
       )
@@ -130,11 +132,21 @@ function LedgerPage() {
           description="Audit debits, credits, references, and closing balance history."
           actions={
             <div className="flex items-center gap-4">
-              <button className="px-6 py-4 bg-white text-gray-500 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] border-2 border-gray-100/80 hover:bg-gray-50 transition-all flex items-center gap-3 active:scale-95 shadow-sm">
-                <Printer size={18} /> Print
+               <button 
+                onClick={() => router.push('/finance/expenses/add')}
+                className="px-6 py-4 bg-teal-700 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-teal-800 transition-all flex items-center gap-3 active:scale-95 shadow-lg shadow-teal-700/20"
+              >
+                <PlusCircle size={18} /> Add Expense
               </button>
-              <button className="px-6 py-4 bg-white text-gray-500 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] border-2 border-gray-100/80 hover:bg-gray-50 transition-all flex items-center gap-3 active:scale-95 shadow-sm">
-                <Download size={18} /> Export
+              <button 
+                onClick={() => router.push('/finance/payment/add')}
+                className="px-6 py-4 bg-emerald-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-emerald-700 transition-all flex items-center gap-3 active:scale-95 shadow-lg shadow-emerald-600/20"
+              >
+                <PlusCircle size={18} /> Add Collection
+              </button>
+              <div className="w-[1px] h-10 bg-gray-200 mx-2" />
+              <button className="px-6 py-4 bg-white text-gray-400 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] border-2 border-gray-100 hover:bg-gray-50 hover:text-gray-600 transition-all flex items-center gap-3 active:scale-95">
+                <Printer size={18} />
               </button>
               <button
                 onClick={() => setShowFilters(!showFilters)}
@@ -168,19 +180,19 @@ function LedgerPage() {
               </h3>
             </div>
             <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 border-2 border-emerald-100 flex items-center justify-center transition-transform group-hover:rotate-6">
-              <PieChart size={24} strokeWidth={2.5} />
+              <TrendingUp size={24} strokeWidth={2.5} />
             </div>
           </div>
 
           <div className="bg-white p-7 rounded-[2.5rem] border border-gray-100/50 shadow-2xl shadow-slate-900/[0.03] flex items-center justify-between transition-all hover:-translate-y-1 group">
             <div className="space-y-1.5">
-              <p className="text-[9px] font-black text-teal-700 uppercase tracking-[0.3em]">Total Out (Debit)</p>
+              <p className="text-[9px] font-black text-rose-600 uppercase tracking-[0.3em]">Total Out (Debit)</p>
               <h3 className="text-2xl font-black text-[#0f172a] tracking-tighter tabular-nums leading-none">
                 {stats.totalDebit.toLocaleString(undefined, { minimumFractionDigits: 2 })}
               </h3>
             </div>
-            <div className="w-14 h-14 rounded-2xl bg-teal-50 text-teal-700 border-2 border-teal-100 flex items-center justify-center transition-transform group-hover:rotate-6">
-              <PieChart size={24} strokeWidth={2.5} />
+            <div className="w-14 h-14 rounded-2xl bg-rose-50 text-rose-600 border-2 border-rose-100 flex items-center justify-center transition-transform group-hover:rotate-6">
+              <TrendingDown size={24} strokeWidth={2.5} />
             </div>
           </div>
 

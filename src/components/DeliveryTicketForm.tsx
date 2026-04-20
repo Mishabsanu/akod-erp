@@ -49,9 +49,15 @@ const LineItemValidationSchema = Yup.object().shape({
   itemCode: Yup.string().required('Item code is required'),
   unit: Yup.string().required('Unit is required'),
   description: Yup.string(),
+  availableQty: Yup.number(),
   quantity: Yup.number()
     .typeError('Quantity must be a number')
     .min(1, 'Min 1')
+    .test('max-stock', 'Exceeds stock', function (value) {
+      const { availableQty } = this.parent;
+      if (availableQty === undefined || availableQty === null || availableQty === '') return true;
+      return Number(value) <= Number(availableQty);
+    })
     .required('Quantity is required'),
   requiredQty: Yup.number()
     .typeError('Required Quantity must be a number')
@@ -134,7 +140,7 @@ const DeliveryTicketForm = ({
         if (roRes) {
           setRunningOrders(roRes.map((ro: any) => ({
             ...ro,
-            label: `${ro.invoice_number}`,
+            label: ro.invoice_number,
             value: ro._id
           })));
         }
@@ -349,7 +355,11 @@ const DeliveryTicketForm = ({
         formik.setFieldValue(`items.${index}.quantity`, remaining > 0 ? remaining : 0);
         
         // Also find available stock from the main product list if needed
-        const inventoryProduct = availableProducts.find((p) => p._id === (orderItem.productId?._id || orderItem.productId));
+        const inventoryProduct = availableProducts.find((p) => {
+          const pId = (p.productId?._id || p.productId)?.toString();
+          const targetId = (orderItem.productId?._id || orderItem.productId)?.toString();
+          return pId && targetId && pId === targetId;
+        });
         if (inventoryProduct) {
           formik.setFieldValue(`items.${index}.availableQty`, inventoryProduct.availableQty);
         }
@@ -478,15 +488,9 @@ const DeliveryTicketForm = ({
                 }}
               />
 
-              <FormikInput
-                label="Ticket Type"
-                name="ticketType"
-                readOnly // Assuming this is fixed
-                required
-              />
 
               <FormikInput
-                label="Delivery Ticket No"
+                label="Delivery Note No"
                 name="ticketNo"
                 readOnly // Assuming this is auto-generated
                 required
@@ -512,7 +516,6 @@ const DeliveryTicketForm = ({
               />
 
               <FormikInput label="PO Number" name="poNo" readOnly required />
-              <FormikInput label="Invoice No" name="invoiceNo" readOnly required />
               <FormikInput label="Reference No" name="referenceNo" />
 
               {!isCustomSource ? (
@@ -689,22 +692,14 @@ const DeliveryTicketForm = ({
                                   type="number"
                                   min={1}
                                   max={availableQty}
-
                                 />
 
                                 {/* Available Qty Badge */}
                                 {availableQty !== '' && (
                                   <div className="flex justify-start mt-1">
-                                    <span className="text-[11px] font-medium text-green-600 bg-green-50 px-2 rounded border border-green-100">
-                                      Available: {availableQty} {item.unit || ''}
+                                    <span className={`text-[11px] font-medium px-2 rounded border ${availableQty > 10 ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
+                                      Stock Available: {availableQty} {item.unit || ''}
                                     </span>
-                                  </div>
-                                )}
-
-                                {/* Validation */}
-                                {availableQty !== '' && Number(item.quantity) > Number(availableQty) && (
-                                  <div className="flex items-center gap-1 text-xs text-red-600">
-                                    ⚠ Qty exceeds stock
                                   </div>
                                 )}
                               </div>
@@ -830,51 +825,7 @@ const DeliveryTicketForm = ({
             </Section>
           </div>
 
-          {/* 📂 ATTACHMENTS */}
-          <Section title="Attachments (Optional)">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="p-4 border-2 border-dashed border-gray-200 rounded-xl hover:border-sky-300 transition-colors bg-white">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Signed Delivery Ticket
-                </label>
-                <input
-                  type="file"
-                  onChange={(e) => setSignedTicketFile(e.target.files?.[0] || null)}
-                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100"
-                />
-                {initialData?.attachments?.signedTicket && (
-                   <p className="mt-2 text-xs text-green-600">
-                     Current file: <a href={initialData?.attachments?.signedTicket} target="_blank" className="underline">View Signed Ticket</a>
-                   </p>
-                )}
-              </div>
 
-              <div className="p-4 border-2 border-dashed border-gray-200 rounded-xl hover:border-sky-300 transition-colors bg-white">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Supporting Documents
-                </label>
-                <input
-                  type="file"
-                  multiple
-                  onChange={(e) => {
-                    const files = Array.from(e.target.files || []);
-                    setSupportingDocsFiles(files);
-                  }}
-                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100"
-                />
-                 {(initialData?.attachments?.supportingDocs?.length ?? 0) > 0 && (
-                   <div className="mt-2 space-y-1">
-                     <p className="text-xs font-medium text-gray-600">Existing Docs:</p>
-                     {initialData?.attachments?.supportingDocs?.map((url: string, i: number) => (
-                       <p key={i} className="text-xs text-green-600">
-                         <a href={url} target="_blank" className="underline text-[10px]">Document {i + 1}</a>
-                       </p>
-                     ))}
-                   </div>
-                )}
-              </div>
-            </div>
-          </Section>
 
           {/* Buttons */}
           <div className="flex justify-end gap-4 pt-8 border-t border-gray-200">

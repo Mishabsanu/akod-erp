@@ -16,6 +16,9 @@ import {
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { getInventoryItems } from '@/services/inventoryApi';
+import { formatDate } from '@/app/utils/formatDate';
+import { Clock, Package } from 'lucide-react';
 
 /* ---------------- TABS ---------------- */
 const tabs = [
@@ -31,8 +34,9 @@ const ViewCustomerPage = () => {
   const { id } = useParams();
 
   const [customer, setCustomer] = useState<Customer | null>(null);
+  const [history, setHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<
+  const [activeTab, setActiveTab ] = useState<
     'overview' | 'address' | 'contact' | 'system' | 'transactions'
   >('overview');
 
@@ -40,10 +44,14 @@ const ViewCustomerPage = () => {
   useEffect(() => {
     if (!id) return;
 
-    const fetchCustomer = async () => {
+    const fetchData = async () => {
       try {
-        const data = await getCustomerById(id as string);
-        setCustomer(data);
+        const [customerData, invData] = await Promise.all([
+          getCustomerById(id as string),
+          getInventoryItems({ customer: id as string }, 1, 100)
+        ]);
+        setCustomer(customerData);
+        setHistory(invData.inventoryItems);
       } catch (error) {
         toast.error('Failed to fetch customer data');
         console.error(error);
@@ -52,7 +60,7 @@ const ViewCustomerPage = () => {
       }
     };
 
-    fetchCustomer();
+    fetchData();
   }, [id]);
 
   if (loading) return <LoadingSpinner />;
@@ -190,16 +198,66 @@ const ViewCustomerPage = () => {
           </Section>
         )}
 
-        {/* ---------- TRANSACTIONS ---------- */}
         {activeTab === 'transactions' && (
-          <Section title="Transactions">
-            <div className="border border-dashed border-slate-300 rounded-xl p-12 bg-white text-center">
-              <p className="text-sm text-slate-500 mb-2">
-                Invoices, payments, and other transactions
-              </p>
-              <p className="text-slate-400 text-sm">
-                No transactions available
-              </p>
+          <Section title="Operational History">
+            <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+               <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                     <thead>
+                        <tr className="bg-slate-50/50">
+                           <th className="px-8 py-5 text-[10px] font-black text-slate-400 upper-case tracking-[0.2em]">Timestamp</th>
+                           <th className="px-8 py-5 text-[10px] font-black text-slate-400 upper-case tracking-[0.2em]">Product / SKU</th>
+                           <th className="px-8 py-5 text-[10px] font-black text-slate-400 upper-case tracking-[0.2em]">Quantity</th>
+                           <th className="px-8 py-5 text-[10px] font-black text-slate-400 upper-case tracking-[0.2em]">Status</th>
+                           <th className="px-8 py-5 text-[10px] font-black text-slate-400 upper-case tracking-[0.2em]">Record ID</th>
+                        </tr>
+                     </thead>
+                     <tbody className="divide-y divide-slate-100">
+                        {history.length > 0 ? (
+                           history.map((item, idx) => (
+                              <tr key={idx} className="hover:bg-slate-50/50 transition-colors group">
+                                 <td className="px-8 py-5">
+                                    <div className="flex items-center gap-3">
+                                       <div className="p-2 bg-slate-50 text-slate-400 rounded-lg group-hover:bg-[#0f766e] group-hover:text-white transition-all">
+                                          <Clock size={14} />
+                                       </div>
+                                       <span className="text-xs font-bold text-slate-600">{formatDate(item.createdAt)}</span>
+                                    </div>
+                                 </td>
+                                 <td className="px-8 py-5">
+                                    <div className="flex flex-col">
+                                       <span className="text-xs font-black text-slate-800 uppercase tracking-tight">{item.product?.name}</span>
+                                       <span className="text-[10px] font-bold text-slate-400">{item.itemCode}</span>
+                                    </div>
+                                 </td>
+                                 <td className="px-8 py-5">
+                                    <span className="text-sm font-black text-rose-600">-{item.orderedQty}</span>
+                                 </td>
+                                 <td className="px-8 py-5">
+                                    <span className="text-[10px] font-black px-3 py-1 bg-amber-50 text-amber-700 rounded-full border border-amber-100 uppercase tracking-widest">
+                                       DISPATCHED
+                                    </span>
+                                 </td>
+                                 <td className="px-8 py-5">
+                                    <span className="text-xs font-bold text-slate-500">{item.poNo || item.reference || '--'}</span>
+                                 </td>
+                              </tr>
+                           ))
+                        ) : (
+                           <tr>
+                              <td colSpan={5} className="px-8 py-20 text-center">
+                                 <div className="flex flex-col items-center gap-3">
+                                    <div className="w-12 h-12 bg-slate-50 text-slate-200 rounded-2xl flex items-center justify-center">
+                                       <Package size={24} />
+                                    </div>
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">No operational history detected</p>
+                                 </div>
+                              </td>
+                           </tr>
+                        )}
+                     </tbody>
+                  </table>
+               </div>
             </div>
           </Section>
         )}

@@ -19,13 +19,17 @@ import {
   Layers,
   ArrowUpRight,
   History,
-  AlertCircle
+  AlertCircle,
+  Printer
 } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useState, use } from 'react';
+import { useEffect, useState, use, useRef } from 'react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import ListPageHeader from '@/components/shared/ListPageHeader';
+import RunningOrderReport from '@/components/running-order/RunningOrderReport';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 const getStatusColor = (status: string) => {
     switch (status) {
@@ -56,6 +60,45 @@ const ViewRunningOrderPage = ({ params: paramsPromise }: ViewRunningOrderPagePro
   const [order, setOrder] = useState<RunningOrder | null>(null);
   const [fulfillment, setFulfillment] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const reportRef = useRef<HTMLDivElement>(null);
+
+  const handleDownloadPdf = async () => {
+    if (!reportRef.current || !order) return;
+    
+    setIsDownloading(true);
+    try {
+      const element = reportRef.current;
+      
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff'
+      });
+      
+      const imgData = canvas.toDataURL('image/jpeg', 1.0);
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+      
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      
+      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`Audit_Report_${order.order_number}.pdf`);
+      
+      toast.success('Audit Report downloaded successfully');
+    } catch (error) {
+      console.error('PDF Generation Error:', error);
+      toast.error('Failed to generate PDF');
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   useEffect(() => {
     if (!id) return;
@@ -124,15 +167,31 @@ const ViewRunningOrderPage = ({ params: paramsPromise }: ViewRunningOrderPagePro
             </div>
           </div>
 
-          {can('running_order', 'update') && (
-            <button
-              onClick={() => router.push(`/running-order/edit/${id}`)}
-              className="flex items-center justify-center gap-2 bg-[#0f766e] hover:bg-[#0d9488] text-white font-black text-xs uppercase tracking-widest px-6 py-3.5 rounded-2xl shadow-xl shadow-teal-900/10 transition-all"
-            >
-              <Edit2 size={16} />
-              Modify Order
-            </button>
-          )}
+          <div className="flex items-center gap-3">
+            {can('running_order', 'view') && (
+              <button
+                onClick={handleDownloadPdf}
+                disabled={isDownloading}
+                className={`flex items-center justify-center gap-2 bg-sky-600 hover:bg-sky-700 text-white font-black text-xs uppercase tracking-widest px-6 py-3.5 rounded-2xl shadow-xl shadow-sky-900/10 transition-all ${isDownloading ? 'opacity-70 cursor-not-allowed' : ''}`}
+              >
+                {isDownloading ? (
+                  <Clock className="animate-spin" size={16} />
+                ) : (
+                  <Download size={16} />
+                )}
+                {isDownloading ? 'Generating...' : 'Download Audit PDF'}
+              </button>
+            )}
+            {can('running_order', 'update') && (
+              <button
+                onClick={() => router.push(`/running-order/edit/${id}`)}
+                className="flex items-center justify-center gap-2 bg-[#0f766e] hover:bg-[#0d9488] text-white font-black text-xs uppercase tracking-widest px-6 py-3.5 rounded-2xl shadow-xl shadow-teal-900/10 transition-all"
+              >
+                <Edit2 size={16} />
+                Modify Order
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -289,6 +348,17 @@ const ViewRunningOrderPage = ({ params: paramsPromise }: ViewRunningOrderPagePro
             )}
           </div>
         </div>
+
+        {/* Hidden Report Container for PDF Generation */}
+        {order && fulfillment && (
+          <div className="fixed left-[-9999px] top-[-9999px] pointer-events-none">
+            <RunningOrderReport 
+              ref={reportRef} 
+              order={order} 
+              fulfillment={fulfillment} 
+            />
+          </div>
+        )}
       </div>
     </div>
   );

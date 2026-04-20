@@ -15,8 +15,7 @@ const CustomerValidationSchema = Yup.object({
 
   name: Yup.string()
     .trim()
-    .min(3, 'Minimum 3 characters')
-    .required('Customer name is required'),
+    .min(3, 'Minimum 3 characters'),
   company: Yup.string()
     .trim()
     .min(3, 'Minimum 3 characters')
@@ -76,7 +75,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
       await onSubmit(
         {
           ...values,
-          name: values.name.trim(),
+          name: values.name?.trim(),
           company: values.company.trim(),
           email: values.email.trim().toLowerCase(),
         } as Customer,
@@ -103,12 +102,6 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
           {/* Basic Info */}
           <Section eyebrow="Relationship" title="Basic" highlight="Information">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <FormikInput
-                label="Customer Name"
-                name="name"
-                placeholder="John Doe"
-                required
-              />
               <FormikInput
                 label="Company Name"
                 name="company"

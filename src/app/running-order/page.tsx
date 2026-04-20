@@ -123,10 +123,17 @@ const RunningOrdersPage = () => {
     const columns: Column<RunningOrder>[] = useMemo(() => {
         const baseColumns: Column<RunningOrder>[] = [
             {
+                accessor: 'order_number',
+                header: 'Order #',
+                render: (order) => (
+                    <span className="font-black text-[#0f766e] tracking-tight text-sm uppercase">{order.order_number}</span>
+                )
+            },
+            {
                 accessor: 'invoice_number',
                 header: 'Invoice #',
                 render: (order) => (
-                    <span className="font-black text-[#0f766e] tracking-tight text-sm uppercase">{order.invoice_number}</span>
+                    <span className="text-xs font-black text-gray-400 uppercase tracking-widest">{order.invoice_number || '---'}</span>
                 )
             },
             {
@@ -179,22 +186,7 @@ const RunningOrdersPage = () => {
                     );
                 }
             },
-            {
-                accessor: '_id' as any,
-                header: 'Brief History',
-                render: (order: any) => (
-                    <div className="flex flex-col gap-1.5 min-w-[140px]">
-                        <div className="flex items-center justify-between bg-sky-50/50 border border-sky-100 rounded-lg px-2 py-1">
-                            <span className="text-[8px] font-black text-sky-600 uppercase">Dispatched</span>
-                            <span className="text-[10px] font-bold text-sky-700">View Detail</span>
-                        </div>
-                        <div className="flex items-center justify-between bg-rose-50/50 border border-rose-100 rounded-lg px-2 py-1">
-                            <span className="text-[8px] font-black text-rose-600 uppercase">Returns</span>
-                            <span className="text-[10px] font-bold text-rose-700">View Detail</span>
-                        </div>
-                    </div>
-                )
-            },
+
             {
                 accessor: 'createdAt' as any,
                 header: 'Created Date',

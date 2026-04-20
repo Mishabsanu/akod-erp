@@ -11,6 +11,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import withAuth from '@/components/withAuth';
+import { useAuth } from '@/contexts/AuthContext';
 
 import {
     Area,
@@ -50,7 +51,6 @@ type DashboardData = {
             contribution: { avgBasic: number; avgHra: number; avgDeductions: number };
         };
         sales: {
-            totalQuotes: number;
             totalSalesCount: number;
             approvalCount: number;
             pendingCount: number;
@@ -73,6 +73,7 @@ const STOCK_COLORS: { [key: string]: string } = {
 function Dashboard() {
     const [data, setData] = useState<DashboardData | null>(null);
     const [loading, setLoading] = useState(true);
+    const { user } = useAuth();
     const router = useRouter();
 
     useEffect(() => {
@@ -111,7 +112,7 @@ function Dashboard() {
                             <span className="px-2 py-0.5 bg-teal-50 text-[8px] font-black text-[#0f766e] rounded-full uppercase tracking-tighter border border-teal-100">Live v2.1</span>
                         </div>
                         <h1 className="text-4xl font-black text-[#0f766e] tracking-tight">
-                            Welcome <span className="gradient-text">back, {data.role?.charAt(0).toUpperCase() || ''}{data.role?.slice(1) || ''}</span>
+                            Welcome <span className="gradient-text">back, {user?.name || data.role || 'Guest'}</span>
                         </h1>
                     </div>
                 </div>
@@ -141,12 +142,6 @@ function Dashboard() {
                                 Lead Pipeline <span className="gradient-text">Matrix</span>
                             </h2>
                         </div>
-                        <button
-                            onClick={() => router.push('/quote-track')}
-                            className="text-[10px] font-black text-[#0f766e] uppercase tracking-widest hover:underline"
-                        >
-                            View Full Funnel →
-                        </button>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                         <TrendCard title="Today's Leads" value={data.stats.sales.timeframes.today} label="New Proposals" color="teal" icon={<Calendar />} />
@@ -235,7 +230,7 @@ function Dashboard() {
                             <div className="w-full h-3 bg-white/10 rounded-full overflow-hidden">
                                 <div
                                     className="h-full bg-emerald-400 shadow-[0_0_15px_rgba(52,211,153,0.5)] transition-all duration-1000"
-                                    style={{ width: `${Math.round((data.stats.sales.approvalCount / (data.stats.sales.totalQuotes || 1)) * 100)}%` }}
+                                    style={{ width: `${Math.round((data.stats.sales.approvalCount / ((data.stats.sales.approvalCount + data.stats.sales.pendingCount) || 1)) * 100)}%` }}
                                 />
                             </div>
                         </div>

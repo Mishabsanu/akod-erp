@@ -18,13 +18,13 @@ interface StatsProps {
 const LeadsStatsWidgets: React.FC<StatsProps> = ({ stats, loading }) => {
   const cards = [
     {
-      label: 'Global Pipeline',
+      label: 'Total Leads',
       value: stats['All Statuses'] || 0,
       icon: Users,
       color: 'bg-teal-50 text-[#0f766e] border-teal-100',
     },
     {
-      label: 'New Acquisition',
+      label: 'New Leads',
       value: stats['New Lead'] || 0,
       icon: MessageSquare,
       color: 'bg-sky-50 text-sky-600 border-sky-100',

@@ -52,19 +52,17 @@ const LineItemValidationSchema = Yup.object().shape({
     .min(0, 'Cannot be negative')
     .test(
       'is-less-than-available',
-      'Return quantity cannot exceed available quantity',
+      'Return quantity cannot exceed balance quantity',
       function (value) {
         const { quantity, totalReturnedQty } = this.parent;
-        const availableQty = (quantity || 0) - (totalReturnedQty || 0);
-        return value !== undefined && value !== null && value <= availableQty;
+        const balanceQty = (quantity || 0) - (totalReturnedQty || 0);
+        return value !== undefined && value !== null && value <= balanceQty;
       }
     ),
 });
 
 const validationSchema = Yup.object().shape({
-  customerId: Yup.string().required('Customer is required'),
   returnDate: Yup.string().required('Return date is required'),
-  reason: Yup.string().required('Reason for return is required'),
   subject: Yup.string().required('Subject is required'),
   projectLocation: Yup.string().required('Project location is required'),
   noteCategory: Yup.string().required('Note category is required'),
@@ -138,10 +136,10 @@ const ReturnTicketForm = ({
         if (roRes) {
           setRunningOrders(roRes.map((ro: any) => ({
             ...ro,
-            label: `${ro.invoice_number} (PO: ${ro.po_number || 'N/A'})`,
+            label: ro.invoice_number || ro.order_number,
             value: ro._id
           })));
-          
+
           setPurchaseOrders(roRes.map((ro: any) => ({ value: ro.po_number, label: ro.po_number })));
         }
       } catch (error) {
@@ -160,7 +158,6 @@ const ReturnTicketForm = ({
       customerName: initialData?.customerName || '',
       parentTicketNo: initialData?.parentTicketNo,
       returnDate: formatDateToYYYYMMDD(initialData?.returnDate || new Date()),
-      reason: initialData?.reason || '',
       ticketType: initialData?.ticketType || 'Return Note',
       ticketNo: initialData?.ticketNo,
       poNo: initialData?.poNo || '',
@@ -242,11 +239,11 @@ const ReturnTicketForm = ({
 
   const filteredRunningOrders = useMemo(() => {
     if (!formik.values.customerId) return runningOrders;
-    
+
     const customer = customers.find(c => c.value === formik.values.customerId);
     if (customer) {
-      const filtered = runningOrders.filter(ro => 
-        (ro.company_name && ro.company_name === customer.label) || 
+      const filtered = runningOrders.filter(ro =>
+        (ro.company_name && ro.company_name === customer.label) ||
         (ro.client_name && ro.client_name === customer.label)
       );
       // If no invoices found for this specific customer, show all to avoid "empty dropdown" confusion
@@ -277,19 +274,19 @@ const ReturnTicketForm = ({
     const autoFillFromPO = async () => {
       // Define a base empty/default state for the form
       const baseEmptyFormState = {
-        customerId: '',
+        customerId: formik.values.customerId || '',
+        customerName: formik.values.customerName || '',
         runningOrderId: formik.values.runningOrderId || '',
-        customerName: '',
         returnDate: new Date().toISOString().slice(0, 10), // Default to today
         reason: '',
         ticketType: 'Return Note',
         ticketNo: formik.values.ticketNo || '',
-        poNo: '',
-        invoiceNo: '',
+        poNo: formik.values.poNo || '',
+        invoiceNo: formik.values.invoiceNo || '',
         referenceNo: '',
-        subject: '',
-        projectLocation: '',
-        noteCategory: '',
+        subject: formik.values.subject || '',
+        projectLocation: formik.values.projectLocation || '',
+        noteCategory: formik.values.noteCategory || '',
         vehicleNo: '',
         items: [
           {
@@ -319,15 +316,14 @@ const ReturnTicketForm = ({
       if (formik.values.poNo) {
         // PO is selected: fetch and populate
         try {
-          const deliveryTicket: DeliveryTicket | null =
-            await getDeliveryTicketByPo(formik.values.poNo);
+          const deliveryTicket: any = await getDeliveryTicketByPo(formik.values.poNo);
 
           if (deliveryTicket) {
             // EDIT MODE: Merge stats only, do NOT reset form
             if (isEditMode && formik.values.poNo === initialData?.poNo) {
               const updatedItems = formik.values.items.map((currentItem: any) => {
                 const poItem = deliveryTicket.items.find(
-                  (i) => i.itemCode === currentItem.itemCode
+                  (i: any) => i.itemCode === currentItem.itemCode
                 );
                 if (!poItem) return currentItem;
 
@@ -355,50 +351,47 @@ const ReturnTicketForm = ({
             }
 
             // NEW MODE: Full Auto-fill
+            const mappedItems = (deliveryTicket.items || []).map((item: any) => {
+              const deliveredQty = Number(item.quantity) || 0;
+              const returnedQty = Number(item.returnedQty) || 0;
+              const availableQty = Math.max(deliveredQty - returnedQty, 0);
+
+              return {
+                productId: item.productId || item.product?._id || '',
+                name: item.name || item.product?.name || '',
+                itemCode: item.itemCode || item.product?.itemCode || '',
+                unit: item.unit || item.product?.unit || '',
+                description: item.description || '',
+                quantity: deliveredQty,
+                totalReturnedQty: returnedQty,
+                returnQty: availableQty,
+              };
+            });
+
             formik.setValues({
-              ...baseEmptyFormState, // Start with empty state to clear all previous autofilled data
-              runningOrderId: formik.values.runningOrderId, 
-              poNo: formik.values.poNo, // Keep the selected PO number
-              ticketNo: formik.values.ticketNo,
-              customerId: deliveryTicket.customerId,
-              customerName: deliveryTicket.customerName,
+              ...baseEmptyFormState,
+              poNo: formik.values.poNo,
+              customerId: deliveryTicket.customerId || formik.values.customerId,
+              customerName: deliveryTicket.customerName || formik.values.customerName,
               parentTicketNo: deliveryTicket.ticketNo,
-              subject: deliveryTicket.subject,
-              projectLocation: deliveryTicket.projectLocation,
-              noteCategory: deliveryTicket.noteCategory,
-              vehicleNo: deliveryTicket.vehicleNo,
-              invoiceNo: deliveryTicket.invoiceNo,
-              referenceNo: deliveryTicket.referenceNo,
-              items: deliveryTicket.items.map((item) => {
-                const deliveredQty = Number(item.quantity) || 0;
-                const returnedQty = Number(item.returnedQty) || 0;
-                const availableQty = Math.max(deliveredQty - returnedQty, 0);
-
-                return {
-                  productId: item.productId,
-                  name: item.name,
-                  itemCode: item.itemCode,
-                  unit: item.unit,
-                  quantity: deliveredQty, // Delivered Qty
-                  totalReturnedQty: returnedQty, // UI field
-                  returnQty: availableQty, // Default to full return as requested
-                };
-              }),
-
-              reason: deliveryTicket.reason,
-              returnDate: baseEmptyFormState.returnDate, // Reset return date to default
-            } as any); // Cast to any to bypass strict type checking temporarily
+              subject: deliveryTicket.subject || formik.values.subject,
+              projectLocation: deliveryTicket.projectLocation || formik.values.projectLocation,
+              noteCategory: deliveryTicket.noteCategory || formik.values.noteCategory,
+              vehicleNo: deliveryTicket.vehicleNo || formik.values.vehicleNo,
+              invoiceNo: deliveryTicket.invoiceNo || formik.values.invoiceNo,
+              referenceNo: deliveryTicket.referenceNo || formik.values.referenceNo,
+              items: mappedItems.length > 0 ? mappedItems : baseEmptyFormState.items,
+              reason: '',
+            } as any);
             setIsPoSelected(true);
           }
         } catch (error) {
           console.error('Failed to fetch delivery ticket details:', error);
-          // If fetch fails, reset to empty state and de-select PO
-          formik.setValues(baseEmptyFormState as any);
           setIsPoSelected(false);
         }
-      } else {
-        // PO is deselected: reset to empty form state
-        formik.setValues(baseEmptyFormState as any);
+      } else if (!isEditMode) {
+        // PO is deselected and not in edit mode: reset to empty form state
+        // formik.setValues(baseEmptyFormState as any);
         setIsPoSelected(false);
       }
     };
@@ -453,8 +446,8 @@ const ReturnTicketForm = ({
             {isEditMode ? 'Modify' : 'Initialize'} <span className="gradient-text">Return Ticket</span>
           </h1>
           <p className="page-header-description">
-            {isEditMode 
-              ? 'Update the details of this return authorization. Ensure the returned quantities are verified against the original delivery.' 
+            {isEditMode
+              ? 'Update the details of this return authorization. Ensure the returned quantities are verified against the original delivery.'
               : 'Initialize a new return process. Select the original PO to auto-fill delivered quantities and track returns.'}
           </p>
         </div>
@@ -464,66 +457,68 @@ const ReturnTicketForm = ({
         <form onSubmit={formik.handleSubmit} className="space-y-10">
           <Section title="Basic Information">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              <FormikSelect
-                label="Invoice Number"
-                name="runningOrderId"
-                options={filteredRunningOrders}
-                onChange={(e) => {
-                  formik.handleChange(e);
-                  const selected = runningOrders.find(ro => ro.value === e.target.value);
-                  if (selected) {
-                    formik.setFieldValue('poNo', selected.po_number || '');
-                    formik.setFieldValue('invoiceNo', selected.invoice_number);
-                    formik.setFieldValue('subject', selected.location_from || '');
-                    formik.setFieldValue('projectLocation', selected.location_to || '');
-                    formik.setFieldValue('noteCategory', selected.transaction_type || 'Sale');
-                    
-                    // Auto-link customer
-                    const customer = customers.find((c) => 
-                      c.label === selected.company_name || c.label === selected.client_name
-                    );
-                    if (customer) {
-                      formik.setFieldValue('customerId', customer.value);
-                      formik.setFieldValue('customerName', customer.label);
-                      setIsPoSelected(true);
-                    }
-                  }
-                }}
-                required
-              />
-              <FormikInput label="PO Number" name="poNo" readOnly required />
+              {/* 1. SELECT COMPANY FIRST */}
               <FormikSelect
                 label="Company Name"
                 name="customerId"
                 options={customers}
                 required
-                disabled={isPoSelected}
                 onChange={(e) => {
                   formik.handleChange(e);
+                  const product = availableProducts.find((p) => {
+                    const pId = (p.productId?._id || p.productId)?.toString();
+                    const targetId = (e.target.value?._id || e.target.value)?.toString();
+                    return pId && targetId && pId === targetId;
+                  });
                   const selected = customers.find(c => c.value === e.target.value);
                   if (selected) {
                     formik.setFieldValue('customerName', selected.label);
                   }
-                  // Reset PO selection when Company changes
+                  // RESET Invoice selection when Company changes
                   formik.setFieldValue('runningOrderId', '');
                   formik.setFieldValue('poNo', '');
+                  formik.setFieldValue('invoiceNo', '');
                   setIsPoSelected(false);
                 }}
               />
+
+              {/* 2. SELECT ORDER (Filtered by Company) */}
+              <FormikSelect
+                label="Invoice Number"
+                name="runningOrderId"
+                options={formik.values.customerId ? filteredRunningOrders : []}
+                disabled={!formik.values.customerId}
+                required
+                onChange={async (e) => {
+                  formik.handleChange(e);
+                  const selected = runningOrders.find(ro => ro.value === e.target.value);
+                  if (selected) {
+                    // Populate basic fields immediately
+                    formik.setFieldValue('poNo', selected.po_number || '');
+                    formik.setFieldValue('invoiceNo', selected.invoice_number);
+                    formik.setFieldValue('subject', selected.location_from || '');
+                    formik.setFieldValue('projectLocation', selected.location_to || '');
+                    formik.setFieldValue('noteCategory', selected.transaction_type || 'Sale');
+
+                    // This poNo update will trigger the autoFillFromPO useEffect for products
+                    setIsPoSelected(true);
+                  } else {
+                    setIsPoSelected(false);
+                  }
+                }}
+              />
+
+              <FormikInput label="PO Number" name="poNo" readOnly required />
+
               <FormikInput
                 label="Return Date"
-                name="returnDate"
+                name='returnDate'
                 type="date"
                 required
               />
-              <FormikInput label="Reason for Return" name="reason" required />
-              <FormikInput label="Ticket Type" name="ticketType" readOnly />
+
               <FormikInput label="Ticket No" name="ticketNo" readOnly />
-              <FormikInput
-                label="Invoice No"
-                name="invoiceNo"
-                disabled={isPoSelected}
-              />
+
               <FormikInput
                 label="Reference No"
                 name="referenceNo"
@@ -569,31 +564,23 @@ const ReturnTicketForm = ({
                     <thead>
                       <tr>
                         <th className="p-2 border border-gray-200">S.No</th>
-                        <th className="p-2 border border-gray-200">Product</th>
-                        <th className="p-2 border border-gray-200">
-                          Item Code
-                        </th>
-                        <th className="p-2 border border-gray-200">Unit</th>
-
-                        <th className="p-2 border border-gray-200">
-                          Delivered Qty
-                        </th>
-                        <th className="p-2 border border-gray-200">
-                          Previously Returned
-                        </th>
-                        <th className="p-2 border border-gray-200">
-                          Return Qty
-                        </th>
-                        <th className="p-2 border border-gray-200">
-                          Description
-                        </th>
+                        <th className="p-2 border border-gray-200">Product Info</th>
+                        <th className="p-2 border border-gray-200 w-24">Item Code</th>
+                        <th className="p-2 border border-gray-200 w-20">Unit</th>
+                        <th className="p-2 border border-gray-200 w-44">Delivered Qty</th>
+                        <th className="p-2 border border-gray-200 w-32 font-black text-teal-800 text-center">Return Qty</th>
+                        <th className="p-2 border border-gray-200">Description</th>
                       </tr>
                     </thead>
                     <tbody>
                       {formik.values.items.map((row: any, idx: number) => {
+                        const deliveredQty = Number(row.quantity) || 0;
+                        const previouslyReturned = Number(row.totalReturnedQty) || 0;
+                        const balanceAvailable = Math.max(0, deliveredQty - previouslyReturned);
+
                         return (
                           <tr key={idx}>
-                            <td className="p-2 text-center border border-gray-200">
+                            <td className="p-2 text-center border border-gray-200 text-xs text-gray-500 font-medium">
                               {idx + 1}
                             </td>
                             <td className="p-2 border border-gray-200">
@@ -601,6 +588,7 @@ const ReturnTicketForm = ({
                                 label=""
                                 name={`items.${idx}.name`}
                                 readOnly
+                                className="font-bold border-none bg-transparent h-auto py-0 shadow-none mb-0 text-sm"
                               />
                             </td>
                             <td className="p-2 border border-gray-200">
@@ -608,41 +596,46 @@ const ReturnTicketForm = ({
                                 label=""
                                 name={`items.${idx}.itemCode`}
                                 readOnly
+                                className="border-none bg-transparent h-auto py-0 shadow-none mb-0 text-xs text-gray-500"
                               />
                             </td>
                             <td className="p-2 border border-gray-200">
-                              <FormikInput
-                                label=""
-                                name={`items.${idx}.unit`}
-                                readOnly
-                              />
+                              <div className="flex justify-center uppercase text-xs font-bold text-gray-400">
+                                {row.unit}
+                              </div>
                             </td>
 
                             <td className="p-2 border border-gray-200">
-                              <FormikInput
-                                label=""
-                                name={`items.${idx}.quantity`}
-                                type="number"
-                                readOnly
-                              />
+                              <div className="flex flex-col">
+                                <FormikInput
+                                  label=""
+                                  name={`items.${idx}.quantity`}
+                                  type="number"
+                                  readOnly
+                                  className="text-center font-bold bg-gray-50"
+                                />
+                                <div className="flex justify-center mt-1">
+                                  <span className="text-[9px] font-black px-1.5 rounded border bg-slate-50 text-slate-500 border-slate-200 uppercase tracking-tighter whitespace-nowrap">
+                                    prev. Return: {previouslyReturned}
+                                  </span>
+                                </div>
+                              </div>
                             </td>
-                            <td className="p-2 border border-gray-200 bg-sky-50">
-                              <FormikInput
-                                label=""
-                                name={`items.${idx}.totalReturnedQty`}
-                                type="number"
-                                readOnly
-                                className="text-sky-700 font-semibold text-center"
-                              />
-                            </td>
-
-                            <td className="p-2 border border-gray-200">
-                              <FormikInput
-                                label=""
-                                name={`items.${idx}.returnQty`}
-                                type="number"
-                                min={0}
-                              />
+                            <td className="p-2 border border-gray-300 bg-teal-50/20">
+                              <div className="flex flex-col">
+                                <FormikInput
+                                  label=""
+                                  name={`items.${idx}.returnQty`}
+                                  type="number"
+                                  min={0}
+                                  className="text-center font-black text-teal-800 border-teal-200 focus:border-teal-500"
+                                />
+                                <div className="flex justify-center mt-1">
+                                  <span className={`text-[9px] font-black px-1.5 rounded border uppercase tracking-tighter whitespace-nowrap ${balanceAvailable > 0 ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
+                                    Balance to Return: {balanceAvailable}
+                                  </span>
+                                </div>
+                              </div>
                             </td>
                             <td className="p-2 border border-gray-200 ">
                               <FormikInput

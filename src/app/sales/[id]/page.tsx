@@ -5,6 +5,7 @@ import withAuth from '@/components/withAuth';
 import { useAuth } from '@/contexts/AuthContext';
 import { Sale } from '@/lib/types';
 import { getSaleById } from '@/services/salesApi';
+import { getFileUrl } from '@/app/utils/fileUtils';
 import {
     ArrowLeft,
     Briefcase,
@@ -130,7 +131,7 @@ const SalesViewPage = ({ params: paramsPromise }: SalesViewPageProps) => {
                     <InfoItem label="Email Address" value={sale.email} icon={Mail} />
                     <InfoItem label="Mobile Number" value={sale.contactPersonMobile} icon={Phone} />
                     <InfoItem label="Position" value={sale.position} icon={Tag} />
-                    <InfoItem label="Location" value={`${sale.location}, ${sale.region}`} icon={MapPin} />
+                    <InfoItem label="Location" value={sale.location} icon={MapPin} />
                     <InfoItem label="Business Type" value={sale.businessType || 'N/A'} icon={Briefcase} />
                 </div>
             </DetailSection>
@@ -189,9 +190,12 @@ const SalesViewPage = ({ params: paramsPromise }: SalesViewPageProps) => {
                                         <td className="py-5 pr-4">
                                             <div className="flex flex-col">
                                                 <span className="text-[13px] font-bold text-[#0f766e]">
-                                                    {entry.followUpDate ? new Date(entry.followUpDate).toLocaleDateString() : 'N/A'}
+                                                    {entry.updatedAt || entry.date ? new Date(entry.updatedAt || entry.date).toLocaleDateString() : 'N/A'}
                                                 </span>
-                                                <span className="text-[10px] text-gray-400 font-bold uppercase whitespace-nowrap">Next Review</span>
+                                                <div className="flex items-center gap-1 mt-0.5">
+                                                    <span className="text-[9px] text-gray-400 font-bold uppercase whitespace-nowrap tracking-tighter">Next Review:</span>
+                                                    <span className="text-[9px] text-teal-600 font-black uppercase">{entry.followUpDate || 'None'}</span>
+                                                </div>
                                             </div>
                                         </td>
                                         <td className="py-5 text-right">
@@ -222,12 +226,13 @@ const SalesViewPage = ({ params: paramsPromise }: SalesViewPageProps) => {
             {sale.attachments && sale.attachments.length > 0 && (
                 <DetailSection title="Related Documents" icon={Paperclip}>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {sale.attachments.map((file, index) => {
-                            const fileName = file.split('/').pop() || 'Document';
+                        {sale.attachments.map((url: string, index: number) => {
+                            if (!url) return null;
+                            const fileName = url.split('/').pop() || 'Document';
                             return (
                                 <a
                                     key={index}
-                                    href={file}
+                                    href={getFileUrl(url)}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="flex items-center justify-between p-4 rounded-xl border border-gray-100 bg-white hover:border-[#0f766e] hover:shadow-md transition-all group"

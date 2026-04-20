@@ -13,8 +13,8 @@ import {
 } from '@/services/returnTicketApi';
 import {
   Edit2,
+  Eye,
   Filter,
-  MoreVertical, // Appropriate icon for Return Ticket
   Plus,
   Trash2,
 } from 'lucide-react';
@@ -154,13 +154,16 @@ const ReturnTicketPage = () => {
   const columns: Column<ReturnTicket>[] = useMemo(() => {
     const baseColumns: Column<ReturnTicket>[] = [
       { accessor: 'ticketNo', header: 'Ticket No' },
-      { accessor: 'ticketType', header: 'Ticket Type' },
       { accessor: 'customerName', header: 'Customer' },
+
       { accessor: 'poNo', header: 'PO No' },
       { accessor: 'invoiceNo', header: 'Invoice No' },
       { accessor: 'noteCategory', header: 'Category' },
-
-      // ✅ Derived columns
+      {
+        accessor: 'deliveredBy' as any,
+        header: 'Delivered By',
+        render: (ticket) => ticket.deliveredBy?.deliveredByName || '—'
+      },
       {
         accessor: 'returnDate',
         header: 'Return Date',
@@ -169,7 +172,7 @@ const ReturnTicketPage = () => {
         ),
       },
       {
-        accessor: '_id' as keyof ReturnTicket,
+        accessor: 'items' as any,
         header: 'Items',
         render: (ticket) => (
           <span className="font-medium bg-gray-100 px-2 py-1 rounded text-gray-700">
@@ -199,10 +202,22 @@ const ReturnTicketPage = () => {
 
     if (can('return_ticket', 'update') || can('return_ticket', 'delete')) {
       baseColumns.push({
-        accessor: '_id',
+        accessor: 'actions' as any,
         header: 'Actions',
         render: (ticket) => (
           <div className="flex items-center gap-2">
+            {can('return_ticket', 'view') && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (ticket._id) router.push(`/return-ticket/${ticket._id}`);
+                }}
+                className="w-9 h-9 flex items-center justify-center text-gray-500 hover:text-sky-600 hover:bg-sky-50 rounded-lg transition-all border border-gray-100 hover:border-sky-200"
+                title="View"
+              >
+                <Eye className="w-4 h-4" />
+              </button>
+            )}
             {can('return_ticket', 'update') && (
               <button
                 onClick={(e) => {

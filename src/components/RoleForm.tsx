@@ -64,6 +64,7 @@ const emptyPermissions = {
   facility: { view: false, create: false, update: false, delete: false },
   worker: { view: false, create: false, update: false, delete: false },
   utility: { view: false, create: false, update: false, delete: false },
+  raw_material: { view: false, create: false, update: false, delete: false },
 };
 
 const MODULE_CONFIG: Record<string, { label: string; icon: any; category: string }> = {
@@ -84,6 +85,8 @@ const MODULE_CONFIG: Record<string, { label: string; icon: any; category: string
   delivery_ticket: { label: 'Delivery Challan', icon: Truck, category: 'Inventory' },
   return_ticket: { label: 'Return Records', icon: RotateCcw, category: 'Inventory' },
   running_order: { label: 'Running Order', icon: Activity, category: 'Inventory' },
+  raw_material: { label: 'Raw Material Stock', icon: Package, category: 'Inventory' },
+
 
   // HR & Payroll
   user: { label: 'Employee', icon: Users, category: 'HR & Payroll' },

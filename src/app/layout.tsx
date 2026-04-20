@@ -5,8 +5,8 @@ import LayoutWrapper from '@/components/LayoutWrapper';
 import 'react-phone-input-2/lib/style.css';
 import { Toaster } from 'sonner';
 export const metadata: Metadata = {
-  title: 'PROSERVE CRM',
-  description: 'A CRM sales application',
+  title: 'PROSERVE ERP',
+  description: 'Enterprise Resource Planning Application',
 };
 
 export default function RootLayout({

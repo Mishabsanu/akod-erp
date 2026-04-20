@@ -32,6 +32,7 @@ const validationSchema = Yup.object().shape({
     .oneOf(['active', 'inactive'])
     .required('Status is required'),
   unit: Yup.string().required('Unit is required'),
+  reorderLevel: Yup.number().min(0, 'Minimum 0').required('Reorder level is required'),
   description: Yup.string().required('Description is required'),
 });
 
@@ -50,6 +51,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
       itemCode: initialData?.itemCode || '',
       status: initialData?.status || 'active',
       unit: initialData?.unit || '',
+      reorderLevel: initialData?.reorderLevel || 0,
       description: initialData?.description || '',
     },
     validationSchema, // Enable validation here
@@ -116,6 +118,13 @@ const ProductForm: React.FC<ProductFormProps> = ({
                 name="description"
                 required
                 placeholder="e.g. High quality plastic storage container"
+              />
+              <FormikInput
+                label="Reorder Level"
+                name="reorderLevel"
+                type="number"
+                required
+                placeholder="0"
               />
               <FormikSelect
                 label="Status"

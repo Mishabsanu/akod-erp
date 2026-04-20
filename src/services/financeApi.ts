@@ -60,6 +60,11 @@ export const getExpenses = async (filter: ExpenseFilter, page = 1, limit = 10, s
   };
 };
 
+export const getNextExpenseId = async () => {
+    const { data } = await api.get<ApiResponse<{nextId: string}>>('/finance/expenses/next-id');
+    return data.data.nextId;
+};
+
 export const createExpense = async (formData: any) => {
   const { data } = await api.post<ApiResponse<Expense>>('/finance/expenses', formData);
   return data;
@@ -125,6 +130,11 @@ export const getPayments = async (filter: PaymentFilter, page = 1, limit = 10, s
     totalCount: data?.data?.totalCount || 0,
     totalPages: data?.data?.totalPages || 1
   };
+};
+
+export const getNextPaymentId = async () => {
+    const { data } = await api.get<ApiResponse<{nextId: string}>>('/finance/payments/next-id');
+    return data.data.nextId;
 };
 
 export const createPayment = async (payload: Payment) => {

@@ -11,11 +11,37 @@ import { getFacilityDropdown } from '@/services/facilityApi';
 import { getUtilityDropdown } from '@/services/utilityItemApi';
 import { Section } from '@/components/ui/Section';
 import { FormikTextarea } from '@/components/shared/FormikTextarea';
+import FormikSearchableSelect from '@/components/shared/FormikSearchableSelect';
+import { getFileUrl } from '@/app/utils/fileUtils';
+
+const COMMON_NATIONALITIES = [
+  { value: 'Indian', label: 'Indian' },
+  { value: 'Nepalese', label: 'Nepalese' },
+  { value: 'Bangladeshi', label: 'Bangladeshi' },
+  { value: 'Pakistani', label: 'Pakistani' },
+  { value: 'Sri Lankan', label: 'Sri Lankan' },
+  { value: 'Filipino', label: 'Filipino' },
+  { value: 'Egyptian', label: 'Egyptian' },
+];
+
+const COMMON_DESIGNATIONS = [
+  { value: 'Driver', label: 'Driver' },
+  { value: 'Heavy Driver', label: 'Heavy Driver' },
+  { value: 'Helper', label: 'Helper' },
+  { value: 'Mechanic', label: 'Mechanic' },
+  { value: 'Electrician', label: 'Electrician' },
+  { value: 'Foreman', label: 'Foreman' },
+  { value: 'Mason', label: 'Mason' },
+  { value: 'Carpenter', label: 'Carpenter' },
+  { value: 'Steel Fixer', label: 'Steel Fixer' },
+  { value: 'Operator', label: 'Operator' },
+];
 
 const WorkerValidationSchema = Yup.object({
-  workerId: Yup.string().required('Worker ID is required'),
+  workerId: Yup.string().required('ID is required'),
   name: Yup.string().required('Full name is required'),
   qidNo: Yup.string().required('QID number is required'),
+  qidExpiryDate: Yup.string().required('QID expiry is required'),
 });
 
 interface WorkerFormProps {
@@ -71,18 +97,19 @@ const WorkerForm: React.FC<WorkerFormProps> = ({ initialData, onSubmit, onCancel
       mobile: initialData?.mobile || '',
       passportNo: initialData?.passportNo || '',
       qidNo: initialData?.qidNo || '',
+      qidExpiryDate: initialData?.qidExpiryDate || '',
+      passportExpiryDate: initialData?.passportExpiryDate || '',
       joinDate: initialData?.joinDate || new Date().toISOString().split('T')[0],
-      facilityId: typeof initialData?.facilityId === 'object' ? (initialData.facilityId as any)._id : (initialData?.facilityId || ''),
       status: initialData?.status || 'active',
       remarks: initialData?.remarks || '',
-      certificateName: initialData?.certificateName || '',
+      skills: initialData?.skills?.length ? initialData.skills : [{ skillName: '', certificateDoc: '' }],
       utilities: [{ utilityItemId: '', itemName: '', quantity: 1, cost: 0, isRecoverable: false, issueDate: new Date().toISOString().split('T')[0] }],
     },
     validationSchema: WorkerValidationSchema,
     onSubmit: async (values, helpers) => {
       const formData = new FormData();
       Object.keys(values).forEach(key => {
-        if (key === 'utilities') {
+        if (key === 'utilities' || key === 'skills') {
           formData.append(key, JSON.stringify((values as any)[key]));
         } else {
           formData.append(key, (values as any)[key]);
@@ -124,24 +151,21 @@ const WorkerForm: React.FC<WorkerFormProps> = ({ initialData, onSubmit, onCancel
         <form onSubmit={formik.handleSubmit} className="space-y-10 relative z-10">
           <Section eyebrow="Asset Enrollment" title="Personnel" highlight="Identity">
              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <FormikInput label="Internal Worker ID" name="workerId" placeholder="e.g. W-1001" required />
+                <FormikInput label="ID" name="workerId" placeholder="e.g. W-1001" required />
                 <FormikInput label="Full Name" name="name" placeholder="As per QID/Passport" required />
-                <FormikInput label="Nationality" name="nationality" placeholder="e.g. Indian, Nepalese" />
+                <FormikSearchableSelect label="Nationality" name="nationality" options={COMMON_NATIONALITIES} placeholder="Search Nationality..." />
                 <FormikInput label="Contact Number" name="mobile" placeholder="+974 XXXX XXXX" />
-                <FormikInput label="Designation" name="designation" placeholder="e.g. Driver, Helper" />
-                <FormikInput label="Enrollment Date" name="joinDate" type="date" />
+                <FormikSearchableSelect label="Designation" name="designation" options={COMMON_DESIGNATIONS} placeholder="Search Designation..." />
+                <FormikInput label="Join Date" name="joinDate" type="date" />
              </div>
           </Section>
 
           <Section eyebrow="Legal Compliance" title="Commercial" highlight="Status">
              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <FormikInput label="QID Number" name="qidNo" placeholder="2XXXXXXXXXX" required />
+                <FormikInput label="QID Expiry Date" name="qidExpiryDate" type="date" required />
                 <FormikInput label="Passport Number" name="passportNo" placeholder="PXXXXXXX" />
-                
-                <div className="space-y-4">
-                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">Housing Facility</label>
-                    <FormikSelect label="" name="facilityId" options={facilities} />
-                </div>
+                <FormikInput label="Passport Expiry" name="passportExpiryDate" type="date" />
                 
                 <div className="space-y-4">
                   <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">Engagement Status</label>
@@ -165,13 +189,15 @@ const WorkerForm: React.FC<WorkerFormProps> = ({ initialData, onSubmit, onCancel
                   icon={<Camera size={20} />} 
                   fieldName="photo" 
                   file={files.photo} 
+                  existingUrl={initialData?.photo}
                   onChange={(e) => handleFileChange(e, 'photo')} 
                 />
                 <FileUploadCard 
                   label="Work CV" 
                   icon={<FileText size={20} />} 
-                  fieldName="qidDoc" // Logic says this was QID doc in user version maybe? No, let's keep original fields.
+                  fieldName="cv" 
                   file={files.cv} 
+                  existingUrl={initialData?.cv}
                   onChange={(e) => handleFileChange(e, 'cv')} 
                 />
                 <FileUploadCard 
@@ -179,6 +205,7 @@ const WorkerForm: React.FC<WorkerFormProps> = ({ initialData, onSubmit, onCancel
                   icon={<Fingerprint size={20} />} 
                   fieldName="qidDoc" 
                   file={files.qidDoc} 
+                  existingUrl={initialData?.qidDoc}
                   onChange={(e) => handleFileChange(e, 'qidDoc')} 
                 />
                 <FileUploadCard 
@@ -186,41 +213,58 @@ const WorkerForm: React.FC<WorkerFormProps> = ({ initialData, onSubmit, onCancel
                   icon={<CreditCard size={20} />} 
                   fieldName="passportDoc" 
                   file={files.passportDoc} 
+                  existingUrl={initialData?.passportDoc}
                   onChange={(e) => handleFileChange(e, 'passportDoc')} 
                 />
              </div>
-             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6 pt-6 border-t border-gray-100 border-dashed">
-                <FileUploadCard 
-                  label="Health Insurance" 
-                  icon={<ShieldPlus size={20} />} 
-                  fieldName="insuranceDoc" 
-                  file={files.insuranceDoc} 
-                  onChange={(e) => handleFileChange(e, 'insuranceDoc')} 
-                />
-                <FileUploadCard 
-                  label="Hamad Health Card" 
-                  icon={<Heart size={20} />} 
-                  fieldName="healthCardDoc" 
-                  file={files.healthCardDoc} 
-                  onChange={(e) => handleFileChange(e, 'healthCardDoc')} 
-                />
-                <div className="bg-teal-50/30 p-6 rounded-2xl border border-teal-100/50">
-                   <div className="flex items-center gap-2 mb-4">
-                       <Award size={16} className="text-teal-700" />
-                       <span className="text-[10px] font-black uppercase text-teal-900 tracking-widest">Skill Certification</span>
-                   </div>
-                   <FormikInput label="" name="certificateName" placeholder="Certification Name" />
-                   <div className="mt-4">
-                     <FileUploadCard 
-                      label="Attach Certificate" 
-                      icon={<Upload size={18} />} 
-                      fieldName="certificateDoc" 
-                      file={files.certificateDoc} 
-                      onChange={(e) => handleFileChange(e, 'certificateDoc')} 
-                    />
-                   </div>
-                </div>
-             </div>
+              <div className="mt-8 space-y-6">
+                 <div className="flex items-center justify-between px-1">
+                    <div className="flex items-center gap-3">
+                       <Award size={18} className="text-teal-700" />
+                       <h3 className="text-[11px] font-black text-[#0f172a] uppercase tracking-[0.3em]">Professional Certifications</h3>
+                    </div>
+                    <button 
+                       type="button"
+                       onClick={() => formik.setFieldValue('skills', [...formik.values.skills, { skillName: '', certificateDoc: '' }])}
+                       className="p-2 bg-teal-50 text-teal-700 rounded-lg hover:bg-teal-700 hover:text-white transition-all shadow-sm"
+                    >
+                       <Plus size={16} />
+                    </button>
+                 </div>
+
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {(formik.values as any).skills.map((skill: any, idx: number) => (
+                       <div key={idx} className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm relative group animate-in slide-in-from-bottom-2 duration-300">
+                          {(formik.values as any).skills.length > 1 && (
+                             <button 
+                                type="button"
+                                onClick={() => formik.setFieldValue('skills', (formik.values as any).skills.filter((_: any, i: number) => i !== idx))}
+                                className="absolute -top-2 -right-2 w-8 h-8 bg-rose-50 text-rose-500 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm border border-rose-100 z-10"
+                             >
+                                <Minus size={14} strokeWidth={3} />
+                             </button>
+                          )}
+                          <div className="space-y-4">
+                             <FormikInput label="Certificate / Skill Name" name={`skills[${idx}].skillName`} placeholder="e.g. Forklift License" />
+                             <FileUploadCard 
+                                label="Attach Document" 
+                                icon={<Upload size={18} />} 
+                                fieldName={`skills[${idx}].certificateFile`} 
+                                file={skill.certificateFile || null} 
+                                existingUrl={skill.certificateDoc}
+                                onChange={(e) => {
+                                   if (e.target.files && e.target.files[0]) {
+                                      const newSkills = [...(formik.values as any).skills];
+                                      newSkills[idx].certificateFile = e.target.files[0];
+                                      formik.setFieldValue('skills', newSkills);
+                                   }
+                                }} 
+                             />
+                          </div>
+                       </div>
+                    ))}
+                 </div>
+              </div>
           </Section>
 
           <Section eyebrow="Gear Lifecycle" title="Asset" highlight="Allocation">
@@ -369,24 +413,37 @@ const WorkerForm: React.FC<WorkerFormProps> = ({ initialData, onSubmit, onCancel
   );
 };
 
-const FileUploadCard = ({ label, icon, fieldName, file, onChange }: { label: string, icon: React.ReactNode, fieldName: string, file: File | null, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void }) => (
-  <div className="relative group cursor-pointer h-full min-h-[120px]">
-    <input
-      type="file"
-      id={fieldName}
-      name={fieldName}
-      onChange={onChange}
-      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-    />
-    <div className={`h-full flex flex-col items-center justify-center p-6 rounded-2xl border-2 border-dashed transition-all duration-300 ${file ? 'bg-teal-50/50 border-teal-700 shadow-sm' : 'bg-white border-gray-200 hover:border-teal-400 hover:bg-teal-50/5'}`}>
-      <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-2 transition-all duration-300 ${file ? 'bg-teal-700 text-white shadow-sm' : 'bg-gray-50 text-gray-400 group-hover:bg-teal-700 group-hover:text-white'}`}>
-        {icon}
+const FileUploadCard = ({ label, icon, fieldName, file, existingUrl, onChange }: { label: string, icon: React.ReactNode, fieldName: string, file: File | null, existingUrl?: string, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void }) => {
+  const isImage = existingUrl?.match(/\.(jpg|jpeg|png|gif)$/i);
+  
+  return (
+    <div className="relative group cursor-pointer h-full min-h-[120px]">
+      <input
+        type="file"
+        id={fieldName}
+        name={fieldName}
+        onChange={onChange}
+        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+      />
+      <div className={`h-full flex flex-col items-center justify-center p-6 rounded-2xl border-2 border-dashed transition-all duration-300 ${file ? 'bg-teal-50/50 border-teal-700 shadow-sm' : existingUrl ? 'bg-amber-50/30 border-amber-500/50' : 'bg-white border-gray-200 hover:border-teal-400 hover:bg-teal-50/5'}`}>
+        <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-2 transition-all duration-300 ${file ? 'bg-teal-700 text-white shadow-sm' : existingUrl ? 'bg-amber-500 text-white' : 'bg-gray-50 text-gray-400 group-hover:bg-teal-700 group-hover:text-white'}`}>
+          {isImage && existingUrl && !file ? (
+            <img src={getFileUrl(existingUrl)} alt="Existing" className="w-full h-full object-cover rounded-xl" />
+          ) : (
+            icon
+          )}
+        </div>
+        <div className="text-center px-1">
+          <span className={`text-[10px] font-bold uppercase tracking-widest block ${file ? 'text-teal-900' : existingUrl ? 'text-amber-900' : 'text-gray-400'}`}>
+            {file ? file.name.substring(0, 15) + (file.name.length > 15 ? '...' : '') : existingUrl ? 'Existing Document' : label}
+          </span>
+          {existingUrl && !file && (
+            <span className="text-[8px] font-black text-amber-600 uppercase tracking-tighter">Click to replace</span>
+          )}
+        </div>
       </div>
-      <span className={`text-[10px] font-bold uppercase tracking-widest text-center px-1 ${file ? 'text-teal-900' : 'text-gray-400'}`}>
-        {file ? file.name.substring(0, 15) + (file.name.length > 15 ? '...' : '') : label}
-      </span>
     </div>
-  </div>
-);
+  );
+};
 
 export default WorkerForm;

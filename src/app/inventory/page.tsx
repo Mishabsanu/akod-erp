@@ -25,11 +25,15 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import withAuth from '@/components/withAuth';
 import { exportToCSV } from '@/lib/exportUtils';
+import { getProductions, approveProduction } from '@/services/productionApi';
+import { CheckCircle, Clock } from 'lucide-react';
 
 const InventoryPage = () => {
   // Rename component
   const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>([]); // State for inventory items
+  const [pendingProductions, setPendingProductions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab ] = useState<'stock' | 'pending'>('stock');
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false); // New state for filter visibility
 
@@ -39,6 +43,7 @@ const InventoryPage = () => {
     useState<InventoryFilter['status']>(undefined);
   const [minStock, setMinStock] = useState<number | undefined>(undefined);
   const [maxStock, setMaxStock] = useState<number | undefined>(undefined);
+  const [onlyLowStock, setOnlyLowStock] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [limit, setLimit] = useState(10);
@@ -51,49 +56,53 @@ const InventoryPage = () => {
     setOpenMenu(openMenu === id ? null : id);
   };
 
-  const fetchInventory = useCallback(async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const filterParams: InventoryFilter = {
-        search: searchTerm || undefined,
-        status: statusFilter,
-        minStock,
-        maxStock,
-      };
+      if (activeTab === 'stock') {
+        const filterParams: InventoryFilter = {
+          search: searchTerm || undefined,
+          status: statusFilter,
+          minStock,
+          maxStock,
+          onlyLowStock: onlyLowStock ? 'true' : undefined,
+        } as any;
 
-      const response = await getInventoryItems(
-        filterParams,
-        currentPage,
-        limit
-      );
+        const response = await getInventoryItems(
+          filterParams,
+          currentPage,
+          limit
+        );
 
-      const {
-        inventoryItems: fetchedItems,
-        totalPages: fetchedTotalPages,
-        totalCount: fetchedTotalCount,
-      } = response;
-
-      setInventoryItems(fetchedItems || []);
-      setTotalInventoryPages(fetchedTotalPages || 1);
-      setTotalInventoryCount(fetchedTotalCount || 0);
+        setInventoryItems(response.inventoryItems || []);
+        setTotalInventoryPages(response.totalPages || 1);
+        setTotalInventoryCount(response.totalCount || 0);
+      } else {
+        const response = await getProductions(currentPage, limit, searchTerm, 'pending');
+        setPendingProductions(response.productions || []);
+        setTotalInventoryPages(response.totalPages || 1);
+        setTotalInventoryCount(response.totalCount || 0);
+      }
     } catch (error) {
-      console.error('Failed to fetch inventory items:', error);
-      toast.error('Failed to load inventory.');
+      console.error('Failed to fetch data:', error);
+      toast.error('Failed to load records.');
     } finally {
       setLoading(false);
     }
   }, [
+    activeTab,
     searchTerm,
     statusFilter,
     minStock, 
     maxStock, 
+    onlyLowStock,
     currentPage,
     limit,
   ]);
 
   useEffect(() => {
-    fetchInventory();
-  }, [fetchInventory]);
+    fetchData();
+  }, [fetchData]);
 
   const handleDelete = async (id: string) => {
     toast.custom((t) => (
@@ -124,7 +133,7 @@ const InventoryPage = () => {
                   toast.success(
                     response.message || 'Inventory item deleted successfully!'
                   );
-                  fetchInventory(); // Re-fetch data
+                  fetchData(); // Re-fetch data
                 } else {
                   toast.error(
                     response.message || 'Failed to delete inventory item.'
@@ -174,46 +183,65 @@ const InventoryPage = () => {
     window.print();
   };
 
+  const handleApprove = async (id: string) => {
+    try {
+       const loadingId = toast.loading('Authorizing production report and updating stock...');
+       const response = await approveProduction(id);
+       toast.dismiss(loadingId);
+       if (response.success) {
+          toast.success(response.message || 'Production report approved and inventory updated!');
+          fetchData();
+       } else {
+          toast.error(response.message || 'Approval failed');
+       }
+    } catch (error: any) {
+       toast.error(error.response?.data?.message || 'Something went wrong during approval');
+    }
+  };
+
   const columns: Column<InventoryItem>[] = useMemo(() => {
     const baseColumns: Column<InventoryItem>[] = [
       {
-        accessor: 'poNo',
-        header: 'PO Number',
-        render: (item) => <span className="font-bold text-[#0f766e] uppercase tracking-wider">{item.poNo}</span>
+        accessor: '_id',
+        header: 'Inventory Add No',
+        render: (item) => (
+          <span className="text-[10px] font-bold text-gray-400 font-mono uppercase">
+            INV-{item._id?.toString().slice(-5) || '---'}
+          </span>
+        ),
       },
       {
         accessor: 'product',
-        header: 'Product',
-        render: (item) => item.product?.name || '—',
+        header: 'Product Name',
+        render: (item) => <span className="font-bold text-gray-950">{item.product?.name || '—'}</span>,
       },
       {
         accessor: 'itemCode',
         header: 'Item Code',
-        render: (item) => <span className="font-bold text-gray-950 uppercase tracking-widest">{item.itemCode}</span>
-      },
-      {
-        accessor: 'orderedQty',
-        header: 'Ordered Qty',
-        render: (item) => item.orderedQty.toLocaleString(),
+        render: (item) => <span className="font-bold text-[#0f766e] uppercase tracking-widest">{item.itemCode}</span>
       },
       {
         accessor: 'availableQty',
         header: 'Available Qty',
-        render: (item) => item.availableQty.toLocaleString(),
+        render: (item) => {
+          const isLow = item.product?.reorderLevel !== undefined && item.availableQty <= item.product.reorderLevel;
+          return (
+            <span className={`font-bold ${isLow ? 'text-red-600 bg-red-50 px-2 py-0.5 rounded border border-red-100' : ''}`}>
+              {item.availableQty.toLocaleString()}
+              {isLow && <span className="ml-1 text-[8px] uppercase tracking-tighter">(Low)</span>}
+            </span>
+          );
+        },
+      },
+      {
+        accessor: 'totalSold' as any,
+        header: 'Total Sold',
+        render: (item) => <span className="font-medium text-gray-600">{item.totalSold?.toLocaleString() || 0}</span>,
       },
       {
         accessor: 'status',
         header: 'Status',
         render: (item) => {
-          const statusStyles: Record<string, string> = {
-            IN_STOCK: 'bg-green-100 text-green-800',
-            LOW_STOCK: 'bg-yellow-100 text-yellow-800',
-            OUT_OF_STOCK: 'bg-teal-100 text-teal-900',
-          };
-
-          const color =
-            statusStyles[item.status] || 'bg-gray-100 text-gray-800';
-
           return (
             <span
               className={`px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-lg ${
@@ -224,24 +252,6 @@ const InventoryPage = () => {
             </span>
           );
         },
-      },
-      {
-        accessor: 'createdBy' as any,
-        header: 'Created By',
-        render: (item: InventoryItem) => (
-          <span className="text-sm font-medium text-gray-600">
-            {typeof item.createdBy === 'object' ? item.createdBy.name : item.createdBy || '--'}
-          </span>
-        ),
-      },
-      {
-        accessor: 'createdAt',
-        header: 'Date Created',
-        render: (item: InventoryItem) => (
-          <span className="text-sm font-medium text-gray-600">
-            {item.createdAt ? new Date(item.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '--'}
-          </span>
-        ),
       },
     ];
 
@@ -280,7 +290,52 @@ const InventoryPage = () => {
       });
     }
     return baseColumns;
-  }, [openMenu, can]);
+  }, [openMenu, can, currentPage, limit]);
+
+  const pendingColumns: Column<any>[] = useMemo(() => [
+    {
+      accessor: '_id',
+      header: 'Inventory Add No',
+      render: (item) => (
+        <span className="text-[10px] font-bold text-gray-400 font-mono uppercase">
+          INV-{item._id?.toString().slice(-5) || '---'}
+        </span>
+      ),
+    },
+    {
+      accessor: 'batchNumber',
+      header: 'Batch Number',
+      render: (item) => <span className="font-bold text-teal-700 tracking-wider">#{item.batchNumber}</span>
+    },
+    {
+      accessor: 'productId',
+      header: 'Product',
+      render: (item) => <span className="font-black text-gray-800 tracking-tight">{item.productId?.name || '—'}</span>
+    },
+    {
+      accessor: 'quantity',
+      header: 'Output Qty',
+      render: (item) => <span className="font-black text-emerald-600">+{item.quantity}</span>
+    },
+    {
+      accessor: 'manufacturingDate',
+      header: 'Manufactured On',
+      render: (item) => <span className="text-xs font-bold text-gray-500 italic">{new Date(item.manufacturingDate).toLocaleDateString()}</span>
+    },
+    {
+      accessor: 'actions',
+      header: 'Decision',
+      render: (item) => (
+         <button 
+           onClick={() => handleApprove(item._id)}
+           className="bg-teal-50 text-teal-700 px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-teal-700 hover:text-white transition-all shadow-sm border border-teal-100 flex items-center gap-2"
+         >
+            <CheckCircle size={14} />
+            Approve
+         </button>
+      )
+    }
+  ], [currentPage, limit]);
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white p-6 md:p-10">
@@ -325,64 +380,125 @@ const InventoryPage = () => {
         }
       />
 
-      {showFilters ? (
-        <>
-          {/* Filters */}
-          <InventoryFilterBar
-            onStatusChange={setStatusFilter}
-            onStockRangeChange={(min, max) => {
-              setMinStock(min);
-              setMaxStock(max);
-              setCurrentPage(1); // reset pagination
-            }}
-            onClearFilters={() => {
-              setSearchTerm('');
-              setStatusFilter(undefined);
-              setMinStock(undefined);
-              setMaxStock(undefined);
-              setCurrentPage(1);
-            }}
-            initialStatus={statusFilter}
-          />
+      {/* Tabs */}
+      <div className="flex items-center gap-10 border-b border-gray-100 mb-10 overflow-x-auto no-scrollbar">
+         <button 
+           onClick={() => { setActiveTab('stock'); setCurrentPage(1); }}
+           className={`pb-4 text-[10px] font-black uppercase tracking-[0.3em] transition-all relative ${activeTab === 'stock' ? 'text-teal-700' : 'text-gray-400 hover:text-gray-600'}`}
+         >
+            Available Stock
+            {activeTab === 'stock' && <div className="absolute bottom-0 left-0 w-full h-1 bg-teal-600 rounded-full animate-in fade-in zoom-in duration-300" />}
+         </button>
+         <button 
+           onClick={() => { setActiveTab('pending'); setCurrentPage(1); }}
+           className={`pb-4 text-[10px] font-black uppercase tracking-[0.3em] transition-all relative flex items-center gap-3 ${activeTab === 'pending' ? 'text-teal-700' : 'text-gray-400 hover:text-gray-600'}`}
+         >
+            Pending Approval
+            {pendingProductions.length > 0 && (
+               <span className="w-5 h-5 bg-amber-500 text-white rounded-full flex items-center justify-center text-[9px] font-bold animate-pulse">
+                  {pendingProductions.length}
+               </span>
+            )}
+            {activeTab === 'pending' && <div className="absolute bottom-0 left-0 w-full h-1 bg-teal-600 rounded-full animate-in fade-in zoom-in duration-300" />}
+         </button>
+      </div>
 
-          {/* Search Input */}
-          <div className="mb-6">
-            <SearchInput
-              initialSearchTerm={searchTerm}
-              onSearchChange={setSearchTerm}
-              placeholder="Search inventory..."
-            />
-          </div>
-        </>
-      ) : (
+      {activeTab === 'stock' && (
         <>
-          {/* Search Input */}
-          <div className="mb-6">
-            <SearchInput
-              initialSearchTerm={searchTerm}
-              onSearchChange={setSearchTerm}
-              placeholder="Search inventory..."
+          {showFilters ? (
+            <>
+              {/* Filters */}
+              <InventoryFilterBar
+                onStatusChange={setStatusFilter}
+                onStockRangeChange={(min, max) => {
+                  setMinStock(min);
+                  setMaxStock(max);
+                  setCurrentPage(1); // reset pagination
+                }}
+                onLowStockToggle={(val) => {
+                  setOnlyLowStock(val);
+                  setCurrentPage(1);
+                }}
+                onClearFilters={() => {
+                  setSearchTerm('');
+                  setStatusFilter(undefined);
+                  setMinStock(undefined);
+                  setMaxStock(undefined);
+                  setOnlyLowStock(false);
+                  setCurrentPage(1);
+                }}
+                initialStatus={statusFilter}
+              />
+
+              {/* Search Input */}
+              <div className="mb-6">
+                <SearchInput
+                  initialSearchTerm={searchTerm}
+                  onSearchChange={setSearchTerm}
+                  placeholder="Search inventory..."
+                />
+              </div>
+            </>
+          ) : (
+            <>
+              {/* Search Input */}
+              <div className="mb-6">
+                <SearchInput
+                  initialSearchTerm={searchTerm}
+                  onSearchChange={setSearchTerm}
+                  placeholder="Search inventory..."
+                />
+              </div>
+            </>
+          )}
+
+          {loading ? (
+            <TableSkeleton /> 
+          ) : (
+            <DataTable
+              columns={columns}
+              data={inventoryItems}
+              onRowClick={handleRowClick}
+              serverSidePagination={true}
+              totalCount={totalInventoryCount}
+              currentPage={currentPage}
+              limit={limit}
+              totalPages={totalInventoryPages}
+              onPageChange={setCurrentPage}
+              onLimitChange={setLimit}
             />
-          </div>
+          )}
         </>
       )}
 
-      {/* Inventory Items Display */}
-      {loading ? (
-        <TableSkeleton /> // Replaced LoadingSpinner with TableSkeleton
-      ) : (
-        <DataTable
-          columns={columns}
-          data={inventoryItems}
-          onRowClick={handleRowClick}
-          serverSidePagination={true}
-          totalCount={totalInventoryCount}
-          currentPage={currentPage}
-          limit={limit}
-          totalPages={totalInventoryPages}
-          onPageChange={setCurrentPage}
-          onLimitChange={setLimit}
-        />
+      {activeTab === 'pending' && (
+         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="bg-amber-50/30 p-8 rounded-[2.5rem] border border-amber-100/50 mb-10 flex items-center gap-6">
+               <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-amber-600 shadow-sm border border-amber-50">
+                  <Clock size={28} />
+               </div>
+               <div>
+                  <h3 className="text-lg font-black text-amber-900 tracking-tight">Awaiting Production Validation</h3>
+                  <p className="text-xs font-bold text-amber-700/60 uppercase tracking-widest mt-1">Authorized personnel must verify batch quality before stock integration.</p>
+               </div>
+            </div>
+
+            {loading ? (
+               <TableSkeleton />
+            ) : (
+               <DataTable
+                 columns={pendingColumns}
+                 data={pendingProductions}
+                 serverSidePagination={true}
+                 totalCount={totalInventoryCount}
+                 currentPage={currentPage}
+                 limit={limit}
+                 totalPages={totalInventoryPages}
+                 onPageChange={setCurrentPage}
+                 onLimitChange={setLimit}
+               />
+            )}
+         </div>
       )}
     </div>
   );

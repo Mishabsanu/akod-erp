@@ -107,13 +107,6 @@ const WorkforcePage: React.FC = () => {
        )
     },
     {
-      accessor: 'facilityId',
-      header: 'Camp/Location',
-      render: (w) => (
-        <span className="text-xs font-bold text-gray-500">{(w.facilityId as any)?.name || 'Not Assigned'}</span>
-      )
-    },
-    {
       accessor: 'status',
       header: 'Status',
       render: (w) => {

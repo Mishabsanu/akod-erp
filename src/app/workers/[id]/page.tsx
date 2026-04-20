@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { getFileUrl } from '@/app/utils/fileUtils';
 import { 
   User, 
   FileText, 
@@ -34,6 +35,33 @@ import { toast } from 'sonner';
 import withAuth from '@/components/withAuth';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatDate } from '@/app/utils/formatDate';
+import { getSlips } from '@/services/payrollApi';
+
+const calculateTenure = (joinDate: string) => {
+  if (!joinDate) return 'N/A';
+  const start = new Date(joinDate);
+  const end = new Date();
+  const diffTime = Math.abs(end.getTime() - start.getTime());
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  
+  if (diffDays < 30) return `${diffDays} Days`;
+  if (diffDays < 365) return `${Math.floor(diffDays / 30)} Months`;
+  const years = Math.floor(diffDays / 365);
+  const months = Math.floor((diffDays % 365) / 30);
+  return `${years} Year${years > 1 ? 's' : ''}${months > 0 ? `, ${months} Month${months > 1 ? 's' : ''}` : ''}`;
+};
+
+const getExpiryStatus = (date: string | undefined) => {
+  if (!date) return { label: 'Not Set', color: 'text-gray-400', bg: 'bg-gray-50' };
+  const expiry = new Date(date);
+  const now = new Date();
+  const diffTime = expiry.getTime() - now.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  
+  if (diffDays < 0) return { label: 'Expired', color: 'text-rose-600', bg: 'bg-rose-50' };
+  if (diffDays <= 30) return { label: `${diffDays} Days Left`, color: 'text-amber-600', bg: 'bg-amber-50' };
+  return { label: `${diffDays} Days Left`, color: 'text-emerald-600', bg: 'bg-emerald-50' };
+};
 
 function WorkerProfilePage() {
   const { id } = useParams();
@@ -42,6 +70,7 @@ function WorkerProfilePage() {
   
   const [worker, setWorker] = useState<Worker | null>(null);
   const [utilities, setUtilities] = useState<WorkerUtility[]>([]);
+  const [latestSlip, setLatestSlip] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'overview' | 'documents' | 'utilities'>('overview');
   
@@ -55,12 +84,17 @@ function WorkerProfilePage() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [workerData, utilsData] = await Promise.all([
+      const [workerData, utilsData, slipsData] = await Promise.all([
         getWorker(id as string),
-        getWorkerUtilities(id as string)
+        getWorkerUtilities(id as string),
+        getSlips({ user: id as string })
       ]);
       setWorker(workerData);
       setUtilities(utilsData);
+      // Get the most recent slip
+      if (slipsData && slipsData.length > 0) {
+         setLatestSlip(slipsData[0]);
+      }
     } catch (error) {
       console.error('Error fetching worker data:', error);
       toast.error('Failed to load personnel profile');
@@ -141,6 +175,17 @@ function WorkerProfilePage() {
   if (loading) return <div className="p-10"><TableSkeleton /></div>;
   if (!worker) return <div className="p-10 text-center text-gray-400">Worker profile not found.</div>;
 
+  const handleWhatsAppShare = () => {
+    let salaryText = '';
+    if (latestSlip) {
+      const monthName = new Date(latestSlip.year, latestSlip.month - 1).toLocaleString('default', { month: 'long' });
+      salaryText = `\n*Latest Salary Slip (${monthName} ${latestSlip.year})*\nNet Salary: ${latestSlip.netSalary} QAR\nStatus: ${latestSlip.status.toUpperCase()}`;
+    }
+
+    const text = `*Personnel Profile Report - Akod ERP*\n\nName: ${worker.name}\nID: ${worker.workerId}\nDesignation: ${worker.designation}\nJoin Date: ${formatDate(worker.joinDate)}\nTenure: ${calculateTenure(worker.joinDate || '')}${salaryText}\n\n_Generated via Akod ERP System_`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+  };
+
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white p-6 md:p-10">
       <div className="flex items-center gap-4 mb-10 group">
@@ -152,7 +197,7 @@ function WorkerProfilePage() {
         </button>
         <div>
           <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Personnel Node / Profile</p>
-          <h1 className="text-2xl font-black text-[#0f172a] uppercase tracking-tight">Worker <span className="text-amber-600">ID: {worker.workerId}</span></h1>
+          <h1 className="text-2xl font-black text-[#0f172a] uppercase tracking-tight">Personnel <span className="text-teal-700">ID: {worker.workerId}</span></h1>
         </div>
       </div>
 
@@ -163,7 +208,7 @@ function WorkerProfilePage() {
             <div className="relative inline-block mb-6">
               <div className="w-32 h-32 bg-amber-50 rounded-[2.5rem] flex items-center justify-center text-amber-600 border-4 border-white shadow-xl overflow-hidden">
                 {worker.photo ? (
-                  <img src={`${process.env.NEXT_PUBLIC_API_URL || ''}${worker.photo}`} alt={worker.name} className="w-full h-full object-cover" />
+                  <img src={getFileUrl(worker.photo)} alt={worker.name} className="w-full h-full object-cover" />
                 ) : (
                   <User size={64} strokeWidth={1.5} />
                 )}
@@ -203,6 +248,15 @@ function WorkerProfilePage() {
                 </div>
                 <div className="flex justify-between items-center group">
                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                         <Clock size={14} />
+                      </div>
+                      <span className="text-[11px] font-black text-gray-500 uppercase tracking-widest">Tenure</span>
+                   </div>
+                   <span className="text-xs font-black text-emerald-700">{calculateTenure(worker.joinDate || '')}</span>
+                </div>
+                <div className="flex justify-between items-center group pt-4 border-t border-gray-50">
+                   <div className="flex items-center gap-3">
                       <div className="w-8 h-8 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
                          <FileText size={14} />
                       </div>
@@ -210,6 +264,14 @@ function WorkerProfilePage() {
                    </div>
                    <span className="text-xs font-black text-gray-800">{worker.qidNo || '--'}</span>
                 </div>
+                {worker.qidNo && (
+                   <div className="flex justify-between items-center">
+                      <span className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] ml-11">QID Expiry</span>
+                      <span className={`text-[10px] font-black px-3 py-1 rounded-full ${getExpiryStatus(worker.qidExpiryDate).bg} ${getExpiryStatus(worker.qidExpiryDate).color}`}>
+                         {getExpiryStatus(worker.qidExpiryDate).label}
+                      </span>
+                   </div>
+                )}
              </div>
           </div>
         </div>
@@ -358,11 +420,28 @@ function WorkerProfilePage() {
 
            {/* Tab Content: DOCUMENTS */}
            {activeTab === 'documents' && (
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                {worker.qidDoc && <DocCard title="Qatar ID" path={worker.qidDoc} />}
-                {worker.passportDoc && <DocCard title="International Passport" path={worker.passportDoc} />}
-                {worker.insuranceDoc && <DocCard title="Insurance Health" path={worker.insuranceDoc} />}
-                {worker.healthCardDoc && <DocCard title="Hamad Health Card" path={worker.healthCardDoc} />}
+             <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                   {worker.qidDoc && <DocCard title="Qatar ID" path={worker.qidDoc} />}
+                   {worker.passportDoc && <DocCard title="International Passport" path={worker.passportDoc} />}
+                    {worker.cv && <DocCard title="Work CV" path={worker.cv} />}
+                   {worker.insuranceDoc && <DocCard title="Insurance Health" path={worker.insuranceDoc} />}
+                   {worker.healthCardDoc && <DocCard title="Hamad Health Card" path={worker.healthCardDoc} />}
+                </div>
+
+                {worker.skills?.length > 0 && (
+                  <div className="pt-10 border-t border-gray-100">
+                     <div className="flex items-center gap-3 mb-8">
+                        <div className="w-1.5 h-6 bg-teal-600 rounded-full" />
+                        <h3 className="text-[12px] font-black text-[#0f172a] uppercase tracking-[0.3em]">Skill Certifications</h3>
+                     </div>
+                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {worker.skills.map((skill: any, idx: number) => (
+                           skill.certificateDoc && <DocCard key={idx} title={skill.skillName || 'Certification'} path={skill.certificateDoc} />
+                        ))}
+                     </div>
+                  </div>
+                )}
              </div>
            )}
         </div>
@@ -510,13 +589,13 @@ const DocCard = ({ title, path }: { title: string, path: string }) => {
              <div className="w-1.5 h-4 bg-amber-600 rounded-full" />
              <h4 className="text-[10px] font-black text-[#0f172a] uppercase tracking-[0.2em]">{title}</h4>
           </div>
-          <a href={`${process.env.NEXT_PUBLIC_API_URL || ''}${path}`} target="_blank" className="p-3 bg-gray-50 text-amber-600 rounded-xl hover:bg-amber-600 hover:text-white transition-all shadow-sm">
+          <a href={getFileUrl(path)} target="_blank" className="p-3 bg-gray-50 text-amber-600 rounded-xl hover:bg-amber-600 hover:text-white transition-all shadow-sm">
              <FileText size={14} />
           </a>
        </div>
        <div className="w-full h-full bg-gray-50 rounded-2xl flex items-center justify-center overflow-hidden border border-gray-100 shadow-inner">
           {isImage ? (
-            <img src={`${process.env.NEXT_PUBLIC_API_URL || ''}${path}`} alt={title} className="w-full h-full object-cover" />
+            <img src={getFileUrl(path)} alt={title} className="w-full h-full object-cover" />
           ) : (
             <FileText size={48} className="text-gray-200" />
           )}

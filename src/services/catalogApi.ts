@@ -52,6 +52,27 @@ export const getProductById = async (id: string) => {
   return data.data.content;
 };
 
+export const getProductHistory = async (id: string) => {
+  const { data } = await api.get<ApiResponse<any>>(`/products/${id}/history`);
+  return data.data;
+};
+
+export const bulkImportProducts = async (file: File) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  const { data } = await api.post<ApiResponse<any>>('/products/import/csv', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return data;
+};
+
+export const importProductsFromGoogleSheet = async (url: string) => {
+  const response = await api.post<ApiResponse<any>>('/products/import/google-sheet', { url });
+  return response.data;
+};
+
 export const getProductsCount = async () => {
   const { data } = await api.get<ApiResponse<number>>('/products/count');
   return data.data;

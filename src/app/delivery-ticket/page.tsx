@@ -158,11 +158,15 @@ const DeliveryTicketPage = () => {
 
   const columns: Column<DeliveryTicket>[] = useMemo(() => {
     const baseColumns: Column<DeliveryTicket>[] = [
-      { accessor: 'ticketNo', header: 'Ticket No' },
-      { accessor: 'ticketType', header: 'Ticket Type' },
+      { accessor: 'ticketNo', header: 'Delivery Note No' },
       { accessor: 'customerName', header: 'Customer' },
       { accessor: 'poNo', header: 'Po No' },
       { accessor: 'invoiceNo', header: 'Invoice No' },
+      {
+        accessor: 'deliveredBy' as any,
+        header: 'Delivered By',
+        render: (ticket) => ticket.deliveredBy?.deliveredByName || '—'
+      },
       { accessor: 'noteCategory', header: 'Category' },
       {
         accessor: 'deliveryDate',

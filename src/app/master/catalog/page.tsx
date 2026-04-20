@@ -18,13 +18,16 @@ import {
 import withAuth from '@/components/withAuth';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { BulkImportModal } from '@/components/catalog/BulkImportModal';
 import { toast } from 'sonner';
+import { Download } from 'lucide-react';
 
 const CatalogPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false); // New state for filter visibility
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   // State for filters and pagination
   const [searchTerm, setSearchTerm] = useState('');
@@ -149,6 +152,7 @@ const CatalogPage = () => {
         render: (product) => <span className="font-bold text-[#0f766e] tracking-wider uppercase">{product.itemCode}</span>
       },
       { accessor: 'unit', header: 'Unit' },
+      { accessor: 'reorderLevel', header: 'Reorder Level' },
       {
         accessor: 'status',
         header: 'Status',
@@ -240,6 +244,15 @@ const CatalogPage = () => {
               Add
             </button>
           )}
+          {can('product', 'create') && (
+            <button
+              onClick={() => setIsImportModalOpen(true)}
+              className="page-header-button secondary"
+            >
+              <Download className="w-4 h-4" />
+              Bulk Import
+            </button>
+          )}
           <button
             onClick={() => setShowFilters(!showFilters)}
             className="page-header-button secondary"
@@ -303,6 +316,13 @@ const CatalogPage = () => {
           onLimitChange={setLimit}
         />
       )}
+
+      {/* Bulk Import Modal */}
+      <BulkImportModal 
+        isOpen={isImportModalOpen} 
+        onClose={() => setIsImportModalOpen(false)} 
+        onSuccess={fetchProducts}
+      />
     </div>
   );
 };

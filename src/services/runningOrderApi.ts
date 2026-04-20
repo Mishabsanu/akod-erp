@@ -72,3 +72,8 @@ export const getRunningOrderFulfillment = async (id: string) => {
   const { data } = await api.get<ApiResponse<any>>(`/running-orders/${id}/fulfillment`);
   return data.data;
 };
+
+export const getLatestRunningOrderNo = async () => {
+    const { data } = await api.get<ApiResponse<string>>('/running-orders/latest-no');
+    return data.data;
+};

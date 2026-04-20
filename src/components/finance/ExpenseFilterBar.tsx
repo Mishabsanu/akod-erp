@@ -7,7 +7,7 @@ import { Filter, CalendarDays, Tag, Info, XCircle } from 'lucide-react';
 import { FilterChip } from '@/components/shared/FilterChip';
 
 const expenseCategories = [
-  'Utilities', 'Rent', 'Salary', 'Office Supplies', 
+  'Utilities','Products','Rent', 'Salary', 'Office Supplies', 
   'Marketing', 'Maintenance', 'Travel', 'Communication', 
   'Professional Fees', 'Taxes & Licenses', 'Insurance', 'Miscellaneous'
 ];
@@ -95,7 +95,7 @@ export const ExpenseFilterBar: React.FC<ExpenseFilterBarProps> = ({
 
         {/* Status */}
         <div>
-          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Payment Status</label>
+          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Settlement Status</label>
           <div className="relative">
              <Info className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300" />
              <Select value={status} onChange={(e) => {
@@ -105,6 +105,7 @@ export const ExpenseFilterBar: React.FC<ExpenseFilterBarProps> = ({
              }} className="pl-9 h-12 rounded-xl border-gray-100 focus:border-teal-700/20">
                <option value="">All Statuses</option>
                <option value="paid">Paid</option>
+               <option value="partially_paid">Partially Paid</option>
                <option value="pending">Pending</option>
              </Select>
           </div>

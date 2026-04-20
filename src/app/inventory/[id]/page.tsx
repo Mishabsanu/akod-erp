@@ -12,6 +12,7 @@ import {
   MinusCircle,
   Package,
   PlusCircle,
+  FileText,
 } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -134,19 +135,81 @@ const ViewInventoryPage = () => {
 
       {/* ================= CONTENT ================= */}
       <div className="px-8 py-10 space-y-10">
-        {/* ---------- OVERVIEW ---------- */}
-        {activeTab === 'overview' && (
           <Section title="Overview">
-            <div className="border border-slate-200 rounded-xl p-6 bg-white grid grid-cols-1 md:grid-cols-3 gap-8">
-              <Detail label="PO Number" value={item.poNo} />
-              <Detail label="Product Name" value={item.product.name} />
-              <Detail label="Item Code" value={item.product.itemCode} />
-              <Detail label="Unit" value={item.product.unit} />
-              <Detail label="Reference" value={item.reference || "N/A"} />
-              <Detail label="Status" value={item.status} />
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-10">
+              <div className="xl:col-span-2 border border-slate-200 rounded-[2rem] p-10 bg-white grid grid-cols-1 md:grid-cols-3 gap-10 shadow-sm relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-slate-50 rounded-bl-[5rem] -mr-10 -mt-10 opacity-40" />
+                <Detail label="PO Number" value={item.poNo} />
+                <Detail label="Product Name" value={item.product?.name} />
+                <Detail label="Item Code" value={item.product?.itemCode} />
+                <Detail label="Unit" value={item.product?.unit} />
+                <Detail label="Reference" value={item.reference || "N/A"} />
+                <Detail label="Status" value={item.status} />
+                <div className="md:col-span-3 pt-6 border-t border-slate-50">
+                   <Detail label="Remarks" value={item.remarks || "No additional remarks."} />
+                </div>
+              </div>
+
+              {/* ATTACHMENTS CARD */}
+              <div className="xl:col-span-1 space-y-6">
+                 {/* PRODUCT IMAGE */}
+                 <div className="bg-white rounded-[2rem] border border-slate-100 p-8 shadow-sm flex flex-col items-center justify-center text-center group transition-all hover:shadow-md">
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-6 w-full text-left ml-2">Product Reference Image</p>
+                    {item.productImage ? (
+                      <div className="relative w-full aspect-square rounded-3xl overflow-hidden border border-slate-50 shadow-inner group">
+                         <img 
+                           src={`${process.env.NEXT_PUBLIC_API_URL}${item.productImage}`} 
+                           alt="Product" 
+                           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                         />
+                         <a 
+                           href={`${process.env.NEXT_PUBLIC_API_URL}${item.productImage}`} 
+                           target="_blank" 
+                           rel="noopener noreferrer"
+                           className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all duration-300 backdrop-blur-sm"
+                         >
+                            <span className="bg-white text-slate-800 px-6 py-2 rounded-full text-xs font-bold shadow-xl">Expand Reference</span>
+                         </a>
+                      </div>
+                    ) : (
+                      <div className="w-full aspect-square rounded-3xl bg-slate-50 flex flex-col items-center justify-center border-2 border-dashed border-slate-100 italic text-slate-300 text-sm">
+                         No Image Uploaded
+                      </div>
+                    )}
+                 </div>
+
+                 {/* DELIVERY NOTE */}
+                 <div className="bg-white rounded-[2.5rem] border border-slate-100 p-8 shadow-sm group transition-all hover:shadow-md">
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 ml-2">Documentation</p>
+                    <div className="flex items-center justify-between p-4 bg-slate-50/50 rounded-2xl border border-slate-50">
+                       <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-white shadow-sm rounded-xl flex items-center justify-center text-teal-600">
+                             <FileText size={20} />
+                          </div>
+                          <div className="flex flex-col">
+                             <span className="text-xs font-bold text-slate-700 truncate w-32">Delivery Note</span>
+                             <span className="text-[9px] font-black text-emerald-600 uppercase tracking-tighter">Verified Link</span>
+                          </div>
+                       </div>
+                       {item.deliveryNote ? (
+                          <a 
+                            href={`${process.env.NEXT_PUBLIC_API_URL}${item.deliveryNote}`} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="bg-[#0f766e] text-white p-2.5 rounded-xl shadow-lg shadow-teal-900/20 hover:scale-105 transition-transform"
+                            title="Open Document"
+                          >
+                             <PlusCircle size={18} className="rotate-45" />
+                          </a>
+                       ) : (
+                          <span className="text-[10px] font-bold text-slate-300 uppercase italic">Missing</span>
+                       )}
+                    </div>
+                 </div>
+              </div>
             </div>
           </Section>
-        )}
+
 
         {/* ---------- STOCK ---------- */}
         {activeTab === 'stock' && (

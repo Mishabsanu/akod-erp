@@ -69,21 +69,16 @@ export const Sidebar = () => {
     },
 
     // Sales & CRM Module
-    (can('sales', 'view') || can('quote_track', 'view')) && {
+    can('sales', 'view') && {
       name: 'Sales & CRM',
       icon: Users2,
       subItems: [
-        can('sales', 'view') && {
+        {
           name: 'Leads',
           icon: UserPlus,
           href: '/sales',
         },
-        can('quote_track', 'view') && {
-          name: 'Quote Tracking',
-          icon: FileText,
-          href: '/quote-track',
-        },
-      ].filter(Boolean) as SubMenuItem[],
+      ],
     },
 
     // Inventory & Logistics Module
@@ -124,10 +119,11 @@ export const Sidebar = () => {
       name: 'Finance & Accounts',
       icon: IndianRupee,
       subItems: [
+        { name: 'Financial Dashboard', icon: PieChart, href: '/finance/accounts' },
         can('accounts', 'view') && { name: 'Accounts', icon: BookOpen, href: '/finance/accounts' },
         can('ledger', 'view') && { name: 'Ledger', icon: Database, href: '/finance/ledger' },
         can('expense', 'view') && { name: 'Expenses', icon: Wallet, href: '/finance/expenses' },
-        can('payment', 'view') && { name: 'Payment', icon: CreditCard, href: '/finance/payment' },
+        can('payment', 'view') && { name: 'Collections', icon: CreditCard, href: '/finance/payment' },
       ].filter(Boolean) as SubMenuItem[],
     },
 
@@ -137,11 +133,21 @@ export const Sidebar = () => {
       icon: Building2,
       subItems: [
         {
-          name: 'Factory Entry',
-          icon: Building2,
+          name: 'Production Reports',
+          icon: FileText,
           href: '/production/factory',
         },
-      ],
+        {
+          name: 'Raw Material Registry',
+          icon: Layers,
+          href: '/production/raw-materials',
+        },
+        {
+          name: 'Raw Material Stock',
+          icon: Package,
+          href: '/production/raw-materials/stock',
+        },
+      ].filter(Boolean) as SubMenuItem[],
     },
 
     // HR & Workforce Module
@@ -349,7 +355,7 @@ export const Sidebar = () => {
                         <span className={`text-[14px] font-bold ${isRouteActive ? 'text-white' : 'text-gray-300'}`}>
                           {item.name}
                         </span>
-                        {isOpen && <span className="text-[10px] text-gray-500 font-medium uppercase tracking-tighter">Module</span>}
+
                       </div>
                     </div>
                     {isOpen && <ChevronRight className={`w-4 h-4 transition-transform duration-300 ${isExpanded ? 'rotate-90 text-[#14b8a6]' : 'text-gray-600'}`} />}

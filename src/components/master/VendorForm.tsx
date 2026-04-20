@@ -15,8 +15,7 @@ const VendorValidationSchema = Yup.object({
 
   name: Yup.string()
     .trim()
-    .min(3, 'Minimum 3 characters')
-    .required('Customer name is required'),
+    .min(3, 'Minimum 3 characters'),
   company: Yup.string()
     .trim()
     .min(3, 'Minimum 3 characters')
@@ -75,7 +74,7 @@ const VendorForm: React.FC<VendorFormProps> = ({
       await onSubmit(
         {
           ...values,
-          name: values.name.trim(),
+          name: values.name?.trim(),
           email: values.email.trim().toLowerCase(),
         } as Vendor,
         { setErrors, setSubmitting }
@@ -101,12 +100,6 @@ const VendorForm: React.FC<VendorFormProps> = ({
           {/* Basic Information */}
           <Section eyebrow="Supply Chain" title="Basic" highlight="Information">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <FormikInput
-                label="Vendor Name"
-                name="name"
-                placeholder="Global Tech Pvt Ltd"
-                required
-              />
               <FormikInput
                 label="Company Name"
                 name="company"

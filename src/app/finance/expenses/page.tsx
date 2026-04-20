@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { getExpenses, deleteExpense } from '@/services/financeApi';
+import { getExpenses, deleteExpense, approveExpense } from '@/services/financeApi';
 import { Expense, ExpenseFilter } from '@/lib/types';
 import { DataTable, Column } from '@/components/shared/DataTable';
 import ListPageHeader from '@/components/shared/ListPageHeader';
@@ -9,11 +9,10 @@ import { SearchInput } from '@/components/shared/SearchInput';
 import { ExpenseFilterBar } from '@/components/finance/ExpenseFilterBar';
 import { TableSkeleton } from '@/components/shared/TableSkeleton';
 import withAuth from '@/components/withAuth';
-import { Plus, Filter, MoreVertical, Edit2, Trash2, CheckCircle } from 'lucide-react';
+import { Plus, Filter, Edit2, Trash2, CheckCircle, DollarSign, FileBarChart2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
-import { approveExpense } from '@/services/financeApi';
 
 function ExpensesPage() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -23,7 +22,6 @@ function ExpensesPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [showFilters, setShowFilters] = useState(false);
-  const [openMenu, setOpenMenu] = useState<string | null>(null);
   const router = useRouter();
   const { can } = useAuth();
 
@@ -77,88 +75,87 @@ function ExpensesPage() {
     }
   }, [fetchExpenses]);
 
-  const toggleActionMenu = (id: string) => {
-    setOpenMenu((prev) => (prev === id ? null : id));
-  };
-
   const columns: Column<Expense>[] = useMemo(() => {
     const baseColumns: Column<Expense>[] = [
       { 
-        header: 'Date', 
-        accessor: 'date' as keyof Expense,
-        render: (item: Expense) => <span className="text-gray-600 font-bold">{new Date(item.date).toLocaleDateString()}</span>
+          header: 'ID / Date', 
+          accessor: 'expenseId' as any,
+          render: (item: any) => (
+            <div className="flex flex-col">
+              <span className="font-bold text-gray-900">#{item.expenseId || 'EXP-AUTO'}</span>
+              <span className="text-[10px] text-gray-400 font-bold uppercase tracking-tight">{new Date(item.date).toLocaleDateString()}</span>
+            </div>
+          )
       },
       { 
-        header: 'Category', 
-        accessor: 'category' as keyof Expense,
-        render: (item: Expense) => (
-          <span className="px-3 py-1 bg-purple-50 text-purple-700 rounded-lg text-[10px] font-bold uppercase tracking-widest border border-purple-100">
-            {item.category}
-          </span>
-        )
+          header: 'Beneficiary (Company)', 
+          accessor: 'companyName' as keyof Expense,
+          render: (item: Expense) => (
+            <div className="flex flex-col">
+              <span className="text-sm font-bold text-[#0f766e]">{item.companyName || '—'}</span>
+              <span className="text-[10px] text-gray-400 font-bold uppercase tracking-tight italic">Ref: {item.referenceNo || 'N/A'}</span>
+            </div>
+          )
       },
       { 
-        header: 'Details', 
-        accessor: 'description' as keyof Expense,
-        render: (item: Expense) => (
-          <div className="flex flex-col">
-            <span className="font-bold text-gray-900 truncate max-w-[200px]">{item.description || 'No description'}</span>
-            <span className="text-[10px] text-gray-400 font-bold uppercase tracking-tight">Ref: {item.referenceNo || 'N/A'}</span>
-          </div>
-        )
-      },
-      { 
-        header: 'Company', 
-        accessor: 'companyName' as keyof Expense,
-        render: (item: Expense) => (
-          <span className="text-sm font-semibold text-[#0f766e]">{item.companyName || '—'}</span>
-        )
-      },
-      { 
-        header: 'Net Amount', 
-        accessor: 'totalAmount' as keyof Expense,
-        render: (item: Expense) => (
-          <span className="font-bold text-[#0f766e]">
-            {item.totalAmount?.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-          </span>
-        )
-      },
-      {
-        header: 'Status',
-        accessor: 'status' as keyof Expense,
-        render: (item: Expense) => (
-          <div className="flex flex-col gap-1">
-            <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest text-center ${
-              item.status === 'paid' ? 'bg-[#0f766e] text-white' : item.status === 'pending' ? 'bg-orange-50 text-orange-700' : 'bg-teal-50 text-teal-800'
-            }`}>
-              {item.status}
+          header: 'Category', 
+          accessor: 'category' as keyof Expense,
+          render: (item: Expense) => (
+            <span className="px-3 py-1 bg-teal-50 text-teal-700 rounded-lg text-[9px] font-black uppercase tracking-widest border border-teal-100">
+              {item.category}
             </span>
-            <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest text-center border ${
-               item.isApproved ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-gray-50 text-gray-400 border-gray-100'
-            }`}>
-               {item.isApproved ? 'Approved' : 'Unverified'}
-            </span>
-          </div>
-        )
+          )
+      },
+      { 
+          header: 'Financials', 
+          accessor: 'totalAmount' as keyof Expense,
+          render: (item: any) => (
+            <div className="flex flex-col">
+              <span className="font-black text-gray-900">{item.totalAmount?.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+              {item.paidTotal > 0 && (
+                <div className="flex items-center gap-1 mt-0.5">
+                  <span className="px-1.5 py-0.5 bg-emerald-50 text-emerald-600 rounded text-[8px] font-bold uppercase border border-emerald-100">Paid: {item.paidTotal?.toLocaleString(undefined, { minimumFractionDigits: 0 })}</span>
+                  <span className="px-1.5 py-0.5 bg-rose-50 text-rose-600 rounded text-[8px] font-bold uppercase border border-rose-100">Bal: {item.balance?.toLocaleString(undefined, { minimumFractionDigits: 0 })}</span>
+                </div>
+              )}
+            </div>
+          )
       },
       {
-        accessor: 'createdBy' as any,
-        header: 'Created By',
-        render: (item: Expense) => (
-          <span className="text-sm font-medium text-gray-600">
-            {typeof item.createdBy === 'object' ? item.createdBy.name : item.createdBy || '--'}
-          </span>
-        ),
+          header: 'Settlement Status',
+          accessor: 'status' as keyof Expense,
+          render: (item: any) => (
+            <div className="flex flex-col gap-1.5">
+              <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest text-center ${
+                item.status === 'paid' ? 'bg-emerald-600 text-white' : 
+                item.status === 'partially_paid' ? 'bg-amber-500 text-white' : 
+                item.status === 'pending' ? 'bg-rose-50 text-rose-700' : 'bg-gray-100 text-gray-600'
+              }`}>
+                {item.status.replace('_', ' ')}
+              </span>
+              <div className={`px-3 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest text-center border flex items-center justify-center gap-1 ${
+                 item.isApproved ? 'bg-teal-50 text-teal-700 border-teal-100' : 'bg-gray-50 text-gray-400 border-gray-100'
+              }`}>
+                 {item.isApproved ? <CheckCircle size={10} /> : null}
+                 {item.isApproved ? 'Verified' : 'Unverified'}
+              </div>
+            </div>
+          )
       },
       {
-        accessor: 'createdAt',
-        header: 'Date Created',
-        render: (item: Expense) => (
-          <span className="text-sm font-medium text-gray-600">
-            {item.createdAt ? new Date(item.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '--'}
-          </span>
-        ),
-      },
+          accessor: 'createdBy' as any,
+          header: 'Audit Trail',
+          render: (item: Expense) => (
+            <div className="flex flex-col">
+               <span className="text-[11px] font-bold text-gray-700">
+                 {typeof item.createdBy === 'object' ? (item.createdBy as any).name : item.createdBy || '--'}
+               </span>
+               <span className="text-[9px] text-gray-400 font-medium">
+                 {item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '--'}
+               </span>
+            </div>
+          )
+      }
     ];
 
     baseColumns.push({
@@ -166,6 +163,16 @@ function ExpensesPage() {
       header: 'Actions',
       render: (expense) => (
         <div className="flex items-center gap-2">
+           <button
+             onClick={(e) => {
+               e.stopPropagation();
+               router.push(`/finance/expenses/${expense._id}/report`);
+             }}
+             className="w-9 h-9 flex items-center justify-center text-sky-500 hover:text-sky-600 hover:bg-sky-50 rounded-lg transition-all border border-gray-100 hover:border-sky-200"
+             title="View Settlement Audit"
+           >
+             <FileBarChart2 className="w-4 h-4" />
+           </button>
            {can('expense', 'update') && !expense.isApproved && (
             <button
               onClick={(e) => {
@@ -176,6 +183,18 @@ function ExpensesPage() {
               title="Approve"
             >
               <CheckCircle className="w-4 h-4" />
+            </button>
+          )}
+          {can('payment', 'create') && (expense.status !== 'paid') && (
+            <button
+               onClick={(e) => {
+                 e.stopPropagation();
+                 router.push(`/finance/payment/add?refId=${expense._id}&refType=Expense&company=${encodeURIComponent(expense.companyName || '')}&amount=${expense.balance}`);
+               }}
+               className="w-9 h-9 flex items-center justify-center text-amber-500 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-all border border-gray-100 hover:border-amber-200"
+               title="Settle (Record Payment)"
+            >
+               <DollarSign className="w-4 h-4" />
             </button>
           )}
           {can('expense', 'update') && (
@@ -207,7 +226,7 @@ function ExpensesPage() {
     });
 
     return baseColumns;
-  }, [openMenu, router, can, handleDelete]);
+  }, [router, can, handleDelete, handleApprove]);
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white p-6 md:p-10">
@@ -238,7 +257,6 @@ function ExpensesPage() {
         }
       />
 
-      {/* Persistent Filters Section */}
       <div className={showFilters ? 'block mb-6' : 'hidden'}>
         <ExpenseFilterBar 
           onCategoryChange={useCallback((val) => setFilter(prev => ({ ...prev, category: val })), [])}
@@ -258,7 +276,6 @@ function ExpensesPage() {
         />
       </div>
 
-      {/* Persistent Search and Table Area */}
       <div className="mb-6">
         <SearchInput 
           placeholder="Search expenses..." 

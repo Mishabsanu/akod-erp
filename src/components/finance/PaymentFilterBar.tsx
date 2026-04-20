@@ -48,7 +48,7 @@ export const PaymentFilterBar: React.FC<PaymentFilterBarProps> = ({
     <div className="bg-white border border-gray-100 rounded-[32px] shadow-sm p-8">
       <div className="flex items-center gap-3 mb-6">
         <ArrowDownUp className="w-5 h-5 text-[#0f766e]" />
-        <h3 className="text-sm font-black uppercase tracking-widest text-[#0f766e]">Payment Registry Filters</h3>
+        <h3 className="text-sm font-black uppercase tracking-widest text-[#0f766e]">Collections Registry Filters</h3>
       </div>
 
       {hasFilters && (

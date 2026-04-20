@@ -28,6 +28,11 @@ export const createUtilityItem = async (data: Partial<UtilityItem>) => {
   return response.data;
 };
 
+export const createBulkUtilityItems = async (data: { baseItem: Partial<UtilityItem>, variants: Partial<UtilityItem>[] }) => {
+  const response = await api.post("/utility-items/bulk", data);
+  return response.data;
+};
+
 export const updateUtilityItem = async (id: string, data: Partial<UtilityItem>) => {
   const response = await api.patch(`/utility-items/${id}`, data);
   return response.data;

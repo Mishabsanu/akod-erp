@@ -82,25 +82,25 @@ const DeliveryTicketPreview = ({
             <div className="bg-white text-black shadow-2xl w-[210mm] min-h-[297mm] px-10 py-8 relative print:shadow-none print:w-full print:h-auto overflow-hidden font-sans text-[10pt]">
 
                 {/* 1. Header Section */}
-                <div className="flex justify-between items-start mb-6">
+                <div className="flex justify-between items-start mb-6 border-b-2 border-[#0f766e] pb-4">
                     {/* Left: Contact Info */}
-                    <div className="text-[8pt] text-gray-700 space-y-0.5 pt-2">
+                    <div className="w-[30%] text-[8pt] text-gray-700 space-y-0.5 pt-2">
                         <p className="font-bold text-[9pt] mb-1 text-[#0f766e]">PROSERVE TRADING & SERVICES</p>
                         <p>Tel: +974 4421 4042</p>
                         <p>Mob: +974 3030 3613</p>
                         <p className="font-semibold mt-1 text-slate-800">info@proservets.com</p>
                     </div>
 
-                    {/* Center: Logo */}
-                    <div className="flex flex-col items-center">
-                        <div className="w-50 h-40">
+                    {/* Center: Logo & Title */}
+                    <div className="w-[40%] flex flex-col items-center">
+                        <div className="w-48 h-20 mb-2">
                             <img src="/logo.png" alt="Company Logo" className="w-full h-full object-contain" />
                         </div>
-                        <h2 className="text-lg font-bold uppercase text-gray-700 z-10">Delivery Note</h2>
+                        <h2 className="text-xl font-black uppercase text-gray-800 tracking-wider underline decoration-2 underline-offset-8 decoration-[#0f766e]">Delivery Note</h2>
                     </div>
 
                     {/* Right: Address Info */}
-                    <div className="text-[8pt] text-gray-700 space-y-0.5 pt-2 text-right">
+                    <div className="w-[30%] text-[8pt] text-gray-700 space-y-0.5 pt-2 text-right">
                         <p>C.R. No: 147701</p>
                         <p>P.O. Box: 9044</p>
                         <p>Zone: 27, Street: 310</p>
@@ -114,29 +114,33 @@ const DeliveryTicketPreview = ({
                     {/* Row 1 - Customer and DN Details */}
                     <div className="flex border-b border-gray-400 items-stretch">
                         {/* Top Left: Customer Details */}
-                        <div className="w-[60%] border-r border-gray-400 p-2 flex flex-col justify-center">
-                            <p className="bg-gray-200 inline-block px-1 mb-1 text-xs font-bold text-gray-700 rounded-sm self-start">Customer Details.</p>
-                            <p className="font-bold uppercase text-lg text-gray-900 ml-2 mt-1">{data.customerName}</p>
-                            {data.referenceNo && <p className="text-xs text-gray-500 ml-2">Ref: {data.referenceNo}</p>}
+                        <div className="w-[60%] border-r border-gray-400 p-3 flex flex-col justify-center bg-gray-50/30">
+                            <p className="bg-gray-200 inline-block px-1.5 mb-1 text-[9px] font-black text-gray-700 rounded-sm self-start">CUSTOMER DETAILS</p>
+                            <p className="font-black uppercase text-lg text-gray-900 ml-1">{data.customerName}</p>
+                            {data.referenceNo && <p className="text-[10px] font-bold text-gray-500 ml-1 tracking-tight">REF: {data.referenceNo}</p>}
                         </div>
 
                         {/* Top Right: DN Details */}
-                        <div className="w-[40%] text-xs flex flex-col">
-                            <div className="flex border-b border-gray-400 h-8 items-center">
-                                <div className="w-24 p-1 border-r border-gray-400 bg-gray-50 font-semibold h-full flex items-center">Delivery Note No.</div>
-                                <div className="flex-grow p-1 font-bold pl-2">{data.ticketNo}</div>
+                        <div className="w-[40%] text-[10px] flex flex-col">
+                            <div className="flex border-b border-gray-400 h-7 items-center">
+                                <div className="w-28 p-1 border-r border-gray-400 bg-gray-100/80 font-bold h-full flex items-center px-2">Delivery Note No.</div>
+                                <div className="flex-grow p-1 font-black pl-3 text-[#0f766e] text-[11pt]">{data.ticketNo}</div>
                             </div>
-                            <div className="flex border-b border-gray-400 h-8 items-center">
-                                <div className="w-24 p-1 border-r border-gray-400 bg-gray-50 font-semibold h-full flex items-center">Dated</div>
-                                <div className="flex-grow p-1 pl-2">{formatDate(data.deliveryDate)}</div>
+                            <div className="flex border-b border-gray-400 h-7 items-center">
+                                <div className="w-28 p-1 border-r border-gray-400 bg-gray-100/80 font-bold h-full flex items-center px-2">Dated</div>
+                                <div className="flex-grow p-1 pl-3 font-semibold">{formatDate(data.deliveryDate)}</div>
                             </div>
-                            <div className="flex border-b border-gray-400 h-8 items-center">
-                                <div className="w-24 p-1 border-r border-gray-400 bg-gray-50 font-semibold h-full flex items-center">LPO NO.</div>
-                                <div className="flex-grow p-1 pl-2 font-bold uppercase">{data.poNo}</div>
+                            <div className="flex border-b border-gray-400 h-7 items-center">
+                                <div className="w-28 p-1 border-r border-gray-400 bg-gray-100/80 font-bold h-full flex items-center px-2">Invoice Number</div>
+                                <div className="flex-grow p-1 pl-3 font-black text-rose-700">{data.invoiceNo || 'N/A'}</div>
                             </div>
-                            <div className="flex h-8 items-center">
-                                <div className="w-24 p-1 bg-gray-50 font-semibold h-full flex items-center border-r border-gray-400">Vehicle Name</div>
-                                <div className="flex-grow p-1 pl-2 uppercase">{data.vehicleNo}</div>
+                            <div className="flex border-b border-gray-400 h-7 items-center">
+                                <div className="w-28 p-1 border-r border-gray-400 bg-gray-100/80 font-bold h-full flex items-center px-2">LPO NO.</div>
+                                <div className="flex-grow p-1 pl-3 font-bold uppercase">{data.poNo}</div>
+                            </div>
+                            <div className="flex h-7 items-center">
+                                <div className="w-28 p-1 bg-gray-100/80 font-bold h-full flex items-center border-r border-gray-400 px-2">Vehicle Name</div>
+                                <div className="flex-grow p-1 pl-3 uppercase font-medium">{data.vehicleNo}</div>
                             </div>
                         </div>
                     </div>
@@ -163,7 +167,7 @@ const DeliveryTicketPreview = ({
                         <div className="w-[40%] text-xs">
                             <div className="flex h-full items-center">
                                 <div className="w-24 p-1 border-r border-gray-400 bg-gray-50 font-semibold h-full flex items-center">Driver Name</div>
-                                <div className="flex-grow p-1 pl-2 uppercase font-medium">{data.deliveredBy?.deliveredByName}</div>
+                                <div className="flex-grow p-1 pl-2 uppercase font-medium">{data.deliveredBy?.deliveredByName || ''}</div>
                             </div>
                         </div>
                     </div>
@@ -173,16 +177,16 @@ const DeliveryTicketPreview = ({
                 <div className="border border-gray-400 mb-2 min-h-[400px] flex flex-col">
                     <table className="w-full text-xs">
                         <thead>
-                            <tr className="border-b border-gray-400 bg-gray-100/50">
-                                <th className="w-10 border-r border-gray-400 py-1 font-semibold text-gray-700">Sl No</th>
-                                <th className="w-32 border-r border-gray-400 py-1 font-semibold text-gray-700 text-left pl-2">Item Name</th>
-                                <th className="w-24 border-r border-gray-400 py-1 font-semibold text-gray-700">Code</th>
-                                <th className="w-20 border-r border-gray-400 py-1 font-semibold text-gray-700">Qty</th>
-                                <th className="w-16 border-r border-gray-400 py-1 font-semibold text-gray-700">Unit</th>
-                                <th className="border-r border-gray-400 py-1 font-semibold text-gray-700 text-left pl-2">Description</th>
+                            <tr className="border-b border-gray-400 bg-gray-100/80">
+                                <th className="w-12 border-r border-gray-400 py-1.5 font-black text-gray-800 uppercase text-[9px] tracking-widest">S.No</th>
+                                <th className="w-40 border-r border-gray-400 py-1.5 font-black text-gray-800 uppercase text-[9px] tracking-widest text-left pl-3">Item Description</th>
+                                <th className="w-24 border-r border-gray-400 py-1.5 font-black text-gray-800 uppercase text-[9px] tracking-widest">Code</th>
+                                <th className="w-24 border-r border-gray-400 py-1.5 font-black text-gray-800 uppercase text-[9px] tracking-widest">Quantity</th>
+                                <th className="w-20 border-r border-gray-400 py-1.5 font-black text-gray-800 uppercase text-[9px] tracking-widest">Unit</th>
+                                <th className="border-r border-gray-400 py-1.5 font-black text-gray-800 uppercase text-[9px] tracking-widest text-left pl-3">Specifications</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-400">
+                        <tbody className="divide-y divide-gray-300">
                             {filledRows.map((item, idx) => (
                                 <tr key={idx} className="h-8">
                                     <td className="border-r border-gray-400 text-center text-gray-600">{idx + 1}</td>
