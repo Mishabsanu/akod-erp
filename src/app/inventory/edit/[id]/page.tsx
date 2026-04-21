@@ -33,7 +33,7 @@ const EditInventoryPage = () => {
               : new Date().toISOString().split('T')[0],
             reference: inventory.reference || '',
             poNo: inventory.poNo,
-            vendor: inventory.vendor,
+            vendor: typeof inventory.vendor === 'object' ? inventory.vendor?._id : inventory.vendor,
             items: [
               {
                 id: inventory._id,

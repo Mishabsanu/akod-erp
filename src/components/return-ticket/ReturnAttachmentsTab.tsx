@@ -2,7 +2,7 @@
 
 import { ReturnTicket } from '@/lib/types';
 import { updateReturnTicket } from '@/services/returnTicketApi';
-import { FileText, Plus, Trash2, Eye, Download, X, Paperclip, CheckCircle2, Loader2 } from 'lucide-react';
+import { FileText, Plus, Trash2, Eye, Download, X, Paperclip, CheckCircle2, Loader2, Upload } from 'lucide-react';
 import { useState, useRef } from 'react';
 import { toast } from 'sonner';
 
@@ -138,7 +138,7 @@ const ReturnAttachmentsTab = ({ ticket, onRefresh }: ReturnAttachmentsTabProps) 
 
               {ticket.attachments?.supportingDocs?.length ? (
                 <div className="space-y-2 max-h-40 overflow-y-auto pr-2 custom-scrollbar">
-                  {ticket.attachments.supportingDocs.map((url, i) => (
+                  {ticket.attachments.supportingDocs.map((url: string, i: number) => (
                     <div key={i} className="flex items-center justify-between p-2 bg-white rounded-lg border border-sky-100 shadow-sm group">
                       <span className="text-[10px] font-medium text-slate-600 truncate ml-2">Document {i + 1}</span>
                       <div className="flex gap-1.5 translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all">

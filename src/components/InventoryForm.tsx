@@ -246,7 +246,7 @@ const InventoryForm: React.FC<InventoryFormProps> = ({
                 name="vendor"
                 options={vendors.map((v) => ({
                   value: v._id!,
-                  label: v.name,
+                  label: v.name || v.company || 'Unknown',
                 }))}
                 required
               />
@@ -435,7 +435,7 @@ const InventoryForm: React.FC<InventoryFormProps> = ({
                         <span className="text-xs font-bold uppercase tracking-tight">
                           {formik.values.deliveryNote instanceof File 
                             ? formik.values.deliveryNote.name 
-                            : typeof formik.values.deliveryNote === 'string' 
+                            : typeof formik.values.deliveryNote === 'string' && formik.values.deliveryNote
                               ? formik.values.deliveryNote.split('/').pop() 
                               : 'Upload Document'}
                         </span>

@@ -14,6 +14,7 @@ import { useEffect, useState } from 'react';
 import { formatDate } from '@/app/utils/formatDate';
 import { getInventoryItems } from '@/services/inventoryApi';
 import { History as HistoryIcon, Package, Clock, ShoppingCart } from 'lucide-react';
+import { toast } from 'sonner';
 
 const ViewVendorPage = () => {
   const router = useRouter();

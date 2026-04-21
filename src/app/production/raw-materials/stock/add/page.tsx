@@ -70,4 +70,4 @@ const StockAdjustmentPage = () => (
     </Suspense>
 );
 
-export default withAuth(StockAdjustmentPage, [{ module: 'production', action: 'edit' }]);
+export default withAuth(StockAdjustmentPage, [{ module: 'production', action: 'update' }]);

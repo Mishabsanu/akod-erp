@@ -86,9 +86,9 @@ const FactoryForm: React.FC<FactoryFormProps> = ({ initialData, onSubmit, onCanc
       Object.keys(values).forEach(key => {
         if (key === 'rawMaterials') {
           // Clean up for backend (remove extra labels used for UI)
-          const cleanedMaterials = values.rawMaterials.map(rm => ({
+          const cleanedMaterials = values.rawMaterials.map((rm: { material: string; quantity: number | string }) => ({
             material: rm.material,
-            quantity: rm.quantity
+            quantity: Number(rm.quantity) || 0
           }));
           formData.append(key, JSON.stringify(cleanedMaterials));
         } else if (key !== 'productName' && key !== 'productCode') {
@@ -221,7 +221,7 @@ const FactoryForm: React.FC<FactoryFormProps> = ({ initialData, onSubmit, onCanc
                    <FieldArray name="rawMaterials">
                       {({ remove }) => (
                         <>
-                          {formik.values.rawMaterials.map((rm: any, idx: number) => (
+                          {formik.values.rawMaterials.map((rm: { material: string; name: string; itemCode: string; availableQty: number; unit: string; quantity: number | string }, idx: number) => (
                             <div key={idx} className="bg-slate-800/50 border border-slate-700/50 rounded-[2.5rem] p-8 flex flex-col md:flex-row md:items-center gap-8 transition-all hover:bg-slate-800 animate-in slide-in-from-bottom-4 duration-300">
                                <div className="flex-1 space-y-4">
                                   <button 
@@ -265,10 +265,10 @@ const FactoryForm: React.FC<FactoryFormProps> = ({ initialData, onSubmit, onCanc
                                       value={rm.quantity}
                                       onChange={formik.handleChange}
                                       placeholder="0.00"
-                                      className={`w-full h-14 bg-slate-900 border border-slate-700 rounded-2xl px-6 text-sm font-black text-white outline-none focus:border-teal-500 transition-all ${rm.quantity > rm.availableQty ? 'border-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.2)]' : ''}`}
+                                      className={`w-full h-14 bg-slate-900 border border-slate-700 rounded-2xl px-6 text-sm font-black text-white outline-none focus:border-teal-500 transition-all ${Number(rm.quantity) > (rm.availableQty || 0) ? 'border-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.2)]' : ''}`}
                                     />
-                                    {rm.quantity > rm.availableQty && (
-                                       <AlertCircle size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-rose-500" title="Exceeds Available Stock" />
+                                    {Number(rm.quantity) > (rm.availableQty || 0) && (
+                                       <AlertCircle size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-rose-500" />
                                     )}
                                   </div>
                                </div>

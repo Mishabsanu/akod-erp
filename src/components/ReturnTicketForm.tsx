@@ -129,7 +129,7 @@ const ReturnTicketForm = ({
 
         if (customerRes?.customers) {
           setCustomers(
-            customerRes.customers.map((c) => ({ value: c._id!, label: c.name }))
+            customerRes.customers.map((c) => ({ value: c._id!, label: c.name || 'Unknown' }))
           );
         }
 
@@ -465,11 +465,6 @@ const ReturnTicketForm = ({
                 required
                 onChange={(e) => {
                   formik.handleChange(e);
-                  const product = availableProducts.find((p) => {
-                    const pId = (p.productId?._id || p.productId)?.toString();
-                    const targetId = (e.target.value?._id || e.target.value)?.toString();
-                    return pId && targetId && pId === targetId;
-                  });
                   const selected = customers.find(c => c.value === e.target.value);
                   if (selected) {
                     formik.setFieldValue('customerName', selected.label);

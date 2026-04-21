@@ -149,7 +149,7 @@ const DeliveryTicketForm = ({
 
         if (customerRes?.customers) {
           setCustomers(
-            customerRes.customers.map((c) => ({ value: c._id!, label: c.name }))
+            customerRes.customers.map((c) => ({ value: c._id!, label: c.name || 'Unknown' }))
           );
         }
       } catch (error) {
@@ -356,7 +356,7 @@ const DeliveryTicketForm = ({
         
         // Also find available stock from the main product list if needed
         const inventoryProduct = availableProducts.find((p) => {
-          const pId = (p.productId?._id || p.productId)?.toString();
+          const pId = p.productId?.toString();
           const targetId = (orderItem.productId?._id || orderItem.productId)?.toString();
           return pId && targetId && pId === targetId;
         });

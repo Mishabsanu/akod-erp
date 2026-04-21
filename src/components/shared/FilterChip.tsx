@@ -1,7 +1,7 @@
 import React from 'react';
 import { X } from 'lucide-react';
 
-type FilterChipColor = 'blue' | 'green' | 'purple';
+type FilterChipColor = 'blue' | 'green' | 'purple' | 'red';
 
 interface FilterChipProps {
   label: string;
@@ -20,6 +20,7 @@ export const FilterChip = ({
     blue: 'bg-sky-50 text-sky-700 border-sky-200',
     green: 'bg-green-50 text-green-700 border-green-200',
     purple: 'bg-purple-50 text-purple-700 border-purple-200',
+    red: 'bg-rose-50 text-rose-700 border-rose-200',
   };
 
   return (

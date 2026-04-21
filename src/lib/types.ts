@@ -284,6 +284,9 @@ export interface InventoryFilter {
   status?: 'IN_STOCK' | 'LOW_STOCK' | 'OUT_OF_STOCK';
   minStock?: number;
   maxStock?: number;
+  vendor?: string;
+  customer?: string;
+  onlyLowStock?: boolean | string;
 }
 
 export interface DeliveredBy {
@@ -363,6 +366,10 @@ export interface ReturnTicket {
   noteCategory?: string;
   vehicleNo?: string;
   qatarId?: string;
+  attachments?: {
+    signedTicket?: string;
+    supportingDocs?: string[];
+  };
 }
 
 export interface ReturnTicketFilter {
@@ -481,8 +488,8 @@ export interface InventoryFormData {
   date: string;
   reference?: string;
   remarks?: string;
-  deliveryNote?: File | null;
-  productImage?: File | null;
+  deliveryNote?: File | string | null;
+  productImage?: File | string | null;
   poNo?: string;
   vendor?: string; // Assuming vendor is string ID here
   items: {
