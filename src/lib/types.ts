@@ -618,6 +618,11 @@ export interface Payment {
   remarks?: string;
   companyName?: string;
   status: 'completed' | 'pending' | 'failed' | 'cancelled';
+  paidBy?: string;
+  contactPerson?: string;
+  recipientDetailId?: string;
+  recipientDetailModel?: 'Customer' | 'Vendor';
+  attachments?: any[];
   createdAt?: string;
   createdBy?: string | User;
 }

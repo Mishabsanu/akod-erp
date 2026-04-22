@@ -11,10 +11,12 @@ interface FormikSearchableSelectProps {
   placeholder?: string;
   required?: boolean;
   className?: string;
+  onChange?: (val: any) => void;
 }
 
 const FormikSearchableSelect: React.FC<FormikSearchableSelectProps> = ({
   name,
+  onChange,
   ...props
 }) => {
   const [field, meta] = useField(name);
@@ -27,6 +29,9 @@ const FormikSearchableSelect: React.FC<FormikSearchableSelectProps> = ({
       onChange={(val) => {
         setFieldValue(name, val);
         setFieldTouched(name, true);
+        if (onChange) {
+          onChange(val);
+        }
       }}
       error={meta.error}
       touched={meta.touched}
