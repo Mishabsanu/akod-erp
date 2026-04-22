@@ -35,15 +35,15 @@ export const CompanyFinanceHistory: React.FC<CompanyFinanceHistoryProps> = ({ co
         const promises: Promise<any>[] = [];
 
         // 1. Fetch Payments (for both)
-        promises.push(getPayments({ companyName, limit: 100 }));
+        promises.push(getPayments({ companyName }, 1, 100));
 
         if (type === 'Vendor') {
           // 2. Fetch Expenses
-          promises.push(getExpenses({ companyName, limit: 100 }));
+          promises.push(getExpenses({ companyName }, 1, 100));
         } else {
           // 3. Fetch Invoices
           if (companyId) {
-            promises.push(getInvoices({ status: '', limit: 100 }).then(res => ({
+            promises.push(getInvoices({ status: '' }, 1, 100).then(res => ({
                invoices: res.invoices.filter(inv => {
                  const cid = typeof inv.customerId === 'object' ? inv.customerId._id : inv.customerId;
                  return cid === companyId;
