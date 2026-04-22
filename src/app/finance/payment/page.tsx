@@ -101,7 +101,9 @@ function PaymentsPage() {
         accessor: 'companyName' as keyof Payment,
         render: (item: Payment) => (
           <div className="flex flex-col">
-            <span className="text-sm font-bold text-gray-900">{item.companyName || '—'}</span>
+            <span className="text-sm font-bold text-gray-900">
+              {item.companyName || (item.recipientDetailId as any)?.company || '—'}
+            </span>
             <span className="text-[10px] text-gray-400 font-bold uppercase tracking-tight italic">
               {item.referenceType}: {item.referenceId ? 'Linked' : 'Manual'}
             </span>
@@ -189,7 +191,7 @@ function PaymentsPage() {
     <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white p-6 md:p-10">
       <ListPageHeader
         eyebrow="Finance Registry"
-        title="Collections"
+        title="Payments & Collections"
         highlight="Registry"
         description="Review received and paid transactions across accounts."
         actions={
@@ -200,7 +202,7 @@ function PaymentsPage() {
               className="page-header-button"
             >
               <Plus className="w-4 h-4" />
-              Post Collection
+              Register Transaction
             </button>
           )}
           <button 

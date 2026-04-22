@@ -44,6 +44,11 @@ export const getCustomers = async (
   };
 };
 
+export const getCustomerDropdown = async () => {
+    const { data } = await api.get<ApiResponse<any[]>>('/customers/dropdown');
+    return data;
+};
+
 export const getCustomerById = async (id: string) => {
   const { data } = await api.get<ApiResponse<Customer>>(`/customers/${id}`);
   return data.data;

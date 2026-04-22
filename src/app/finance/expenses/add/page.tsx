@@ -13,9 +13,10 @@ const AddExpensePage = () => {
   const handleSubmit = async (formData: FormData) => {
     setIsLoading(true);
     try {
-      await createExpense(formData);
+      const response = await createExpense(formData);
       toast.success('Expenditure record posted successfully');
       router.push('/finance/expenses');
+      return response;
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to post expense');
     } finally {

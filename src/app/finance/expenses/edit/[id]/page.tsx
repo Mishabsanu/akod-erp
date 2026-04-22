@@ -36,9 +36,10 @@ const EditExpensePage = () => {
     setIsSaving(true);
     try {
       if (typeof id === 'string') {
-        await updateExpense(id, formData);
+        const response = await updateExpense(id, formData);
         toast.success('Expenditure record updated successfully');
         router.push('/finance/expenses');
+        return response;
       }
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to update expense');

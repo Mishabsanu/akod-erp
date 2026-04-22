@@ -119,11 +119,10 @@ export const Sidebar = () => {
       name: 'Finance & Accounts',
       icon: IndianRupee,
       subItems: [
-        { name: 'Financial Dashboard', icon: PieChart, href: '/finance/accounts' },
-        can('accounts', 'view') && { name: 'Accounts', icon: BookOpen, href: '/finance/accounts' },
+        can('accounts', 'view') && { name: 'Accounts Dashboard', icon: BookOpen, href: '/finance/accounts' },
         can('ledger', 'view') && { name: 'Ledger', icon: Database, href: '/finance/ledger' },
         can('expense', 'view') && { name: 'Expenses', icon: Wallet, href: '/finance/expenses' },
-        can('payment', 'view') && { name: 'Collections', icon: CreditCard, href: '/finance/payment' },
+        can('payment', 'view') && { name: 'Payments & Collections', icon: CreditCard, href: '/finance/payment' },
       ].filter(Boolean) as SubMenuItem[],
     },
 

@@ -2,13 +2,21 @@
 
 import { FormikInput } from '@/components/shared/FormikInput';
 import { FormikSelect } from '@/components/shared/FormikSelect';
+import FormikSearchableSelect from '@/components/shared/FormikSearchableSelect';
 import { FormikTextarea } from '@/components/shared/FormikTextarea';
 import { Section } from '@/components/ui/Section';
-import { Expense, PODropdownItem } from '@/lib/types';
-import { getProductDropdown } from '@/services/catalogApi';
-import { getNextExpenseId, getPayments } from '@/services/financeApi';
+import { Expense, Vendor } from '@/lib/types';
+import { createPayment, getNextExpenseId, getPayments, getAccounts } from '@/services/financeApi';
+import { getVendorDropdown } from '@/services/vendorApi';
+import { getWorkersDropdown } from '@/services/workerApi';
+import { CompanyFinanceHistory } from './CompanyFinanceHistory';
+import { Account, Worker } from '@/lib/types';
 import { FormikProvider, useFormik } from 'formik';
-import { DollarSign, Edit3, Paperclip, PlusCircle, Building2, Wallet, CreditCard, Landmark, History, Activity, AlertCircle } from 'lucide-react';
+import { 
+  DollarSign, Edit3, Paperclip, PlusCircle, Building2, 
+  Wallet, CreditCard, Landmark, History, Activity, 
+  AlertCircle, UserCheck, Eye, Trash2 
+} from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import * as Yup from 'yup';
 
@@ -18,6 +26,7 @@ const validationSchema = Yup.object().shape({
   amount: Yup.number().required('Amount is required').min(0.01, 'Amount must be greater than zero'),
   modeOfPayment: Yup.string().required('Mode of Payment is required'),
   status: Yup.string().required('Status is required'),
+  vendorId: Yup.string().required('Vendor selection is required'),
   chequeNo: Yup.string().when('modeOfPayment', {
     is: 'Cheque',
     then: (schema) => schema.required('Cheque number is required'),
@@ -56,7 +65,7 @@ const EXPENSE_CATEGORIES = [
 
 interface ExpenseFormProps {
   initialData?: Partial<Expense>;
-  onSubmit: (values: any) => Promise<void>;
+  onSubmit: (values: any) => Promise<any>;
   onCancel: () => void;
   isLoading?: boolean;
 }
@@ -70,6 +79,9 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ initialData, onSubmit, onCanc
   const [nextId, setNextId] = useState<string>('');
   const [settlements, setSettlements] = useState<any[]>([]);
   const [loadingSettlements, setLoadingSettlements] = useState(false);
+  const [vendors, setVendors] = useState<Vendor[]>([]);
+  const [pendingRemovals, setPendingRemovals] = useState<string[]>([]);
+  const [existingAttachments, setExistingAttachments] = useState<any[]>(initialData?.attachments || []);
 
   const isEditMode = !!initialData?._id;
 
@@ -82,19 +94,78 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ initialData, onSubmit, onCanc
       referenceNo: '',
       description: '',
       companyName: '',
-      status: 'paid',
+      vendorId: '',
+      status: 'pending', // Default to pending for new expenses
+      recordInitialPayment: false, // New toggle
+      amountPaid: 0, // Amount paid now
       chequeNo: '',
       chequeDate: '',
       bank: '',
       transactionId: '',
       voucherNo: '',
+      paidBy: '',
+      recipientDetailId: '',
+      contactPerson: '',
     }),
     enableReinitialize: true,
     validationSchema: validationSchema,
     onSubmit: async (values, { setSubmitting }) => {
-      const totalAmount = Number(values.amount);
+      const formData = new FormData();
+      
+      // Append all base form fields except those we handle explicitly
+      Object.keys(values).forEach(key => {
+        if (
+          !['recordInitialPayment', 'amountPaid', 'amount', 'totalAmount'].includes(key) && 
+          values[key] !== undefined && 
+          values[key] !== null
+        ) {
+           formData.append(key, values[key]);
+        }
+      });
+
+      // Ensure amount and totalAmount are explicitly set as single values
+      formData.append('amount', values.amount.toString());
+      formData.append('totalAmount', values.amount.toString());
+      
+      // Append files
+      if (uploadedFiles.bill) formData.append('bill', uploadedFiles.bill);
+      if (uploadedFiles.receipt) formData.append('receipt', uploadedFiles.receipt);
+      if (uploadedFiles.proof) formData.append('proof', uploadedFiles.proof);
+      
+      if (pendingRemovals.length > 0) {
+        formData.append('removedAttachments', JSON.stringify(pendingRemovals));
+      }
+
+      const amountPaid = Number(values.amountPaid);
+      
       try {
-        await onSubmit({ ...values, totalAmount });
+        const expenseResponse = await onSubmit(formData);
+        const expenseId = (expenseResponse as any)?._id || (expenseResponse as any)?.data?._id;
+
+        // Ensure productId is included in standard body if not in formData or needs separate sync
+        // (Usually handled via formData above, but just in case)
+        
+        // If recording initial payment, create a payment record
+        if (values.recordInitialPayment && amountPaid > 0 && expenseId) {
+           await createPayment({
+             date: values.date,
+             amount: amountPaid,
+             modeOfPayment: values.modeOfPayment,
+             companyName: values.companyName,
+             referenceId: expenseId,
+             referenceType: 'Expense',
+             type: 'Paid',
+             status: 'completed',
+             chequeNo: values.chequeNo,
+             chequeDate: values.chequeDate,
+             bank: values.bank,
+             transactionId: values.transactionId,
+             voucherNo: values.voucherNo,
+             remarks: `Initial payment for expense ${values.referenceNo || 'entry'}`
+           } as any);
+        }
+      } catch (error) {
+        console.error('Submission failed', error);
       } finally {
         setSubmitting(false);
       }
@@ -102,17 +173,27 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ initialData, onSubmit, onCanc
   });
 
   useEffect(() => {
-    if (!isEditMode) {
-      getNextExpenseId().then(setNextId).catch(console.error);
-    } else if (initialData?._id) {
-       setLoadingSettlements(true);
-       getPayments({ search: '', type: 'Paid' }, 1, 100)
-        .then(data => {
-            const linked = data.payments.filter((p: any) => p.referenceId === initialData._id);
-            setSettlements(linked);
-        })
-        .finally(() => setLoadingSettlements(false));
-    }
+    const fetchData = async () => {
+        try {
+            const vData = await getVendorDropdown();
+            setVendors(vData.data || []);
+
+            if (!isEditMode) {
+              const id = await getNextExpenseId();
+              setNextId(id);
+            } else if (initialData?._id) {
+               setLoadingSettlements(true);
+               const data = await getPayments({ search: '', type: 'Paid' }, 1, 100);
+               const linked = data.payments.filter((p: any) => p.referenceId === initialData._id);
+               setSettlements(linked);
+            }
+        } catch (error) {
+            console.error('Failed to load expense data', error);
+        } finally {
+            setLoadingSettlements(false);
+        }
+    };
+    fetchData();
   }, [isEditMode, initialData?._id]);
 
   const handleFileChange = (type: string, file: File | null) => {
@@ -120,240 +201,245 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ initialData, onSubmit, onCanc
   };
 
   return (
-    <div className="w-full min-h-[calc(100vh-4rem)] bg-white px-8 py-10 rounded-[2.5rem] border border-gray-100 shadow-2xl shadow-slate-900/5 transition-all duration-500">
-      <div className="flex items-center justify-between mb-12 border-b border-gray-50 pb-8">
-        <div className="flex items-center gap-5">
-          <div className="w-14 h-14 bg-teal-50 rounded-2xl flex items-center justify-center text-teal-700 shadow-inner">
-            {isEditMode ? <Edit3 size={28} /> : <PlusCircle size={28} />}
+    <div className="w-full min-h-[calc(100vh-4rem)] bg-white px-6 py-8 rounded-[2rem] border border-gray-100 shadow-2xl shadow-slate-900/5 transition-all duration-500">
+      <div className="flex items-center justify-between mb-8 border-b border-gray-50 pb-6">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center text-black shadow-inner border border-gray-100">
+            {isEditMode ? <Edit3 size={24} /> : <PlusCircle size={24} />}
           </div>
           <div>
-            <h2 className="text-3xl font-black text-gray-900 tracking-tight">
-              {isEditMode ? 'Modify' : 'Register'} <span className="text-teal-700">Expenditure</span>
+            <h2 className="text-2xl font-black text-gray-900 tracking-tight">
+              {isEditMode ? 'Modify' : 'Register'} <span className="text-black">Expenditure</span>
             </h2>
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Audit Trail & Fund Outflow Management</p>
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Audit Trail & Fund Outflow Management</p>
           </div>
         </div>
         <div className="flex items-center gap-4">
            {isEditMode ? (
-              <div className="bg-gray-50 px-6 py-3 rounded-2xl border border-gray-100 flex flex-col items-end">
-                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1 text-right">Expense ID</span>
-                <span className="font-mono font-bold text-teal-700 text-lg">{(initialData as any)?.expenseId || 'EXP-AUTO'}</span>
+              <div className="bg-gray-50 px-4 py-2 rounded-xl border border-gray-100 flex flex-col items-end">
+                <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest block text-right">Expense ID</span>
+                <span className="font-mono font-bold text-black text-sm">{(initialData as any)?.expenseId || 'EXP-AUTO'}</span>
               </div>
            ) : (
-             <div className="bg-teal-50/50 px-6 py-3 rounded-2xl border border-teal-100 flex flex-col items-end animate-pulse">
-                <span className="text-[10px] font-black text-teal-600 uppercase tracking-widest block mb-1 text-right italic">Drafting ID</span>
-                <span className="font-mono font-bold text-teal-700 text-lg">{nextId || 'EXP-...'}</span>
+             <div className="bg-gray-50/50 px-4 py-2 rounded-xl border border-gray-200 flex flex-col items-end animate-pulse">
+                <span className="text-[8px] font-black text-gray-600 uppercase tracking-widest block text-right italic">Drafting ID</span>
+                <span className="font-mono font-bold text-black text-sm">{nextId || 'EXP-...'}</span>
              </div>
            )}
         </div>
       </div>
 
       <FormikProvider value={formik}>
-        <form onSubmit={formik.handleSubmit} className="space-y-12">
-          <Section title="Entity Identification">
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                <div className="space-y-2">
-                  <FormikInput 
-                    name="companyName" 
-                    label="Company / Vendor Name" 
-                    placeholder="Enter the beneficiary entity name..."
+        <form onSubmit={formik.handleSubmit} className="space-y-6">
+           <Section title="Entity & Core Details" eyebrow="Identification">
+             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="lg:col-span-1">
+                  <FormikSearchableSelect 
+                    name="vendorId" 
+                    label="Recipient Detail (Vendor)" 
+                    placeholder="Search Vendor..."
+                    options={vendors.map(v => ({ label: v.company, value: v._id! }))}
                     required
+                    onChange={(val: any) => {
+                       const selected = vendors.find(v => v._id === val);
+                       formik.setFieldValue('vendorId', val);
+                       formik.setFieldValue('companyName', selected?.company || '');
+                    }}
                   />
-                  <div className="flex items-center gap-2 text-[10px] text-teal-600 font-bold uppercase tracking-widest px-1">
-                    <Building2 size={12} />
-                    <span>Beneficiary detail for ledger indexing</span>
-                  </div>
                 </div>
                 <FormikInput 
                   name="referenceNo" 
-                  label="Internal Reference / Bill No." 
-                  placeholder="e.g. INV/2024/001"
+                  label="Bill / Invoice No." 
+                  placeholder="INV-001"
                 />
-             </div>
-          </Section>
-
-          <Section title="Categorization & Valuation">
-             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                 <FormikInput 
                   name="date" 
                   label="Transaction Date" 
                   type="date" 
                   required 
                 />
-                <div className="relative group">
-                  <FormikSelect 
+                 <FormikSelect 
                     name="category" 
                     label="Expenditure Category" 
                     options={EXPENSE_CATEGORIES.map(c => ({ label: c, value: c }))} 
                     required 
-                  />
-                </div>
+                />
+
                 <FormikInput 
-                  name="amount" 
-                  label="Settlement Amount (QAR)" 
-                  type="number" 
-                  required 
+                  name="paidBy" 
+                  label="Paid By" 
+                  placeholder="Enter name..."
+                  required
+                />
+                <FormikInput name="amount" label="Amount (QAR)" type="number" required />
+                <FormikSelect 
+                  name="status" 
+                  label="State" 
+                  options={[
+                    { label: 'Cleared', value: 'paid' },
+                    { label: 'Partial', value: 'partially_paid' },
+                    { label: 'Pending', value: 'pending' }
+                  ]} 
                 />
              </div>
 
-             {isEditMode && (
-               <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="bg-emerald-50/50 p-6 rounded-2xl border border-emerald-100">
-                    <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest block mb-1 text-right italic text-left">Total Paid</span>
-                    <span className="font-black text-emerald-700 text-xl tracking-tight">QAR {(initialData as any)?.paidTotal?.toLocaleString() || '0.00'}</span>
-                  </div>
-                  <div className="bg-rose-50/50 p-6 rounded-2xl border border-rose-100">
-                    <span className="text-[10px] font-black text-rose-600 uppercase tracking-widest block mb-1 text-right italic text-left">Outstanding Balance</span>
-                    <span className="font-black text-rose-700 text-xl tracking-tight">QAR {(initialData as any)?.balance?.toLocaleString() || '0.00'}</span>
-                  </div>
+             {formik.values.companyName && (
+               <div className="mt-6 pt-6 border-t border-gray-50">
+                  <CompanyFinanceHistory 
+                    companyName={formik.values.companyName} 
+                    type="Vendor" 
+                    companyId={formik.values.vendorId}
+                  />
                </div>
              )}
           </Section>
 
-          <Section title="Payment Instrument & Settlement">
-             <div className="space-y-10">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-                   <FormikSelect 
-                    name="modeOfPayment" 
-                    label="Mode of Payment" 
-                    options={paymentMethods.map(m => ({ label: m, value: m }))} 
-                    required 
-                  />
-                  <FormikSelect 
-                    name="status" 
-                    label="Accounting Status" 
-                    options={[
-                      { label: 'Cleared (Paid)', value: 'paid' },
-                      { label: 'Accrued (Partially Paid)', value: 'partially_paid' },
-                      { label: 'Outstanding (Pending)', value: 'pending' },
-                      { label: 'Voided (Cancelled)', value: 'cancelled' }
-                    ]} 
-                  />
-                </div>
 
-                <div className="bg-gray-50/50 p-8 rounded-[2rem] border border-gray-100 shadow-sm animate-in fade-in duration-500">
-                  {formik.values.modeOfPayment === 'Cheque' && (
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                       <FormikInput name="chequeNo" label="Cheque Number" placeholder="e.g. 102938" required />
-                       <FormikInput name="chequeDate" label="Cheque Date" type="date" required />
-                       <FormikInput name="bank" label="Drawn Bank Name" placeholder="e.g. Qatar National Bank" required />
-                    </div>
-                  )}
-
-                  {formik.values.modeOfPayment === 'Bank Transfer' && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                       <FormikInput name="transactionId" label="Transaction ID / Ref" placeholder="e.g. TRN-990022" required />
-                       <FormikInput name="bank" label="Beneficiary Bank" placeholder="e.g. Doha Bank" />
-                    </div>
-                  )}
-
-                  {formik.values.modeOfPayment === 'Cash' && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                       <FormikInput name="voucherNo" label="Voucher Number" placeholder="e.g. VCH-001" required />
-                    </div>
-                  )}
-
-                  {['Credit Card', 'Other'].includes(formik.values.modeOfPayment) && (
-                    <p className="text-sm font-bold text-gray-500 uppercase tracking-widest text-center py-4">No additional details required for this mode</p>
-                  )}
-                </div>
-             </div>
-          </Section>
-
-          <Section title="Audit Artifacts (Attachments)">
-             <div className="space-y-10">
-                <FormikTextarea 
-                  name="description" 
-                  label="Administrative Narrative / Notes" 
-                  placeholder="Provide comprehensive details for future auditing..."
-                  rows={4}
-                />
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                   {[
-                     { id: 'bill', label: 'Vendor Bill', icon: Landmark },
-                     { id: 'receipt', label: 'Payment Receipt', icon: History },
-                     { id: 'proof', label: 'Proof of Payment', icon: CreditCard }
-                   ].map((type) => (
-                     <div 
-                        key={type.id}
-                        onClick={() => document.getElementById(`upload-${type.id}`)?.click()}
-                        className="relative p-6 bg-white border-2 border-dashed border-gray-100 rounded-2xl hover:border-teal-700 hover:bg-teal-50/10 transition-all cursor-pointer group"
-                      >
-                        <div className="flex flex-col items-center gap-3">
-                           <div className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400 group-hover:bg-teal-700 group-hover:text-white transition-all">
-                              <type.icon size={20} />
-                           </div>
-                           <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 group-hover:text-teal-700">{type.label}</span>
-                           <span className="text-[9px] font-bold text-gray-300 italic group-hover:text-gray-500">
-                             {uploadedFiles[type.id] ? uploadedFiles[type.id]?.name : 'Required for audit'}
-                           </span>
-                        </div>
-                        <input 
-                          id={`upload-${type.id}`} 
-                          type="file" 
-                          className="hidden" 
-                          onChange={(e) => handleFileChange(type.id, e.target.files?.[0] || null)}
-                        />
+          <Section title="Financials & Accounting" eyebrow="Accounting">
+             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="space-y-6">
+                   {!isEditMode && (
+                     <div className="flex items-center gap-4 bg-teal-50/50 p-4 rounded-xl border border-teal-100">
+                       <input 
+                         type="checkbox" 
+                         id="recordInitialPayment"
+                         checked={formik.values.recordInitialPayment}
+                         onChange={(e) => formik.setFieldValue('recordInitialPayment', e.target.checked)}
+                         className="w-4 h-4 rounded border-gray-300 text-teal-700 focus:ring-teal-500"
+                       />
+                       <label htmlFor="recordInitialPayment" className="flex items-center gap-2 cursor-pointer">
+                         <span className="text-[10px] font-black text-gray-900 uppercase">Record Payment Now</span>
+                       </label>
                      </div>
-                   ))}
+                   )}
+
+                   {(formik.values.recordInitialPayment || isEditMode) && (
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <FormikSelect name="modeOfPayment" label="Method" options={paymentMethods.map(m => ({ label: m, value: m }))} required />
+                        {!isEditMode && <FormikInput name="amountPaid" label="Paid Now" type="number" />}
+                        <div className="col-span-1 md:col-span-2 bg-gray-50/50 p-4 rounded-xl border border-gray-100">
+                          {formik.values.modeOfPayment === 'Cheque' && <div className="grid grid-cols-2 gap-4"><FormikInput name="chequeNo" label="Chq #" required /><FormikInput name="chequeDate" label="Date" type="date" required /></div>}
+                          {formik.values.modeOfPayment === 'Bank Transfer' && <FormikInput name="transactionId" label="TRN ID" required />}
+                          {formik.values.modeOfPayment === 'Cash' && <FormikInput name="voucherNo" label="Vch #" required />}
+                        </div>
+                     </div>
+                   )}
+                   <FormikTextarea name="description" label="Internal Notes" placeholder="Audit summary..." rows={2} />
                 </div>
+
+                 <div className="space-y-4">
+                    <div className="flex items-center gap-2 mb-2">
+                       <Paperclip size={14} className="text-gray-400" />
+                       <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">Document Evidence</span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-4">
+                       {[
+                         { id: 'bill', label: 'Bill', icon: Landmark },
+                         { id: 'receipt', label: 'Receipt', icon: History },
+                         { id: 'proof', label: 'Proof', icon: CreditCard }
+                       ].map((type) => (
+                         <div key={type.id} onClick={() => document.getElementById(`upload-${type.id}`)?.click()} className="relative p-4 bg-white border-2 border-dashed border-gray-100 rounded-xl hover:border-teal-700 hover:bg-teal-50/10 transition-all cursor-pointer flex flex-col items-center justify-center gap-1 text-center">
+                            <div className="w-8 h-8 bg-gray-50 rounded-lg flex items-center justify-center text-gray-400">
+                               {uploadedFiles[type.id] ? <Activity size={14} className="text-teal-600 animate-pulse" /> : <type.icon size={14} />}
+                            </div>
+                            <span className="text-[8px] font-black uppercase text-gray-500">{uploadedFiles[type.id]?.name || type.label}</span>
+                            <input id={`upload-${type.id}`} type="file" className="hidden" onChange={(e) => handleFileChange(type.id, e.target.files?.[0] || null)} />
+                         </div>
+                       ))}
+                    </div>
+
+                    {/* Existing Artifacts */}
+                    {isEditMode && existingAttachments.length > 0 && (
+                      <div className="mt-6 pt-6 border-t border-gray-50">
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                           {existingAttachments.map((file, idx) => (
+                             <div key={idx} className="group relative p-3 bg-gray-50 rounded-xl border border-gray-100 flex items-center justify-between transition-all hover:bg-white hover:shadow-xl hover:border-gray-200">
+                                <div className="flex items-center gap-3 overflow-hidden">
+                                  <div className="w-8 h-8 bg-white rounded-lg border border-gray-100 flex items-center justify-center text-gray-400">
+                                    <Paperclip size={14} />
+                                  </div>
+                                  <div className="flex flex-col overflow-hidden">
+                                    <span className="text-[9px] font-black uppercase text-gray-400">{file.type}</span>
+                                    <span className="text-[10px] font-bold text-gray-700 truncate max-w-[120px]">{file.name || 'document.pdf'}</span>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <button 
+                                    type="button" 
+                                    onClick={() => window.open(`${process.env.NEXT_PUBLIC_API_URL}${file.url}`, '_blank')}
+                                    className="w-8 h-8 flex items-center justify-center text-sky-600 hover:bg-sky-50 rounded-lg transition-colors"
+                                    title="View"
+                                  >
+                                    <Eye size={14} />
+                                  </button>
+                                  <button 
+                                    type="button" 
+                                    onClick={() => {
+                                      if (window.confirm('Delete this artifact reference?')) {
+                                         setPendingRemovals(prev => [...prev, file.url]);
+                                         setExistingAttachments(prev => prev.filter(a => a.url !== file.url));
+                                      }
+                                    }}
+                                    className="w-8 h-8 flex items-center justify-center text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                                    title="Remove"
+                                  >
+                                    <Trash2 size={14} />
+                                  </button>
+                                </div>
+                             </div>
+                           ))}
+                         </div>
+                      </div>
+                    )}
+                 </div>
              </div>
           </Section>
 
           {isEditMode && (
-            <Section title="Settlement History (Partial Closures)">
-                <div className="overflow-hidden rounded-3xl border border-gray-100">
-                   <table className="w-full text-left border-collapse">
+            <Section title="Artifacts & Settlement" eyebrow="History">
+                <div className="overflow-hidden rounded-xl border border-gray-100 max-h-48 overflow-y-auto">
+                   <table className="w-full text-left border-collapse text-[11px]">
                       <thead>
-                        <tr className="bg-gray-50 border-b border-gray-100 text-[10px] uppercase font-black tracking-widest text-gray-400">
-                          <th className="px-6 py-4">Ref ID</th>
-                          <th className="px-6 py-4">Date</th>
-                          <th className="px-6 py-4 text-right">Amount</th>
-                          <th className="px-6 py-4">Instrument</th>
-                          <th className="px-6 py-4">Reference</th>
+                        <tr className="bg-gray-50 border-b border-gray-100 text-[8px] uppercase font-black text-gray-400">
+                          <th className="px-4 py-2">ID</th>
+                          <th className="px-4 py-2">Date</th>
+                          <th className="px-4 py-2 text-right">Amount</th>
+                          <th className="px-4 py-2">Method</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-50">
-                        {loadingSettlements ? (
-                           <tr><td colSpan={5} className="px-6 py-8 text-center text-gray-400 italic font-bold">Retrieving ledger entries...</td></tr>
-                        ) : settlements.length === 0 ? (
-                          <tr><td colSpan={5} className="px-6 py-8 text-center text-gray-400 italic">No historical settlements found for this expenditure.</td></tr>
-                        ) : (
-                          settlements.map((s, idx) => (
-                            <tr key={idx} className="hover:bg-gray-50/50 transition-all font-bold text-sm text-gray-700">
-                              <td className="px-6 py-4 font-mono text-xs text-teal-600">#{s.paymentId}</td>
-                              <td className="px-6 py-4 text-xs">{new Date(s.date).toLocaleDateString()}</td>
-                              <td className="px-6 py-4 text-right text-emerald-600">QAR {s.amount?.toLocaleString()}</td>
-                              <td className="px-6 py-4 text-[10px] uppercase tracking-widest text-gray-400 font-black">{s.modeOfPayment}</td>
-                              <td className="px-6 py-4 text-xs font-medium italic text-gray-400">{s.transactionId || s.chequeNo || s.remarks || '—'}</td>
-                            </tr>
-                          ))
-                        )}
+                        {settlements.map((s, idx) => (
+                          <tr key={idx} className="hover:bg-gray-50/50 font-bold text-gray-700">
+                            <td className="px-4 py-2 font-mono text-teal-600">#{s.paymentId}</td>
+                            <td className="px-4 py-2">{new Date(s.date).toLocaleDateString()}</td>
+                            <td className="px-4 py-2 text-right text-emerald-600">QAR {s.amount?.toLocaleString()}</td>
+                            <td className="px-4 py-2 uppercase text-gray-400">{s.modeOfPayment}</td>
+                          </tr>
+                        ))}
                       </tbody>
                    </table>
                 </div>
             </Section>
           )}
 
-          <div className="flex justify-end items-center gap-6 pt-10 border-t border-gray-50">
+          <div className="flex justify-end items-center gap-4 pt-6 border-t border-gray-50">
             <button
               type="button"
               onClick={onCancel}
-              className="px-10 py-4 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition-all active:scale-95 border border-transparent hover:border-rose-100"
+              className="px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition-all border border-transparent hover:border-rose-100"
             >
-              Discard Changes
+              Discard
             </button>
             <button
               type="submit"
               disabled={formik.isSubmitting || isLoading}
-              className={`px-12 py-4 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] text-white shadow-2xl transition-all active:scale-95 flex items-center gap-4 ${
+              className={`px-10 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest text-white shadow-xl transition-all flex items-center gap-3 ${
                 formik.isSubmitting || isLoading
                   ? 'bg-gray-300 cursor-not-allowed shadow-none'
                   : 'bg-teal-700 hover:bg-teal-800 shadow-teal-700/30'
               }`}
             >
-              <Wallet size={18} />
+              <Wallet size={16} />
               {isEditMode ? 'Authorize Update' : 'Register Expense'}
             </button>
           </div>

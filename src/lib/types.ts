@@ -640,8 +640,11 @@ export interface LedgerEntry {
   credit: number;
   balance: number;
   referenceId?: string;
+  referenceNo?: string;
   referenceType?: string;
+  modeOfPayment?: string;
   companyName?: string;
+  handledBy?: string;
   createdBy?: string | User;
 }
 

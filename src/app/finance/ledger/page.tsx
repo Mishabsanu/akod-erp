@@ -68,20 +68,55 @@ function LedgerPage() {
       render: (item: LedgerEntry) => <span className="text-gray-600 font-medium">{item.date}</span>
     },
     {
+      header: 'Ref ID',
+      accessor: 'referenceNo' as keyof LedgerEntry,
+      render: (item: LedgerEntry) => (
+        <div className="flex flex-col">
+          <span className="text-xs font-black text-teal-700">
+            {item.referenceNo || (item.referenceId ? 'R-'+item.referenceId.slice(-4).toUpperCase() : 'Manual')}
+          </span>
+          <span className="text-[10px] text-gray-400 font-bold uppercase tracking-tight">{item.referenceType || 'General'}</span>
+        </div>
+      )
+    },
+    {
       header: 'Company / Project',
       accessor: 'companyName' as keyof LedgerEntry,
       render: (item: LedgerEntry) => (
-        <span className="text-sm font-semibold text-[#0f766e]">{item.companyName || '—'}</span>
+        <span 
+          className={`text-sm font-semibold truncate max-w-[200px] ${item.companyName ? 'text-[#0f766e]' : 'text-gray-400 italic'}`} 
+          title={item.companyName || 'General Entry'}
+        >
+          {item.companyName || 'General Entry'}
+        </span>
       )
     },
     {
       header: 'Description',
       accessor: 'description' as keyof LedgerEntry,
       render: (item: LedgerEntry) => (
-        <div className="flex flex-col">
-          <span className="font-medium text-gray-700">{item.description}</span>
-          <span className="text-[10px] text-gray-400 font-bold uppercase tracking-tight">{item.referenceType}: {item.referenceId || 'Manual'}</span>
+        <span className="text-[11px] font-medium text-gray-700 line-clamp-2 max-w-[250px]" title={item.description}>
+          {item.description}
+        </span>
+      )
+    },
+    {
+      header: 'Method',
+      accessor: 'modeOfPayment' as keyof LedgerEntry,
+      render: (item: LedgerEntry) => (
+        <div className="flex items-center gap-2">
+           <div className={`w-2 h-2 rounded-full ${item.modeOfPayment ? (item.modeOfPayment === 'Cash' ? 'bg-orange-400' : 'bg-sky-400') : 'bg-gray-200'}`} />
+           <span className="text-[10px] font-black uppercase text-gray-500 tracking-wider">
+             {item.modeOfPayment || 'N/A'}
+           </span>
         </div>
+      )
+    },
+    {
+      header: 'Personnel',
+      accessor: 'handledBy' as keyof LedgerEntry,
+      render: (item: LedgerEntry) => (
+        <span className="text-[10px] font-bold text-gray-600 uppercase tracking-tight">{item.handledBy || '—'}</span>
       )
     },
     {
@@ -106,16 +141,16 @@ function LedgerPage() {
       header: 'Balance',
       accessor: 'balance' as keyof LedgerEntry,
       render: (item: LedgerEntry) => (
-        <span className="font-black text-gray-900 bg-gray-100 px-3 py-1 rounded-lg border border-gray-200">
+        <span className="font-black text-gray-900 bg-gray-100 px-3 py-1 rounded-lg border border-gray-200 shadow-sm">
           {item.balance?.toLocaleString(undefined, { minimumFractionDigits: 2 })}
         </span>
       )
     },
     {
-      header: 'Created By',
+      header: 'Admin',
       accessor: 'createdBy' as keyof LedgerEntry,
       render: (item: LedgerEntry) => (
-        <span className="text-sm font-medium text-gray-600">
+        <span className="text-[10px] font-medium text-gray-400 uppercase tracking-tighter">
           {typeof item.createdBy === 'object' ? (item.createdBy as any).name : (item.createdBy || '--')}
         </span>
       )

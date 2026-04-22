@@ -1,17 +1,17 @@
 'use client';
 
 import { useRouter, useParams } from 'next/navigation';
-import { useEffect, useState, use } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import UtilityItemForm from '@/components/master/UtilityItemForm';
 import { getUtilityItems, updateUtilityItem, UtilityItem } from '@/services/utilityItemApi';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import withAuth from '@/components/withAuth';
 
-const EditUtilityPage = ({ params: paramsPromise }: { params: Promise<{ id: string }> }) => {
+const EditUtilityPage = () => {
   const router = useRouter();
-  const params = use(paramsPromise);
-  const { id } = params;
+  const params = useParams();
+  const id = params.id as string;
   
   const [initialData, setInitialData] = useState<UtilityItem | null>(null);
   const [loading, setLoading] = useState(true);

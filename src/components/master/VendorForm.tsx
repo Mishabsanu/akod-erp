@@ -12,10 +12,6 @@ import { FormikPhoneInput } from '@/components/shared/FormikPhoneInput';
 
 const VendorValidationSchema = Yup.object({
   // Basic Info
-
-  name: Yup.string()
-    .trim()
-    .min(3, 'Minimum 3 characters'),
   company: Yup.string()
     .trim()
     .min(3, 'Minimum 3 characters')
@@ -58,7 +54,6 @@ const VendorForm: React.FC<VendorFormProps> = ({
 }) => {
   const formik = useFormik({
     initialValues: {
-      name: initialData?.name || '',
       company: initialData?.company || '',
       email: initialData?.email || '',
       mobile: initialData?.mobile || '',
@@ -74,7 +69,7 @@ const VendorForm: React.FC<VendorFormProps> = ({
       await onSubmit(
         {
           ...values,
-          name: values.name?.trim(),
+          company: values.company.trim(),
           email: values.email.trim().toLowerCase(),
         } as Vendor,
         { setErrors, setSubmitting }

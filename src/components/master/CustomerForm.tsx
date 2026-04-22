@@ -12,10 +12,6 @@ import { FormikPhoneInput } from '../shared/FormikPhoneInput';
 
 const CustomerValidationSchema = Yup.object({
   // Basic Info
-
-  name: Yup.string()
-    .trim()
-    .min(3, 'Minimum 3 characters'),
   company: Yup.string()
     .trim()
     .min(3, 'Minimum 3 characters')
@@ -59,7 +55,6 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
 }) => {
   const formik = useFormik({
     initialValues: {
-      name: initialData?.name || '',
       company: initialData?.company || '',
       email: initialData?.email || '',
       mobile: initialData?.mobile || '',
@@ -75,7 +70,6 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
       await onSubmit(
         {
           ...values,
-          name: values.name?.trim(),
           company: values.company.trim(),
           email: values.email.trim().toLowerCase(),
         } as Customer,

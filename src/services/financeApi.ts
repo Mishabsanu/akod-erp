@@ -137,12 +137,12 @@ export const getNextPaymentId = async () => {
     return data.data.nextId;
 };
 
-export const createPayment = async (payload: Payment) => {
+export const createPayment = async (payload: any) => {
   const { data } = await api.post<ApiResponse<Payment>>('/finance/payments', payload);
   return data;
 };
 
-export const updatePayment = async (id: string, payload: Payment) => {
+export const updatePayment = async (id: string, payload: any) => {
   const { data } = await api.put<ApiResponse<Payment>>(`/finance/payments/${id}`, payload);
   return data;
 };

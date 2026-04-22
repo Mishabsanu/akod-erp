@@ -8,6 +8,7 @@ import ListPageHeader from '@/components/shared/ListPageHeader';
 import { SearchInput } from '@/components/shared/SearchInput';
 import { ExpenseFilterBar } from '@/components/finance/ExpenseFilterBar';
 import { TableSkeleton } from '@/components/shared/TableSkeleton';
+import { QuickPaymentModal } from '@/components/finance/QuickPaymentModal';
 import withAuth from '@/components/withAuth';
 import { Plus, Filter, Edit2, Trash2, CheckCircle, DollarSign, FileBarChart2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -22,6 +23,7 @@ function ExpensesPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [showFilters, setShowFilters] = useState(false);
+  const [selectedExpenseForPayment, setSelectedExpenseForPayment] = useState<Expense | null>(null);
   const router = useRouter();
   const { can } = useAuth();
 
@@ -82,8 +84,8 @@ function ExpensesPage() {
           accessor: 'expenseId' as any,
           render: (item: any) => (
             <div className="flex flex-col">
-              <span className="font-bold text-gray-900">#{item.expenseId || 'EXP-AUTO'}</span>
-              <span className="text-[10px] text-gray-400 font-bold uppercase tracking-tight">{new Date(item.date).toLocaleDateString()}</span>
+              <span className="font-bold text-gray-900">#{item?.expenseId || 'EXP-AUTO'}</span>
+              <span className="text-[10px] text-gray-400 font-bold uppercase tracking-tight">{item?.date ? new Date(item.date).toLocaleDateString() : '--'}</span>
             </div>
           )
       },
@@ -92,8 +94,10 @@ function ExpensesPage() {
           accessor: 'companyName' as keyof Expense,
           render: (item: Expense) => (
             <div className="flex flex-col">
-              <span className="text-sm font-bold text-[#0f766e]">{item.companyName || '—'}</span>
-              <span className="text-[10px] text-gray-400 font-bold uppercase tracking-tight italic">Ref: {item.referenceNo || 'N/A'}</span>
+              <span className="text-sm font-bold text-[#0f766e]">
+                {item?.companyName || (item.vendorId as any)?.company || '—'}
+              </span>
+              <span className="text-[10px] text-gray-400 font-bold uppercase tracking-tight italic">Ref: {item?.referenceNo || 'N/A'}</span>
             </div>
           )
       },
@@ -102,7 +106,7 @@ function ExpensesPage() {
           accessor: 'category' as keyof Expense,
           render: (item: Expense) => (
             <span className="px-3 py-1 bg-teal-50 text-teal-700 rounded-lg text-[9px] font-black uppercase tracking-widest border border-teal-100">
-              {item.category}
+              {item?.category || '--'}
             </span>
           )
       },
@@ -111,11 +115,11 @@ function ExpensesPage() {
           accessor: 'totalAmount' as keyof Expense,
           render: (item: any) => (
             <div className="flex flex-col">
-              <span className="font-black text-gray-900">{item.totalAmount?.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
-              {item.paidTotal > 0 && (
+              <span className="font-black text-gray-900">{item?.totalAmount?.toLocaleString(undefined, { minimumFractionDigits: 2 }) || '0.00'}</span>
+              {(item?.paidTotal || 0) > 0 && (
                 <div className="flex items-center gap-1 mt-0.5">
-                  <span className="px-1.5 py-0.5 bg-emerald-50 text-emerald-600 rounded text-[8px] font-bold uppercase border border-emerald-100">Paid: {item.paidTotal?.toLocaleString(undefined, { minimumFractionDigits: 0 })}</span>
-                  <span className="px-1.5 py-0.5 bg-rose-50 text-rose-600 rounded text-[8px] font-bold uppercase border border-rose-100">Bal: {item.balance?.toLocaleString(undefined, { minimumFractionDigits: 0 })}</span>
+                  <span className="px-1.5 py-0.5 bg-emerald-50 text-emerald-600 rounded text-[8px] font-bold uppercase border border-emerald-100">Paid: {item?.paidTotal?.toLocaleString(undefined, { minimumFractionDigits: 0 })}</span>
+                  <span className="px-1.5 py-0.5 bg-rose-50 text-rose-600 rounded text-[8px] font-bold uppercase border border-rose-100">Bal: {item?.balance?.toLocaleString(undefined, { minimumFractionDigits: 0 })}</span>
                 </div>
               )}
             </div>
@@ -127,17 +131,17 @@ function ExpensesPage() {
           render: (item: any) => (
             <div className="flex flex-col gap-1.5">
               <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest text-center ${
-                item.status === 'paid' ? 'bg-emerald-600 text-white' : 
-                item.status === 'partially_paid' ? 'bg-amber-500 text-white' : 
-                item.status === 'pending' ? 'bg-rose-50 text-rose-700' : 'bg-gray-100 text-gray-600'
+                item?.status === 'paid' ? 'bg-emerald-600 text-white' : 
+                item?.status === 'partially_paid' ? 'bg-amber-500 text-white' : 
+                item?.status === 'pending' ? 'bg-rose-50 text-rose-700' : 'bg-gray-100 text-gray-600'
               }`}>
-                {item.status.replace('_', ' ')}
+                {item?.status?.replace('_', ' ') || '--'}
               </span>
               <div className={`px-3 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest text-center border flex items-center justify-center gap-1 ${
-                 item.isApproved ? 'bg-teal-50 text-teal-700 border-teal-100' : 'bg-gray-50 text-gray-400 border-gray-100'
+                item?.isApproved ? 'bg-teal-50 text-teal-700 border-teal-100' : 'bg-gray-50 text-gray-400 border-gray-100'
               }`}>
-                 {item.isApproved ? <CheckCircle size={10} /> : null}
-                 {item.isApproved ? 'Verified' : 'Unverified'}
+                 {item?.isApproved ? <CheckCircle size={10} /> : null}
+                 {item?.isApproved ? 'Verified' : 'Unverified'}
               </div>
             </div>
           )
@@ -148,10 +152,10 @@ function ExpensesPage() {
           render: (item: Expense) => (
             <div className="flex flex-col">
                <span className="text-[11px] font-bold text-gray-700">
-                 {typeof item.createdBy === 'object' ? (item.createdBy as any).name : item.createdBy || '--'}
+                 {typeof item?.createdBy === 'object' ? (item.createdBy as any).name : item?.createdBy || '--'}
                </span>
                <span className="text-[9px] text-gray-400 font-medium">
-                 {item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '--'}
+                 {item?.createdAt ? new Date(item.createdAt).toLocaleDateString() : '--'}
                </span>
             </div>
           )
@@ -189,7 +193,7 @@ function ExpensesPage() {
             <button
                onClick={(e) => {
                  e.stopPropagation();
-                 router.push(`/finance/payment/add?refId=${expense._id}&refType=Expense&company=${encodeURIComponent(expense.companyName || '')}&amount=${expense.balance}`);
+                 setSelectedExpenseForPayment(expense);
                }}
                className="w-9 h-9 flex items-center justify-center text-amber-500 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-all border border-gray-100 hover:border-amber-200"
                title="Settle (Record Payment)"
@@ -301,6 +305,15 @@ function ExpensesPage() {
           limit={limit}
           onPageChange={setCurrentPage}
           onLimitChange={setLimit}
+        />
+      )}
+
+      {selectedExpenseForPayment && (
+        <QuickPaymentModal
+          isOpen={!!selectedExpenseForPayment}
+          onClose={() => setSelectedExpenseForPayment(null)}
+          expense={selectedExpenseForPayment}
+          onSuccess={fetchExpenses}
         />
       )}
     </div>
