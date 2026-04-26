@@ -4,12 +4,12 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import ListPageHeader from '@/components/shared/ListPageHeader';
 import { DataTable, Column } from '@/components/shared/DataTable';
 import { TableSkeleton } from '@/components/shared/TableSkeleton';
-import { Search, AlertTriangle, Layers, Plus, TrendingDown, History, Edit2, Trash2, Eye } from 'lucide-react';
+import { SearchInput } from '@/components/shared/SearchInput';
+import { AlertTriangle, Layers, Plus, TrendingDown, History, Edit3, Trash2, TrendingUp } from 'lucide-react';
 import { getRawMaterials, adjustRawMaterialStock, deleteRawMaterial } from '@/services/rawMaterialApi';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import withAuth from '@/components/withAuth';
-import RawMaterialStockAdjustmentForm from '@/components/production/RawMaterialStockAdjustmentForm';
 
 const RawMaterialStockPage = () => {
     const [materials, setMaterials] = useState<any[]>([]);
@@ -20,7 +20,6 @@ const RawMaterialStockPage = () => {
     const fetchMaterials = useCallback(async () => {
         setLoading(true);
         try {
-            // ONLY fetch initialized materials for the Stock view
             const data = await getRawMaterials({ initialized: true });
             setMaterials(Array.isArray(data) ? data : []);
         } catch (error) {
@@ -45,16 +44,6 @@ const RawMaterialStockPage = () => {
         return materials.filter(m => m.availableQty <= m.reorderLevel).length;
     }, [materials]);
 
-    const handleAdjustment = async (materialId: string, quantity: number, note?: string) => {
-        try {
-            await adjustRawMaterialStock(materialId, quantity, note);
-            toast.success('Stock updated successfully');
-            fetchMaterials();
-        } catch (error) {
-            throw error;
-        }
-    };
-
     const handleDelete = async (id: string, e: React.MouseEvent) => {
         e.stopPropagation();
         if (!window.confirm('Are you sure you want to delete this material? This will remove all stock history.')) return;
@@ -70,16 +59,18 @@ const RawMaterialStockPage = () => {
     const columns: Column<any>[] = [
         {
             accessor: 'itemCode',
-            header: 'Item Code',
-            render: (item) => <span className="font-bold text-teal-700 tracking-widest uppercase">{item.itemCode}</span>
-        },
-        {
-            accessor: 'name',
-            header: 'Material Name',
+            header: 'Resource Identity',
             render: (item) => (
-                <div className="flex flex-col">
-                    <span className="font-black text-gray-800 tracking-tight">{item.name}</span>
-                    <span className="text-[10px] text-gray-400 font-bold uppercase">{item.unit}</span>
+                <div className="flex items-center gap-4 py-2">
+                  <div className="w-11 h-11 bg-teal-50 rounded-2xl flex items-center justify-center text-[#0f766e] border border-teal-100 shadow-sm transition-transform hover:scale-110">
+                    <Layers size={20} />
+                  </div>
+                  <div>
+                    <div className="font-black text-[#0f172a] text-[15px] tracking-tight leading-none mb-1.5">{item.name || 'Unknown Material'}</div>
+                    <div className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] flex items-center gap-2 opacity-70">
+                      <span className="text-[#0f766e]">{item.itemCode || 'CODE-N/A'}</span>
+                    </div>
+                  </div>
                 </div>
             )
         },
@@ -89,14 +80,17 @@ const RawMaterialStockPage = () => {
             render: (item) => {
                 const isLow = item.availableQty <= item.reorderLevel;
                 return (
-                    <div className="flex items-center gap-2">
-                        <span className={`text-lg font-black ${isLow ? 'text-rose-600' : 'text-emerald-700'}`}>
-                            {item.availableQty.toLocaleString()}
-                        </span>
+                    <div className="flex flex-col">
+                        <div className="flex items-baseline gap-1">
+                            <span className={`text-2xl font-black tracking-tighter tabular-nums ${isLow ? 'text-rose-600' : 'text-[#0f172a]'}`}>
+                                {item.availableQty.toLocaleString()}
+                            </span>
+                            <span className="text-[10px] text-gray-400 font-black uppercase tracking-[0.2em]">{item.unit}</span>
+                        </div>
                         {isLow && (
-                            <div className="flex items-center gap-1.5 px-3 py-1 bg-rose-50 text-rose-600 rounded-full border border-rose-100 animate-pulse">
-                                <AlertTriangle size={12} />
-                                <span className="text-[9px] font-black uppercase tracking-tighter">Critical Low</span>
+                            <div className="flex items-center gap-1.5 px-3 py-1 bg-rose-50 text-rose-600 rounded-lg border border-rose-100 mt-1 w-fit">
+                                <AlertTriangle size={10} />
+                                <span className="text-[8px] font-black uppercase tracking-widest">Critical Level</span>
                             </div>
                         )}
                     </div>
@@ -115,9 +109,17 @@ const RawMaterialStockPage = () => {
                 else if (ratio <= 2) { statusColor = 'bg-amber-500'; label = 'Monitoring'; }
 
                 return (
-                    <div className="flex items-center gap-3">
-                        <div className={`w-2 h-2 rounded-full ${statusColor}`} />
-                        <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">{label}</span>
+                    <div className="flex flex-col">
+                        <div className="flex items-center gap-2 mb-1.5">
+                            <div className={`w-2 h-2 rounded-full ${statusColor}`} />
+                            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{label}</span>
+                        </div>
+                        <div className="w-16 h-1 bg-slate-100 rounded-full overflow-hidden">
+                            <div 
+                                className={`h-full ${statusColor}`} 
+                                style={{ width: `${Math.min(ratio * 50, 100)}%` }} 
+                            />
+                        </div>
                     </div>
                 );
             }
@@ -126,27 +128,27 @@ const RawMaterialStockPage = () => {
             accessor: 'actions',
             header: 'Actions',
             render: (item) => (
-                <div className="flex items-center gap-2">
+                <div className="flex justify-end gap-2">
                     <button 
                         onClick={(e) => { e.stopPropagation(); router.push(`/production/raw-materials/view/${item._id}`); }} 
-                        className="p-2 text-teal-600 hover:bg-teal-50 rounded-lg transition-all border border-gray-100"
-                        title="View Report / History"
+                        className="w-10 h-10 flex items-center justify-center bg-white text-slate-400 hover:text-[#0f766e] hover:bg-[#0f766e]/5 rounded-xl border border-slate-100 transition-all active:scale-95 shadow-sm"
+                        title="View Audit History"
                     >
-                        <History size={14} />
+                        <History size={16} />
                     </button>
                     <button 
-                        onClick={(e) => { e.stopPropagation(); router.push(`/production/raw-materials/edit/${item._id}`); }} 
-                        className="p-2 text-gray-500 hover:bg-gray-50 rounded-lg transition-all border border-gray-100"
-                        title="Edit Master Registry"
+                        onClick={(e) => { e.stopPropagation(); router.push(`/production/raw-materials/stock/add?materialId=${item._id}`); }} 
+                        className="w-10 h-10 flex items-center justify-center bg-teal-50 text-[#0f766e] hover:bg-[#0f766e] hover:text-white rounded-xl border border-teal-100 transition-all active:scale-95 shadow-sm"
+                        title="Edit Stock Levels"
                     >
-                        <Edit2 size={14} />
+                        <Edit3 size={16} />
                     </button>
                     <button 
                         onClick={(e) => handleDelete(item._id, e)} 
-                        className="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-all border border-gray-100"
+                        className="w-10 h-10 flex items-center justify-center bg-white text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl border border-slate-100 transition-all active:scale-95 shadow-sm"
                         title="Delete Material"
                     >
-                        <Trash2 size={14} />
+                        <Trash2 size={16} />
                     </button>
                 </div>
             )
@@ -177,32 +179,29 @@ const RawMaterialStockPage = () => {
                 }
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-                <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-xl shadow-slate-200/40 relative overflow-hidden group">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 mt-10">
+                <div className="bg-white p-8 rounded-[2.5rem] border border-slate-200/60 shadow-sm relative overflow-hidden group">
                     <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform">
                         <Layers size={80} />
                     </div>
-                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1">Stocked Items</p>
-                    <h3 className="text-3xl font-black text-teal-700">{materials.length}</h3>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Stocked Items</p>
+                    <h3 className="text-3xl font-black text-[#0f172a]">{materials.length}</h3>
                 </div>
 
-                <div className={`p-8 rounded-[2.5rem] border shadow-xl shadow-slate-200/40 relative overflow-hidden group ${lowStockCount > 0 ? 'bg-rose-50 border-rose-100' : 'bg-white border-gray-100'}`}>
+                <div className={`p-8 rounded-[2.5rem] border shadow-sm relative overflow-hidden group ${lowStockCount > 0 ? 'bg-rose-50 border-rose-100' : 'bg-white border-slate-200/60'}`}>
                     <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform">
                         <TrendingDown size={80} className={lowStockCount > 0 ? 'text-rose-600' : 'text-gray-400'} />
                     </div>
-                    <p className={`text-[10px] font-black uppercase tracking-[0.2em] mb-1 ${lowStockCount > 0 ? 'text-rose-600' : 'text-gray-400'}`}>Under Threshold</p>
-                    <h3 className={`text-3xl font-black ${lowStockCount > 0 ? 'text-rose-600' : 'text-teal-700'}`}>{lowStockCount}</h3>
+                    <p className={`text-[10px] font-black uppercase tracking-[0.2em] mb-1 ${lowStockCount > 0 ? 'text-rose-600' : 'text-slate-400'}`}>Under Threshold</p>
+                    <h3 className={`text-3xl font-black ${lowStockCount > 0 ? 'text-rose-600' : '#0f172a'}`}>{lowStockCount}</h3>
                 </div>
             </div>
 
-            <div className="mb-8 relative max-w-xl">
-                <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                <input 
-                    type="text" 
-                    placeholder="Search stock by material name or code..." 
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-16 pr-8 py-5 bg-white border border-gray-100 rounded-[2rem] outline-none focus:border-teal-700 transition-all shadow-sm text-sm font-medium"
+            <div className="mb-6">
+                <SearchInput 
+                    initialSearchTerm={searchTerm}
+                    onSearchChange={setSearchTerm}
+                    placeholder="Search stock by material name or item code..."
                 />
             </div>
 
@@ -216,7 +215,6 @@ const RawMaterialStockPage = () => {
                     serverSidePagination={false}
                 />
             )}
-
         </div>
     );
 };

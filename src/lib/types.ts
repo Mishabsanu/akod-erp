@@ -70,6 +70,7 @@ export interface Vendor {
   email: string;
   mobile: string;
   status: 'active' | 'inactive';
+  isInternal?: boolean;
   address?: string;
   pincode?: string;
   city?: string;
@@ -153,6 +154,7 @@ export interface QuoteLineItem {
 }
 type StockHistoryType =
   | 'ADD_STOCK'
+  | 'PRODUCTION'
   | 'DELIVERY'
   | 'RETURN'
   | 'RETURN_REVERT'

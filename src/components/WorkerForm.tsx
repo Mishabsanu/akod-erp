@@ -14,28 +14,7 @@ import { FormikTextarea } from '@/components/shared/FormikTextarea';
 import FormikSearchableSelect from '@/components/shared/FormikSearchableSelect';
 import { getFileUrl } from '@/app/utils/fileUtils';
 
-const COMMON_NATIONALITIES = [
-  { value: 'Indian', label: 'Indian' },
-  { value: 'Nepalese', label: 'Nepalese' },
-  { value: 'Bangladeshi', label: 'Bangladeshi' },
-  { value: 'Pakistani', label: 'Pakistani' },
-  { value: 'Sri Lankan', label: 'Sri Lankan' },
-  { value: 'Filipino', label: 'Filipino' },
-  { value: 'Egyptian', label: 'Egyptian' },
-];
 
-const COMMON_DESIGNATIONS = [
-  { value: 'Driver', label: 'Driver' },
-  { value: 'Heavy Driver', label: 'Heavy Driver' },
-  { value: 'Helper', label: 'Helper' },
-  { value: 'Mechanic', label: 'Mechanic' },
-  { value: 'Electrician', label: 'Electrician' },
-  { value: 'Foreman', label: 'Foreman' },
-  { value: 'Mason', label: 'Mason' },
-  { value: 'Carpenter', label: 'Carpenter' },
-  { value: 'Steel Fixer', label: 'Steel Fixer' },
-  { value: 'Operator', label: 'Operator' },
-];
 
 const WorkerValidationSchema = Yup.object({
   workerId: Yup.string().required('ID is required'),
@@ -153,9 +132,9 @@ const WorkerForm: React.FC<WorkerFormProps> = ({ initialData, onSubmit, onCancel
              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <FormikInput label="ID" name="workerId" placeholder="e.g. W-1001" required />
                 <FormikInput label="Full Name" name="name" placeholder="As per QID/Passport" required />
-                <FormikSearchableSelect label="Nationality" name="nationality" options={COMMON_NATIONALITIES} placeholder="Search Nationality..." />
+                <FormikInput label="Nationality" name="nationality" placeholder="e.g. Indian" />
                 <FormikInput label="Contact Number" name="mobile" placeholder="+974 XXXX XXXX" />
-                <FormikSearchableSelect label="Designation" name="designation" options={COMMON_DESIGNATIONS} placeholder="Search Designation..." />
+                <FormikInput label="Designation" name="designation" placeholder="e.g. Driver" />
                 <FormikInput label="Join Date" name="joinDate" type="date" />
              </div>
           </Section>
@@ -215,6 +194,22 @@ const WorkerForm: React.FC<WorkerFormProps> = ({ initialData, onSubmit, onCancel
                   file={files.passportDoc} 
                   existingUrl={initialData?.passportDoc}
                   onChange={(e) => handleFileChange(e, 'passportDoc')} 
+                />
+                <FileUploadCard 
+                  label="Insurance Doc" 
+                  icon={<ShieldPlus size={20} />} 
+                  fieldName="insuranceDoc" 
+                  file={files.insuranceDoc} 
+                  existingUrl={initialData?.insuranceDoc}
+                  onChange={(e) => handleFileChange(e, 'insuranceDoc')} 
+                />
+                <FileUploadCard 
+                  label="Health Card" 
+                  icon={<Heart size={20} />} 
+                  fieldName="healthCardDoc" 
+                  file={files.healthCardDoc} 
+                  existingUrl={initialData?.healthCardDoc}
+                  onChange={(e) => handleFileChange(e, 'healthCardDoc')} 
                 />
              </div>
               <div className="mt-8 space-y-6">

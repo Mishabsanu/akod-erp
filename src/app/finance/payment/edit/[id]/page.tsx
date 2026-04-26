@@ -10,7 +10,8 @@ import { TableSkeleton } from '@/components/shared/TableSkeleton';
 
 const EditPaymentPage = () => {
   const router = useRouter();
-  const { id } = useParams();
+  const params = useParams();
+  const id = (params?.id as string) || '';
   const [payment, setPayment] = useState<Payment | null>(null);
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);

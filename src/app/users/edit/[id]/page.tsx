@@ -13,7 +13,7 @@ import withAuth from '@/components/withAuth';
 const EditUserPage = () => {
   const router = useRouter();
   const params = useParams();
-  const id = params.id as string;
+  const id = (params?.id as string) || '';
 
   const [initialData, setInitialData] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);

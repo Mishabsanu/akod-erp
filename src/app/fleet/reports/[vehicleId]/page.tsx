@@ -24,7 +24,8 @@ import { MechanicalCheckup, Vehicle } from '@/lib/types';
 import { Column, DataTable } from '@/components/shared/DataTable';
 
 const VehicleHistoryDashboard = () => {
-  const { vehicleId } = useParams();
+  const params = useParams();
+  const vehicleId = (params?.vehicleId as string) || '';
   const router = useRouter();
   const [vehicle, setVehicle] = useState<Vehicle | null>(null);
   const [logs, setLogs] = useState<MechanicalCheckup[]>([]);

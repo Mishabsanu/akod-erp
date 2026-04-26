@@ -10,7 +10,8 @@ import { TableSkeleton } from '@/components/shared/TableSkeleton';
 import withAuth from '@/components/withAuth';
 
 const EditRawMaterialPage = () => {
-    const { id } = useParams();
+    const params = useParams();
+    const id = (params?.id as string) || '';
     const router = useRouter();
     const [material, setMaterial] = useState<any>(null);
     const [loading, setLoading] = useState(true);
@@ -44,18 +45,6 @@ const EditRawMaterialPage = () => {
 
     return (
         <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white p-6 md:p-10">
-            <div className="flex items-center gap-4 mb-10 group">
-                <button 
-                onClick={() => router.back()}
-                className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-gray-400 hover:text-teal-700 border border-gray-100 shadow-sm transition-all group-hover:-translate-x-1"
-                >
-                <ArrowLeft size={20} />
-                </button>
-                <div>
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Production / Registry</p>
-                <h1 className="text-2xl font-black text-[#0f172a] uppercase tracking-tight">Modify <span className="text-teal-700">Material Specification</span></h1>
-                </div>
-            </div>
 
             <div className="w-full">
                 <RawMaterialForm 

@@ -20,8 +20,8 @@ const LoadingSpinner: React.FC = () => {
           </div>
         </div>
         <div className="flex flex-col items-center gap-1">
-          <span className="text-white text-lg font-black uppercase tracking-[0.3em] ml-[0.3em]">Loading</span>
-          <span className="text-teal-400 text-[10px] font-black uppercase tracking-widest opacity-70">Synchronizing Data</span>
+          <span className="text-teal-900 text-lg font-black uppercase tracking-[0.3em] ml-[0.3em]">Loading</span>
+          <span className="text-teal-600 text-[10px] font-black uppercase tracking-widest opacity-70">Synchronizing Data</span>
         </div>
       </div>
     </div>

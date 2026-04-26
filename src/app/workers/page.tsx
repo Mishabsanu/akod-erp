@@ -97,14 +97,14 @@ const WorkforcePage: React.FC = () => {
       )
     },
     {
-       accessor: 'qidNo',
-       header: 'Documents',
-       render: (w) => (
-         <div className="flex flex-col gap-0.5">
-           <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">QID: {w.qidNo || '--'}</span>
-           <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Pass: {w.passportNo || '--'}</span>
-         </div>
-       )
+      accessor: 'qidNo',
+      header: 'Documents',
+      render: (w) => (
+        <div className="flex flex-col gap-0.5">
+          <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">QID: {w.qidNo || '--'}</span>
+          <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Pass: {w.passportNo || '--'}</span>
+        </div>
+      )
     },
     {
       accessor: 'status',

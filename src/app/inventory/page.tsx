@@ -33,7 +33,7 @@ const InventoryPage = () => {
   const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>([]); // State for inventory items
   const [pendingProductions, setPendingProductions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab ] = useState<'stock' | 'pending'>('stock');
+  const [activeTab, setActiveTab] = useState<'stock' | 'pending'>('stock');
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false); // New state for filter visibility
 
@@ -93,8 +93,8 @@ const InventoryPage = () => {
     activeTab,
     searchTerm,
     statusFilter,
-    minStock, 
-    maxStock, 
+    minStock,
+    maxStock,
     onlyLowStock,
     currentPage,
     limit,
@@ -143,7 +143,7 @@ const InventoryPage = () => {
                 toast.dismiss(loadingId);
                 toast.error(
                   error.response?.data?.message ||
-                    'Something went wrong while deleting inventory item.'
+                  'Something went wrong while deleting inventory item.'
                 );
               }
             }}
@@ -185,17 +185,17 @@ const InventoryPage = () => {
 
   const handleApprove = async (id: string) => {
     try {
-       const loadingId = toast.loading('Authorizing production report and updating stock...');
-       const response = await approveProduction(id);
-       toast.dismiss(loadingId);
-       if (response.success) {
-          toast.success(response.message || 'Production report approved and inventory updated!');
-          fetchData();
-       } else {
-          toast.error(response.message || 'Approval failed');
-       }
+      const loadingId = toast.loading('Authorizing production report and updating stock...');
+      const response = await approveProduction(id);
+      toast.dismiss(loadingId);
+      if (response.success) {
+        toast.success(response.message || 'Production report approved and inventory updated!');
+        fetchData();
+      } else {
+        toast.error(response.message || 'Approval failed');
+      }
     } catch (error: any) {
-       toast.error(error.response?.data?.message || 'Something went wrong during approval');
+      toast.error(error.response?.data?.message || 'Something went wrong during approval');
     }
   };
 
@@ -244,9 +244,8 @@ const InventoryPage = () => {
         render: (item) => {
           return (
             <span
-              className={`px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-lg ${
-                item.status === 'IN_STOCK' ? 'bg-[#0f766e] text-white' : item.status === 'LOW_STOCK' ? 'bg-orange-50 text-orange-700' : 'bg-red-50 text-red-700'
-              }`}
+              className={`px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-lg ${item.status === 'IN_STOCK' ? 'bg-[#0f766e] text-white' : item.status === 'LOW_STOCK' ? 'bg-orange-50 text-orange-700' : 'bg-red-50 text-red-700'
+                }`}
             >
               {item.status.replaceAll('_', ' ')}
             </span>
@@ -326,19 +325,19 @@ const InventoryPage = () => {
       accessor: 'actions',
       header: 'Decision',
       render: (item) => (
-         <button 
-           onClick={() => handleApprove(item._id)}
-           className="bg-teal-50 text-teal-700 px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-teal-700 hover:text-white transition-all shadow-sm border border-teal-100 flex items-center gap-2"
-         >
-            <CheckCircle size={14} />
-            Approve
-         </button>
+        <button
+          onClick={() => handleApprove(item._id)}
+          className="bg-teal-50 text-teal-700 px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-teal-700 hover:text-white transition-all shadow-sm border border-teal-100 flex items-center gap-2"
+        >
+          <CheckCircle size={14} />
+          Approve
+        </button>
       )
     }
   ], [currentPage, limit]);
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white p-6 md:p-10">
+    <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white p-2 md:p-4">
       <ListPageHeader
         eyebrow="Logistics"
         title="Inventory"
@@ -346,61 +345,61 @@ const InventoryPage = () => {
         description="Monitor stock status, item movement, and available quantities."
         actions={
           <>
-          {can('inventory', 'create') && (
+            {can('inventory', 'create') && (
+              <button
+                onClick={handleAdd}
+                className="page-header-button"
+              >
+                <Plus className="w-4 h-4" />
+                Add
+              </button>
+            )}
             <button
-              onClick={handleAdd}
-              className="page-header-button"
+              onClick={() => setShowFilters(!showFilters)}
+              className="page-header-button secondary"
             >
-              <Plus className="w-4 h-4" />
-              Add
+              <Filter className="w-4 h-4" />
+              {showFilters ? 'Hide Filters' : 'Show Filters'}
             </button>
-          )}
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className="page-header-button secondary"
-          >
-            <Filter className="w-4 h-4" />
-            {showFilters ? 'Hide Filters' : 'Show Filters'}
-          </button>
-          <button
-            onClick={handleExport}
-            className="page-header-button secondary !bg-emerald-50 !text-emerald-700 !border-emerald-100 hover:!bg-emerald-100"
-          >
-            <Download className="w-4 h-4" />
-            CSV
-          </button>
-          <button
-            onClick={handlePrint}
-            className="page-header-button secondary !bg-blue-50 !text-blue-700 !border-blue-100 hover:!bg-blue-100"
-          >
-            <Printer className="w-4 h-4" />
-            Print
-          </button>
+            <button
+              onClick={handleExport}
+              className="page-header-button secondary !bg-emerald-50 !text-emerald-700 !border-emerald-100 hover:!bg-emerald-100"
+            >
+              <Download className="w-4 h-4" />
+              CSV
+            </button>
+            <button
+              onClick={handlePrint}
+              className="page-header-button secondary !bg-blue-50 !text-blue-700 !border-blue-100 hover:!bg-blue-100"
+            >
+              <Printer className="w-4 h-4" />
+              Print
+            </button>
           </>
         }
       />
 
       {/* Tabs */}
       <div className="flex items-center gap-10 border-b border-gray-100 mb-10 overflow-x-auto no-scrollbar">
-         <button 
-           onClick={() => { setActiveTab('stock'); setCurrentPage(1); }}
-           className={`pb-4 text-[10px] font-black uppercase tracking-[0.3em] transition-all relative ${activeTab === 'stock' ? 'text-teal-700' : 'text-gray-400 hover:text-gray-600'}`}
-         >
-            Available Stock
-            {activeTab === 'stock' && <div className="absolute bottom-0 left-0 w-full h-1 bg-teal-600 rounded-full animate-in fade-in zoom-in duration-300" />}
-         </button>
-         <button 
-           onClick={() => { setActiveTab('pending'); setCurrentPage(1); }}
-           className={`pb-4 text-[10px] font-black uppercase tracking-[0.3em] transition-all relative flex items-center gap-3 ${activeTab === 'pending' ? 'text-teal-700' : 'text-gray-400 hover:text-gray-600'}`}
-         >
-            Pending Approval
-            {pendingProductions.length > 0 && (
-               <span className="w-5 h-5 bg-amber-500 text-white rounded-full flex items-center justify-center text-[9px] font-bold animate-pulse">
-                  {pendingProductions.length}
-               </span>
-            )}
-            {activeTab === 'pending' && <div className="absolute bottom-0 left-0 w-full h-1 bg-teal-600 rounded-full animate-in fade-in zoom-in duration-300" />}
-         </button>
+        <button
+          onClick={() => { setActiveTab('stock'); setCurrentPage(1); }}
+          className={`pb-4 text-[10px] font-black uppercase tracking-[0.3em] transition-all relative ${activeTab === 'stock' ? 'text-teal-700' : 'text-gray-400 hover:text-gray-600'}`}
+        >
+          Available Stock
+          {activeTab === 'stock' && <div className="absolute bottom-0 left-0 w-full h-1 bg-teal-600 rounded-full animate-in fade-in zoom-in duration-300" />}
+        </button>
+        <button
+          onClick={() => { setActiveTab('pending'); setCurrentPage(1); }}
+          className={`pb-4 text-[10px] font-black uppercase tracking-[0.3em] transition-all relative flex items-center gap-3 ${activeTab === 'pending' ? 'text-teal-700' : 'text-gray-400 hover:text-gray-600'}`}
+        >
+          Pending Approval
+          {pendingProductions.length > 0 && (
+            <span className="w-5 h-5 bg-amber-500 text-white rounded-full flex items-center justify-center text-[9px] font-bold animate-pulse">
+              {pendingProductions.length}
+            </span>
+          )}
+          {activeTab === 'pending' && <div className="absolute bottom-0 left-0 w-full h-1 bg-teal-600 rounded-full animate-in fade-in zoom-in duration-300" />}
+        </button>
       </div>
 
       {activeTab === 'stock' && (
@@ -453,7 +452,7 @@ const InventoryPage = () => {
           )}
 
           {loading ? (
-            <TableSkeleton /> 
+            <TableSkeleton />
           ) : (
             <DataTable
               columns={columns}
@@ -472,33 +471,33 @@ const InventoryPage = () => {
       )}
 
       {activeTab === 'pending' && (
-         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="bg-amber-50/30 p-8 rounded-[2.5rem] border border-amber-100/50 mb-10 flex items-center gap-6">
-               <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-amber-600 shadow-sm border border-amber-50">
-                  <Clock size={28} />
-               </div>
-               <div>
-                  <h3 className="text-lg font-black text-amber-900 tracking-tight">Awaiting Production Validation</h3>
-                  <p className="text-xs font-bold text-amber-700/60 uppercase tracking-widest mt-1">Authorized personnel must verify batch quality before stock integration.</p>
-               </div>
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="bg-amber-50/30 px-2 py-4 rounded-lg border border-amber-100/50 mb-10 flex items-center gap-6">
+            <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-amber-600 shadow-sm border border-amber-50">
+              <Clock size={28} />
             </div>
+            <div>
+              <h3 className="text-lg font-black text-amber-900 tracking-tight">Awaiting Production Validation</h3>
+              <p className="text-xs font-bold text-amber-700/60 uppercase tracking-widest mt-1">Authorized personnel must verify batch quality before stock integration.</p>
+            </div>
+          </div>
 
-            {loading ? (
-               <TableSkeleton />
-            ) : (
-               <DataTable
-                 columns={pendingColumns}
-                 data={pendingProductions}
-                 serverSidePagination={true}
-                 totalCount={totalInventoryCount}
-                 currentPage={currentPage}
-                 limit={limit}
-                 totalPages={totalInventoryPages}
-                 onPageChange={setCurrentPage}
-                 onLimitChange={setLimit}
-               />
-            )}
-         </div>
+          {loading ? (
+            <TableSkeleton />
+          ) : (
+            <DataTable
+              columns={pendingColumns}
+              data={pendingProductions}
+              serverSidePagination={true}
+              totalCount={totalInventoryCount}
+              currentPage={currentPage}
+              limit={limit}
+              totalPages={totalInventoryPages}
+              onPageChange={setCurrentPage}
+              onLimitChange={setLimit}
+            />
+          )}
+        </div>
       )}
     </div>
   );

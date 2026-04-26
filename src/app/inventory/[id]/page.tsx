@@ -27,6 +27,7 @@ const tabs = [
 ];
 type StockHistoryType =
   | 'ADD_STOCK'
+  | 'PRODUCTION'
   | 'INVENTORY_ADJUSTMENT'
   | 'DELIVERY'
   | 'RETURN'
@@ -39,6 +40,7 @@ const STOCK_FLOW_MAP: Record<
   { direction: 'IN' | 'OUT'; sign: '+' | '-'; color: string }
 > = {
   ADD_STOCK: { direction: 'IN', sign: '+', color: 'emerald' },
+  PRODUCTION: { direction: 'IN', sign: '+', color: 'emerald' },
   INVENTORY_ADJUSTMENT: { direction: 'IN', sign: '+', color: 'emerald' },
   DELIVERY: { direction: 'OUT', sign: '-', color: 'rose' },
   RETURN: { direction: 'IN', sign: '+', color: 'emerald' },
@@ -50,7 +52,8 @@ const STOCK_FLOW_MAP: Record<
 
 const ViewInventoryPage = () => {
   const router = useRouter();
-  const { id } = useParams();
+  const params = useParams();
+  const id = (params?.id as string) || '';
 
   const [item, setItem] = useState<InventoryItem | null>(null);
   const [loading, setLoading] = useState(true);
@@ -143,6 +146,7 @@ const ViewInventoryPage = () => {
                 <div className="absolute top-0 right-0 w-32 h-32 bg-slate-50 rounded-bl-[5rem] -mr-10 -mt-10 opacity-40" />
                 <Detail label="PO Number" value={item.poNo} />
                 <Detail label="Product Name" value={item.product?.name} />
+                <Detail label="Vendor / Source" value={typeof item.vendor === 'object' ? item.vendor?.company : (item.vendor || 'Internal Production')} />
                 <Detail label="Item Code" value={item.product?.itemCode} />
                 <Detail label="Unit" value={item.product?.unit} />
                 <Detail label="Reference" value={item.reference || 'N/A'} />
@@ -298,7 +302,7 @@ const ViewInventoryPage = () => {
                           </td>
                           <td className="px-6 py-5">
                             <span className="text-xs font-bold text-slate-600">
-                              {row.customer?.name || 'Stock Update'}
+                              {row.customer?.name || row.vendor?.name || 'Internal Update'}
                             </span>
                           </td>
                           <td className="px-6 py-5 text-center">

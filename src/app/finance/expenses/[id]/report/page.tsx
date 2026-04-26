@@ -23,7 +23,8 @@ import html2canvas from 'html2canvas';
 import { format } from 'date-fns';
 
 const SettlementReportPage = () => {
-    const { id } = useParams();
+    const params = useParams();
+    const id = (params?.id as string) || '';
     const router = useRouter();
     const [expense, setExpense] = useState<Expense | null>(null);
     const [payments, setPayments] = useState<Payment[]>([]);

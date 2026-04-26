@@ -24,7 +24,8 @@ import RawMaterialStockAdjustmentForm from '@/components/production/RawMaterialS
 import withAuth from '@/components/withAuth';
 
 const RawMaterialHistoryPage = () => {
-    const { id } = useParams();
+    const params = useParams();
+    const id = (params?.id as string) || '';
     const router = useRouter();
     const [material, setMaterial] = useState<any>(null);
     const [loading, setLoading] = useState(true);

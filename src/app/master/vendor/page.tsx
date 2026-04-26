@@ -154,15 +154,21 @@ const VendorPage: React.FC = () => {
         accessor: 'status',
         header: 'Status',
         render: (vendor) => (
-          <span
-            className={`px-3 py-1 text-xs font-semibold rounded-full ${
-              vendor.status === 'active'
-                ? 'bg-green-100 text-green-800'
-                : 'bg-teal-100 text-teal-900'
-            }`}
-          >
-            {vendor.status}
-          </span>
+          <div className="flex items-center gap-2">
+            <span
+              className={`px-3 py-1 text-xs font-semibold rounded-full ${vendor.status === 'active'
+                  ? 'bg-green-100 text-green-800'
+                  : 'bg-teal-100 text-teal-900'
+                }`}
+            >
+              {vendor.status}
+            </span>
+            {vendor.isInternal && (
+              <span className="px-3 py-1 text-[10px] font-black bg-blue-50 text-blue-600 rounded-full border border-blue-100 uppercase tracking-tighter">
+                Internal
+              </span>
+            )}
+          </div>
         ),
       },
     ];
@@ -218,7 +224,7 @@ const VendorPage: React.FC = () => {
   }, [openMenu, can, handleEdit, handleDelete]);
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white p-6 md:p-10">
+    <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white p-2 md:p-4">
       <ListPageHeader
         eyebrow="Supplier Registry"
         title="Vendor"
@@ -226,21 +232,21 @@ const VendorPage: React.FC = () => {
         description="Maintain vendor master records, supply contacts, and status."
         actions={
           <>
-          {can('vendor', 'create') && (
+            {can('vendor', 'create') && (
+              <button
+                onClick={handleAddVendor}
+                className="page-header-button"
+              >
+                <Plus className="w-4 h-4" /> Add Vendor
+              </button>
+            )}
             <button
-              onClick={handleAddVendor}
-              className="page-header-button"
+              onClick={() => setShowFilters(!showFilters)}
+              className="page-header-button secondary"
             >
-              <Plus className="w-4 h-4" /> Add Vendor
+              <Filter className="w-4 h-4" />
+              {showFilters ? 'Hide Filters' : 'Show Filters'}
             </button>
-          )}
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className="page-header-button secondary"
-          >
-            <Filter className="w-4 h-4" />
-            {showFilters ? 'Hide Filters' : 'Show Filters'}
-          </button>
           </>
         }
       />

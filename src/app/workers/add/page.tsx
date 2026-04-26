@@ -13,16 +13,16 @@ const AddWorkerPage = () => {
     try {
       const utilsString = formData.get('utilities') as string;
       const initialUtils = utilsString ? JSON.parse(utilsString) : [];
-      
+
       const worker = await createWorker(formData);
-      
+
       if (initialUtils.length > 0 && worker?._id) {
         const itemsToIssue = initialUtils
           .filter((i: any) => i.itemName)
           .map((i: any) => {
             const expiryDate = new Date(i.issueDate);
             expiryDate.setFullYear(expiryDate.getFullYear() + 1);
-            
+
             return {
               ...i,
               expiryDate: expiryDate.toISOString().split('T')[0],

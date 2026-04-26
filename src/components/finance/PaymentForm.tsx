@@ -164,11 +164,15 @@ const PaymentFormInner: React.FC<PaymentFormProps> = ({ initialData, onSubmit, o
     if (!isEditMode) {
       getNextPaymentId().then(setNextId).catch(console.error);
       
-      const company = searchParams.get('company');
-      const amount = searchParams.get('amount');
+      const company = searchParams?.get('company');
+      const amount = searchParams?.get('amount');
+      const referenceId = searchParams?.get('referenceId');
+      const referenceType = searchParams?.get('referenceType');
 
       if (company) formik.setFieldValue('companyName', company);
       if (amount && Number(amount) > 0) formik.setFieldValue('amount', Number(amount));
+      if (referenceId) formik.setFieldValue('referenceId', referenceId);
+      if (referenceType) formik.setFieldValue('referenceType', referenceType);
     }
   }, [isEditMode, searchParams]);
 

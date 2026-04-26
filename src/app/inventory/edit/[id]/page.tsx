@@ -14,7 +14,7 @@ import { toast } from 'sonner';
 const EditInventoryPage = () => {
   const router = useRouter();
   const params = useParams();
-  const id = params.id as string;
+  const id = (params?.id as string) || '';
 
   const [initialData, setInitialData] = useState<InventoryFormData | null>(null);
   const [loading, setLoading] = useState(true);

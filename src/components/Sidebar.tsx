@@ -56,7 +56,7 @@ type MenuItem = {
 
 export const Sidebar = () => {
   const { logout, can } = useAuth();
-  const pathname = usePathname();
+  const pathname = usePathname() || '';
 
   const isOpen = true; // Sidebar permanently open per user request
   const [openSubMenus, setOpenSubMenus] = useState<string[]>([]);
@@ -158,6 +158,8 @@ export const Sidebar = () => {
           icon: HardHat,
           href: '/workers',
         },
+        can('utility', 'view') && { name: 'Utility & Safety Master', icon: Package, href: '/master/utilities' },
+
         can('attendance', 'view') && {
           name: 'Attendance',
           icon: Clock,
@@ -168,7 +170,6 @@ export const Sidebar = () => {
           icon: Calendar,
           href: '/workers/leaves',
         },
-        can('utility', 'view') && { name: 'Utility & Safety Master', icon: Package, href: '/master/utilities' },
       ].filter(Boolean) as SubMenuItem[],
     },
 

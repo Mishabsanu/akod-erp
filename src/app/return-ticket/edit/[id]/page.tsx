@@ -12,7 +12,8 @@ import { ReturnTicket } from '@/lib/types';
 
 const EditReturnTicketPage = () => {
   const router = useRouter();
-  const { id } = useParams();
+  const params = useParams();
+  const id = (params?.id as string) || '';
   const [returnTicket, setReturnTicket] = useState<Partial<ReturnTicket> | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 

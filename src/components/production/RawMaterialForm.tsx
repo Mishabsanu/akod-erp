@@ -1,21 +1,26 @@
 'use client';
 
 import { FormikInput } from '@/components/shared/FormikInput';
+import { 
+  Layers, 
+  FileText, 
+  Save, 
+  Database
+} from 'lucide-react';
 import { FormikProvider, useFormik } from 'formik';
-import { Package, Hash, Layers, CheckCircle2, X } from 'lucide-react';
 import React from 'react';
 import * as Yup from 'yup';
 
-const RawMaterialValidationSchema = Yup.object({
+const RawMaterialSchema = Yup.object({
   name: Yup.string().required('Material name is required'),
   itemCode: Yup.string().required('Item code is required'),
-  unit: Yup.string().required('Unit is required (e.g. KG, PC)'),
+  unit: Yup.string().required('Unit of measure is required'),
   reorderLevel: Yup.number().required('Reorder level is required').min(0),
 });
 
 interface RawMaterialFormProps {
   initialData?: any;
-  onSubmit: (values: any) => Promise<void>;
+  onSubmit: (values: any, helpers: any) => Promise<void> | void;
   onCancel: () => void;
   isEditMode: boolean;
 }
@@ -25,76 +30,134 @@ const RawMaterialForm: React.FC<RawMaterialFormProps> = ({ initialData, onSubmit
     initialValues: {
       name: initialData?.name || '',
       itemCode: initialData?.itemCode || '',
-      unit: initialData?.unit || '',
+      unit: initialData?.unit || 'KG',
       reorderLevel: initialData?.reorderLevel || 10,
       description: initialData?.description || '',
     },
-    validationSchema: RawMaterialValidationSchema,
-    onSubmit: async (values) => {
-      await onSubmit(values);
+    validationSchema: RawMaterialSchema,
+    onSubmit: async (values, helpers) => {
+      await onSubmit(values, helpers);
     },
+    enableReinitialize: true,
   });
 
   return (
-    <div className="bg-white p-10 rounded-[3rem] border border-gray-100 shadow-2xl relative overflow-hidden">
-      <div className="flex items-center justify-between mb-10">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-teal-700 rounded-2xl flex items-center justify-center text-white">
-            <Layers size={24} />
-          </div>
-          <h2 className="text-2xl font-black text-[#0f172a] uppercase tracking-tight">
-            {isEditMode ? 'Modify' : 'Register'} <span className="text-teal-700">Raw Material</span>
-          </h2>
-        </div>
-        <button onClick={onCancel} className="p-2 hover:bg-gray-100 rounded-xl transition-colors">
-          <X size={24} className="text-gray-400" />
-        </button>
-      </div>
-
-      <FormikProvider value={formik}>
-        <form onSubmit={formik.handleSubmit} className="space-y-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <FormikInput label="Material Name" name="name" icon={<Package size={16} />} placeholder="e.g. Mild Steel Plate" required />
-            <FormikInput label="Internal Item Code" name="itemCode" icon={<Hash size={16} />} placeholder="e.g. RM-001" required />
+    <FormikProvider value={formik}>
+      <div className="w-full min-h-screen bg-[#f8fafc] p-4 md:p-8">
+        {/* HEADER AREA */}
+        <div className="max-w-full mx-auto mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 rounded-[1.5rem] border border-slate-200/60 shadow-sm">
+          <div className="flex items-center gap-5">
+            <div className="w-14 h-14 bg-[#0f766e]/10 rounded-2xl flex items-center justify-center text-[#0f766e]">
+              <Layers size={28} />
+            </div>
+            <div>
+              <h2 className="text-3xl font-bold text-slate-800 tracking-tight">
+                {isEditMode ? 'Edit Material' : 'Register Material'}
+              </h2>
+              <p className="text-slate-400 font-medium text-sm">
+                Production Registry &bull; Resource Blueprint
+              </p>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <FormikInput label="Measurement Unit" name="unit" placeholder="e.g. KG, Meter" required />
-            <FormikInput label="Reorder Alarm Level" name="reorderLevel" type="number" placeholder="10" required />
-          </div>
-
-          <div className="space-y-4">
-            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Material Specifications / Notes</label>
-            <textarea
-              name="description"
-              value={formik.values.description}
-              onChange={formik.handleChange}
-              rows={4}
-              className="w-full p-6 bg-gray-50 border border-gray-100 rounded-3xl outline-none focus:border-teal-700 transition-all resize-none text-sm font-medium"
-              placeholder="Detail grade, dimensions, or vendor specifics..."
-            />
-          </div>
-
-          <div className="flex justify-end gap-6 pt-6 border-t border-gray-50">
+          <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={onCancel}
-              className="text-xs font-black text-gray-400 uppercase tracking-widest hover:text-gray-600 transition-colors"
+              className="px-6 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 transition-all active:scale-95"
             >
               Cancel
             </button>
             <button
-              type="submit"
+              type="button"
+              onClick={() => formik.handleSubmit()}
               disabled={formik.isSubmitting}
-              className="px-10 py-4 bg-teal-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-3 shadow-lg shadow-teal-100 hover:shadow-teal-200 transition-all disabled:opacity-50"
+              className="px-8 py-2.5 bg-[#0f766e] text-white rounded-xl font-bold text-sm shadow-lg shadow-teal-900/20 hover:bg-[#134e4a] transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2"
             >
-              {formik.isSubmitting ? 'Synchronizing...' : isEditMode ? 'Authorize Update' : 'Finalize Registration'}
-              {!formik.isSubmitting && <CheckCircle2 size={16} />}
+              <Save size={16} />
+              {isEditMode ? 'Update Master' : 'Finalize Registry'}
             </button>
           </div>
+        </div>
+
+        <form onSubmit={formik.handleSubmit} className="max-w-full mx-auto space-y-8 pb-20">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* CORE SPECIFICATIONS */}
+            <div className="bg-white p-8 md:p-10 rounded-[2rem] border border-slate-200/60 shadow-sm space-y-8">
+              <h3 className="text-lg font-bold text-slate-800 flex items-center gap-3">
+                <span className="w-2 h-6 bg-[#0f766e] rounded-full" />
+                Material Identity
+              </h3>
+
+              <div className="space-y-6">
+                <FormikInput 
+                  label="Common Name" 
+                  name="name" 
+                  placeholder="e.g. Premium Rubber Sheet" 
+                  required 
+                />
+                <FormikInput 
+                  label="Internal Item Code" 
+                  name="itemCode" 
+                  placeholder="e.g. RAW-RM-001" 
+                  required 
+                />
+                <div className="grid grid-cols-2 gap-6">
+                  <FormikInput 
+                    label="Unit (UOM)" 
+                    name="unit" 
+                    placeholder="KG / Meters / Ltr" 
+                    required 
+                  />
+                  <FormikInput 
+                    label="Alert Threshold" 
+                    name="reorderLevel" 
+                    type="number" 
+                    placeholder="10" 
+                    required 
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* ADDITIONAL ATTRIBUTES */}
+            <div className="space-y-8">
+              <div className="bg-white p-8 rounded-[2rem] border border-slate-200/60 shadow-sm">
+                <h3 className="text-sm font-black text-slate-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                  <FileText size={14} />
+                  Technical Specifications
+                </h3>
+                <textarea 
+                  name="description"
+                  value={formik.values.description}
+                  onChange={formik.handleChange}
+                  rows={6}
+                  className="w-full bg-slate-50/50 border border-slate-100 rounded-2xl p-5 text-sm text-slate-600 outline-none focus:border-[#0f766e] transition-all resize-none shadow-inner"
+                  placeholder="Enter chemical composition, physical properties or usage instructions..."
+                />
+              </div>
+
+              {/* INFORMATION CARD */}
+              <div className="bg-[#0f172a] p-8 rounded-[2rem] text-white relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700 blur-2xl" />
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+                      <Database size={16} className="text-teal-400" />
+                    </div>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Inventory Sync</span>
+                  </div>
+                  <p className="text-lg font-bold leading-tight">Threshold notifications are automatically dispatched.</p>
+                  <p className="text-[11px] text-slate-500 mt-4 leading-relaxed font-medium italic">
+                    Defining an Alert Threshold enables the Procurement module to flag this material when stock levels drop below safety requirements.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </form>
-      </FormikProvider>
-    </div>
+      </div>
+    </FormikProvider>
   );
 };
 

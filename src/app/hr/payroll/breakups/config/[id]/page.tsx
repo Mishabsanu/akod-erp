@@ -9,7 +9,8 @@ import { getUserById } from '@/services/userApi';
 import withAuth from '@/components/withAuth';
 
 function ConfigSalaryBreakupPage() {
-  const { id } = useParams();
+  const params = useParams();
+  const id = (params?.id as string) || '';
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
@@ -26,49 +27,50 @@ function ConfigSalaryBreakupPage() {
     setFetching(true);
     try {
       const [userData, breakupData] = await Promise.all([
-        getUserById(id as string),
-        getBreakupByUserId(id as string),
+        getUserById(id),
+        getBreakupByUserId(id)
       ]);
       setUser(userData);
       setInitialData(breakupData);
     } catch (error) {
       console.error('Error fetching details:', error);
-      toast.error('Failed to load employee details');
+      toast.error('Failed to load configuration data');
     } finally {
       setFetching(false);
     }
   };
 
-  const handleSubmit = async (formData: any) => {
+  const handleSubmit = async (data: any) => {
     setLoading(true);
     try {
-      await upsertBreakup({ user: id, ...formData });
-      toast.success('Salary breakup updated successfully');
-      router.push('/hr/payroll/breakups');
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to update breakup');
+      await upsertBreakup({ ...data, userId: id });
+      toast.success('Salary breakup configuration saved');
+      router.push('/hr/payroll/personnel');
+    } catch (error) {
+      console.error('Error saving breakup:', error);
+      toast.error('Failed to save salary configuration');
     } finally {
       setLoading(false);
     }
   };
 
-  if (fetching) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="w-12 h-12 border-4 border-gray-200 border-t-teal-700 rounded-full animate-spin" />
-      </div>
-    );
-  }
+  if (fetching) return <div className="p-20 text-center">Loading configuration...</div>;
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 md:p-10">
-      <SalaryBreakupForm
+    <div className="p-6 max-w-5xl mx-auto">
+      <div className="mb-10">
+        <h1 className="text-2xl font-black text-gray-950 uppercase tracking-tight">Configure <span className="text-teal-700">Salary Breakup</span></h1>
+        <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mt-1">Personnel: {user?.name} ({user?.itemCode})</p>
+      </div>
+
+      <SalaryBreakupForm 
+        initialData={initialData} 
+        userName={user?.name || 'Personnel Profile'}
+        onSubmit={handleSubmit} 
         loading={loading}
-        userName={user?.name || 'Employee'}
-        initialData={initialData}
-        onSubmit={handleSubmit}
       />
     </div>
   );
 }
+
 export default withAuth(ConfigSalaryBreakupPage, [{ module: 'payroll', action: 'update' }]);

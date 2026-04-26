@@ -24,8 +24,11 @@ export const createWorker = async (formData: FormData) => {
   return response.data.data;
 };
 
-export const updateWorker = async (id: string, data: Partial<Worker>) => {
-  const response = await api.put<ApiResponse<Worker>>(`/workers/${id}`, data);
+export const updateWorker = async (id: string, data: any) => {
+  const isFormData = data instanceof FormData;
+  const response = await api.put<ApiResponse<Worker>>(`/workers/${id}`, data, {
+    headers: isFormData ? { 'Content-Type': 'multipart/form-data' } : {},
+  });
   return response.data.data;
 };
 

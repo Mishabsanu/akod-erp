@@ -41,8 +41,8 @@ const SaleValidationSchema = Yup.object({
   date: Yup.string().required('Date is required'),
   followUpDate: Yup.string().optional(),
   remarks: Yup.string().optional(),
-  businessType: Yup.string().optional(),
-  contactedBy: Yup.string().optional(),
+  businessType: Yup.string().required('Business type is required'),
+  contactedBy: Yup.string().required('Contacted by is required'),
   status: Yup.string().required('Status is required'),
 });
 
@@ -165,7 +165,7 @@ const SalesForm: React.FC<SalesFormProps> = ({
   ]);
 
   return (
-    <div className="w-full min-h-[calc(100vh-4rem)] bg-gray-50 px-8 py-6 rounded-lg">
+    <div className="w-full min-h-[calc(100vh-4rem)] bg-gray-50 px-2 py-4 rounded-lg">
       <div className="page-header mb-12">
         <div>
           <div className="page-header-eyebrow">
@@ -227,12 +227,9 @@ const SalesForm: React.FC<SalesFormProps> = ({
                 label="Business Type"
                 name="businessType"
                 placeholder="e.g. Scaffolding, Construction"
+                required
               />
-              <FormikInput
-                label="Contacted By"
-                name="contactedBy"
-                placeholder="e.g. Sales Team / Name"
-              />
+
             </div>
           </Section>
 
@@ -288,6 +285,12 @@ const SalesForm: React.FC<SalesFormProps> = ({
                 label="Reference Number"
                 name="referenceNo"
                 placeholder="e.g. ENQ-2024-123"
+                required
+              />
+              <FormikInput
+                label="Contacted By"
+                name="contactedBy"
+                placeholder="e.g. Sales Team / Name"
                 required
               />
             </div>

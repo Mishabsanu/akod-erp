@@ -31,7 +31,8 @@ const tabs = [
 
 const ViewCustomerPage = () => {
   const router = useRouter();
-  const { id } = useParams();
+  const params = useParams();
+  const id = (params?.id as string) || '';
 
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [history, setHistory] = useState<any[]>([]);

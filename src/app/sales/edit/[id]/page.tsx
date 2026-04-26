@@ -82,7 +82,7 @@ const EditSalePage = ({ params: paramsPromise }: EditSalePageProps) => {
   }
 
   return (
-    <div className="min-h-screen bg-white p-6 lg:p-10">
+    <div className="min-h-screen bg-white p-2 lg:p-4">
       <SalesForm
         initialData={sale}
         onSubmit={handleSubmit}

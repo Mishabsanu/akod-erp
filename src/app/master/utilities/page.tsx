@@ -28,8 +28,7 @@ const UtilityMasterPage = () => {
   const { can } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
-
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState(searchParams?.get('search') || '');
   const [selectedCategory, setSelectedCategory] = useState('');
 
   const fetchItems = useCallback(async () => {

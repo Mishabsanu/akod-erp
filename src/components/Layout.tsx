@@ -11,7 +11,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       <div className="content-area flex-1 overflow-hidden">
         <Header />
         <main className="page-content flex-1 overflow-y-auto custom-scrollbar flex flex-col">
-          <div className="max-w-[1800px] mx-auto animate-fade-in flex-1 w-full">{children}</div>
+          <div className="max-w-full mx-auto animate-fade-in flex-1 w-full">{children}</div>
 
           {/* Global Footer */}
           <footer className="w-full text-center pt-8 mt-auto text-[11px] font-semibold text-gray-400 tracking-wide">

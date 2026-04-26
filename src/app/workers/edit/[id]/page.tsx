@@ -9,7 +9,8 @@ import withAuth from '@/components/withAuth';
 
 const EditWorkerPage = () => {
   const router = useRouter();
-  const { id } = useParams();
+  const params = useParams();
+  const id = (params?.id as string) || '';
   const [worker, setWorker] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -30,20 +31,7 @@ const EditWorkerPage = () => {
 
   const handleSubmit = async (formData: FormData, { setSubmitting }: any) => {
     try {
-      // For editing, we might need to send a simple object or FormData depending on backend capability
-      // The current workerApi.updateWorker expects Partial<Worker> (an object)
-      // If we are uploading files, we might need a separate endpoint or multipart PUT.
-      // However, looking at services/workerApi.ts, updateWorker uses a regular PUT.
-      
-      const payload: any = {};
-      formData.forEach((value, key) => {
-        // Only add non-file fields to the simple object payload for PUT
-        if (!(value instanceof File)) {
-          payload[key] = value;
-        }
-      });
-
-      await updateWorker(id as string, payload);
+      await updateWorker(id as string, formData);
       toast.success('Worker record updated');
       router.push('/workers');
     } catch (error: any) {

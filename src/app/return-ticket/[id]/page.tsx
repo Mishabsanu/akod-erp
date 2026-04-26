@@ -13,7 +13,7 @@ import ReturnAttachmentsTab from '@/components/return-ticket/ReturnAttachmentsTa
 const ViewReturnTicketPage = () => {
   const router = useRouter();
   const params = useParams();
-  const id = params.id as string;
+  const id = (params?.id as string) || '';
 
   const [ticket, setTicket] = useState<ReturnTicket | null>(null);
   const [loading, setLoading] = useState(true);

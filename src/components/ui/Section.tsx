@@ -9,14 +9,14 @@ interface SectionProps {
   className?: string;
 }
 
-export const Section: React.FC<SectionProps> = ({ 
-  eyebrow, 
-  title, 
-  highlight, 
-  children, 
-  className = '' 
+export const Section: React.FC<SectionProps> = ({
+  eyebrow,
+  title,
+  highlight,
+  children,
+  className = ''
 }) => (
-  <div className={`p-6 bg-white rounded-3xl shadow-xl shadow-teal-700/5 border border-gray-100 ${className}`}>
+  <div className={`p-4 bg-white rounded-3xl shadow-xl shadow-teal-700/5 border border-gray-100 ${className}`}>
     <div className="mb-6">
       <div className="flex items-center gap-2 mb-1">
         <div className="w-1 h-3 bg-[#0f766e] rounded-full" />

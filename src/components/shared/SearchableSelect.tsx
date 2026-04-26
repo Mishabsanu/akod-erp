@@ -18,6 +18,7 @@ interface SearchableSelectProps {
   error?: string;
   touched?: boolean;
   required?: boolean;
+  disabled?: boolean;
 }
 
 const SearchableSelect: React.FC<SearchableSelectProps> = ({
@@ -29,7 +30,8 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
   className = '',
   error,
   touched,
-  required
+  required,
+  disabled = false
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -52,6 +54,7 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
   }, []);
 
   const handleSelect = (option: Option) => {
+    if (disabled) return;
     onChange(option.value);
     setIsOpen(false);
     setSearch('');
@@ -66,19 +69,20 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
       )}
       <div className="relative">
         <div
-          onClick={() => setIsOpen(!isOpen)}
-          className={`w-full border h-[46px] flex items-center justify-between px-4 rounded-xl bg-white cursor-pointer transition-all ${
-            isOpen ? 'border-teal-700 ring-2 ring-teal-700/10' : 
-            error && touched ? 'border-rose-300' : 'border-gray-200 hover:border-gray-300'
+          onClick={() => !disabled && setIsOpen(!isOpen)}
+          className={`w-full border h-[46px] flex items-center justify-between px-4 rounded-xl transition-all ${
+            disabled ? 'bg-gray-50 border-gray-100 cursor-not-allowed opacity-60' :
+            isOpen ? 'bg-white border-teal-700 ring-2 ring-teal-700/10 cursor-pointer' : 
+            error && touched ? 'bg-white border-rose-300 cursor-pointer' : 'bg-white border-gray-200 hover:border-gray-300 cursor-pointer'
           }`}
         >
           <span className={`text-sm font-bold truncate ${selectedOption ? 'text-gray-800' : 'text-gray-400'}`}>
             {selectedOption ? selectedOption.label : placeholder}
           </span>
-          <ChevronDown size={16} className={`text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+          {!disabled && <ChevronDown size={16} className={`text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />}
         </div>
 
-        {isOpen && (
+        {isOpen && !disabled && (
           <div className="absolute z-[100] top-full mt-2 w-full bg-white border border-gray-100 rounded-2xl shadow-2xl py-2 animate-in zoom-in-95 duration-200 max-h-[300px] flex flex-col">
             <div className="px-4 py-2 border-b border-gray-50 flex items-center gap-2">
               <Search size={14} className="text-gray-400" />

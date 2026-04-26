@@ -5,13 +5,14 @@ import ListPageHeader from '@/components/shared/ListPageHeader';
 import { Column, DataTable } from '@/components/shared/DataTable';
 import { TableSkeleton } from '@/components/shared/TableSkeleton';
 import { SearchInput } from '@/components/shared/SearchInput';
-import { Plus, Edit3, Trash2, Building2, Package, Hash, Image as ImageIcon } from 'lucide-react';
+import { Plus, Edit3, Trash2, Building2, Package, Hash, Image as ImageIcon, Eye } from 'lucide-react';
 import { getProductions, createProduction, updateProduction, deleteProduction } from '@/services/productionApi';
 import FactoryForm from '@/components/FactoryForm';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import withAuth from '@/components/withAuth';
 import { format } from 'date-fns';
+import { confirmDelete } from '@/utils/confirm';
 
 function FactoryPage() {
   const router = useRouter();
@@ -45,20 +46,32 @@ function FactoryPage() {
     router.push('/production/factory/add');
   };
 
+  const handleView = (item: any) => {
+    router.push(`/production/factory/view/${item._id}`);
+  };
+
   const handleEdit = (item: any) => {
     router.push(`/production/factory/edit/${item._id}`);
   };
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this production record?')) {
-      try {
-        await deleteProduction(id);
-        toast.success('Record deleted successfully');
-        fetchData();
-      } catch (error) {
-        toast.error('Failed to delete record');
+
+  const handleDelete = (id: string) => {
+    confirmDelete(
+      async () => {
+        try {
+          await deleteProduction(id);
+          toast.success('Record deleted successfully');
+          fetchData();
+        } catch (error: any) {
+          const message = error.response?.data?.message || 'Failed to delete record';
+          toast.error(message);
+        }
+      },
+      {
+        title: "Delete Production Log?",
+        description: "This will remove the production record and cannot be undone."
       }
-    }
+    );
   };
 
 
@@ -70,7 +83,7 @@ function FactoryPage() {
       render: (row) => (
         <div className="flex items-center gap-4 py-2">
           <div className="w-11 h-11 bg-amber-50 rounded-2xl flex items-center justify-center text-[#b45309] border border-amber-100 shadow-sm transition-transform hover:scale-110">
-             <Package size={20} />
+            <Package size={20} />
           </div>
           <div>
             <div className="font-black text-[#0f172a] text-[15px] tracking-tight leading-none mb-1.5">{row.productId?.name || 'Unknown Item'}</div>
@@ -87,11 +100,11 @@ function FactoryPage() {
       render: (row) => (
         <div className="flex flex-col">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-gray-50 text-gray-600 text-[10px] font-black w-fit mb-2 border border-gray-100 shadow-sm">
-             <Hash size={12} className="text-[#b45309]" /> {row.batchNumber}
+            <Hash size={12} className="text-[#b45309]" /> {row.batchNumber}
           </div>
           <div className="flex items-center gap-2">
-             <div className="w-1 h-3 bg-[#b45309] rounded-full opacity-40" />
-             <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">{row.shift} OPERATIONAL</span>
+            <div className="w-1 h-3 bg-[#b45309] rounded-full opacity-40" />
+            <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">{row.shift} OPERATIONAL</span>
           </div>
         </div>
       )
@@ -101,17 +114,17 @@ function FactoryPage() {
       header: 'Net Volume',
       render: (row) => (
         <div className="flex flex-col">
-           <div className="flex items-baseline gap-1">
-              <span className="text-2xl font-black text-[#0f172a] tracking-tighter tabular-nums">{row.quantity}</span>
-              <span className="text-[10px] text-gray-400 font-black uppercase tracking-[0.2em]">{row.productId?.unit}</span>
-           </div>
-           <div className="w-8 h-1 bg-amber-500/20 rounded-full mt-1" />
+          <div className="flex items-baseline gap-1">
+            <span className="text-2xl font-black text-[#0f172a] tracking-tighter tabular-nums">{row.quantity}</span>
+            <span className="text-[10px] text-gray-400 font-black uppercase tracking-[0.2em]">{row.productId?.unit}</span>
+          </div>
+          <div className="w-8 h-1 bg-amber-500/20 rounded-full mt-1" />
         </div>
       )
     },
     {
       accessor: 'manufacturingDate',
-      header: 'Timestamp',
+      header: 'Created Date',
       render: (row) => (
         <div className="flex flex-col items-center">
           <span className="text-[10px] font-black text-[#0f172a] tracking-tight">{row.manufacturingDate ? format(new Date(row.manufacturingDate), 'PPP') : 'N/A'}</span>
@@ -120,18 +133,29 @@ function FactoryPage() {
       )
     },
     {
-      accessor: 'image',
-      header: 'Visual',
+      accessor: 'createdBy',
+      header: 'Created By',
       render: (row) => (
-        row.image ? (
-          <div className="w-12 h-12 rounded-xl overflow-hidden border border-gray-100 shadow-sm transition-transform hover:scale-150 cursor-zoom-in">
-             <img src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${row.image}`} alt="Production" className="w-full h-full object-cover" />
-          </div>
-        ) : (
-          <div className="w-12 h-12 rounded-xl bg-gray-50 flex items-center justify-center text-gray-300 border border-dashed border-gray-200">
-             <ImageIcon size={16} />
-          </div>
-        )
+        <div className="flex flex-col items-center">
+          <span className="text-[10px] font-black text-[#0f172a] tracking-tight">{row.createdBy?.name || 'N/A'}</span>
+          <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest mt-1">Operational Sync</span>
+        </div>
+      )
+    },
+    {
+      accessor: 'status',
+      header: 'Review Status',
+      render: (row) => (
+        <div className="flex flex-col items-center">
+          <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border shadow-sm ${
+            row.status === 'approved' 
+              ? 'bg-emerald-50 text-emerald-700 border-emerald-100' 
+              : 'bg-amber-50 text-amber-700 border-amber-100'
+          }`}>
+            {row.status}
+          </span>
+          <span className="text-[8px] font-bold text-gray-300 uppercase tracking-tighter mt-1">Quality Check</span>
+        </div>
       )
     },
     {
@@ -140,14 +164,23 @@ function FactoryPage() {
       render: (row) => (
         <div className="flex justify-end gap-2">
           <button
+            onClick={() => handleView(row)}
+            className="w-10 h-10 flex items-center justify-center bg-white text-slate-400 hover:text-teal-600 hover:bg-teal-50 rounded-xl border border-slate-100 transition-all active:scale-95 shadow-sm"
+            title="View Details"
+          >
+            <Eye size={16} />
+          </button>
+          <button
             onClick={() => handleEdit(row)}
             className="w-10 h-10 flex items-center justify-center bg-white text-slate-400 hover:text-[#d97706] hover:bg-[#d97706]/5 rounded-xl border border-slate-100 transition-all active:scale-95 shadow-sm"
+            title="Edit Record"
           >
             <Edit3 size={16} />
           </button>
           <button
             onClick={() => handleDelete(row._id)}
             className="w-10 h-10 flex items-center justify-center bg-white text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl border border-slate-100 transition-all active:scale-95 shadow-sm"
+            title="Delete Record"
           >
             <Trash2 size={16} />
           </button>

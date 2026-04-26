@@ -39,3 +39,18 @@ export const deleteRawMaterial = async (id: string) => {
     const response = await axios.delete(`${API_URL}/raw-materials/${id}`, { withCredentials: true });
     return response.data;
 };
+
+export const importRawMaterialsFromGoogleSheet = async (url: string) => {
+    const response = await axios.post(`${API_URL}/raw-materials/import/google-sheet`, { url }, { withCredentials: true });
+    return response.data;
+};
+
+export const bulkImportRawMaterials = async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await axios.post(`${API_URL}/raw-materials/import/csv`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        withCredentials: true
+    });
+    return response.data;
+};

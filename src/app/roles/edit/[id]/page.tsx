@@ -13,7 +13,7 @@ import withAuth from '@/components/withAuth';
 const EditRolePage = () => {
   const router = useRouter();
   const params = useParams();
-  const { id } = params;
+  const id = (params?.id as string) || '';
   const [role, setRole] = useState<Role | undefined>(undefined);
   const [loading, setLoading] = useState(true);
 

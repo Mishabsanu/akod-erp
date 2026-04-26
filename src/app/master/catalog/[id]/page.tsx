@@ -13,7 +13,7 @@ import { toast } from 'sonner';
 const ViewProductPage = () => {
   const router = useRouter();
   const params = useParams();
-  const id = params.id as string;
+  const id = (params?.id as string) || '';
 
   const [product, setProduct] = useState<Product | null>(null);
   const [history, setHistory] = useState<any>(null);

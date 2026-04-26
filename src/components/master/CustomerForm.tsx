@@ -79,92 +79,111 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
   });
 
   return (
-    <div className="w-full min-h-[calc(100vh-4rem)] bg-gray-50 px-8 py-6 rounded-lg">
-      <div className="flex items-center gap-3 mb-8 border-b pb-4">
-        {isEditMode ? (
-          <Edit3 className="text-[#0f766e] w-6 h-6" />
-        ) : (
-          <UserPlus className="text-[#0f766e] w-6 h-6" />
-        )}
-        <h2 className="text-2xl font-semibold">
-          {isEditMode ? 'Edit Customer' : 'Add New Customer'}
-        </h2>
+    <div className="w-full min-h-screen bg-[#f8fafc] p-4 md:p-8">
+      {/* HEADER SECTION */}
+      <div className="max-w-full mx-auto mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 rounded-[1.5rem] border border-slate-200/60 shadow-sm">
+        <div className="flex items-center gap-5">
+          <div className="w-14 h-14 bg-[#0f766e]/10 rounded-2xl flex items-center justify-center text-[#0f766e]">
+            {isEditMode ? <Edit3 size={28} /> : <UserPlus size={28} />}
+          </div>
+          <div>
+            <h2 className="text-3xl font-bold text-slate-800 tracking-tight">
+              {isEditMode ? 'Edit Customer' : 'New Customer Onboarding'}
+            </h2>
+            <p className="text-slate-400 font-medium text-sm">
+              CRM Master &bull; Client Lifecycle Management
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="px-6 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 transition-all active:scale-95"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            onClick={() => formik.handleSubmit()}
+            disabled={formik.isSubmitting}
+            className="px-8 py-2.5 bg-[#0f766e] text-white rounded-xl font-bold text-sm shadow-lg shadow-teal-900/20 hover:bg-[#134e4a] transition-all active:scale-95 disabled:opacity-50"
+          >
+            {isEditMode ? 'Update Account' : 'Finalize Onboarding'}
+          </button>
+        </div>
       </div>
 
       <FormikProvider value={formik}>
-        <form onSubmit={formik.handleSubmit} className="space-y-10">
-          {/* Basic Info */}
-          <Section eyebrow="Relationship" title="Basic" highlight="Information">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <FormikInput
-                label="Company Name"
-                name="company"
-                placeholder="Acme Pvt Ltd"
-                required
-              />
-              <FormikPhoneInput
-                label="Mobile Number"
-                name="mobile"
-                placeholder="+91 9876543210"
-                required
-              />
-              <FormikInput
-                label="Email"
-                name="email"
-                placeholder="john@company.com"
-              />
-              <FormikSelect
-                label="Status"
-                name="status"
-                required
-                options={[
-                  { value: 'active', label: 'Active' },
-                  { value: 'inactive', label: 'Inactive' },
-                ]}
-              />
+        <form onSubmit={formik.handleSubmit} className="max-w-full mx-auto space-y-8 pb-20">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* CORE PROFILE */}
+            <div className="bg-white p-8 md:p-10 rounded-[2rem] border border-slate-200/60 shadow-sm space-y-8">
+              <h3 className="text-lg font-bold text-slate-800 flex items-center gap-3">
+                <span className="w-2 h-6 bg-[#0f766e] rounded-full" />
+                Customer Identity
+              </h3>
+
+              <div className="space-y-6">
+                <FormikInput 
+                  label="Company / Client Name" 
+                  name="company" 
+                  placeholder="e.g. Acme Global Industries" 
+                  required 
+                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormikPhoneInput 
+                    label="Primary Mobile" 
+                    name="mobile" 
+                    placeholder="+1 234 567 890" 
+                    required 
+                  />
+                  <FormikSelect
+                    label="Lifecycle Status"
+                    name="status"
+                    required
+                    options={[
+                      { value: 'active', label: 'Active (Engaged)' },
+                      { value: 'inactive', label: 'Inactive (Paused)' },
+                    ]}
+                  />
+                </div>
+                <FormikInput 
+                  label="General Correspondence Email" 
+                  name="email" 
+                  placeholder="hello@client.com" 
+                />
+              </div>
             </div>
-          </Section>
 
+            {/* CONTACT PERSON */}
+            <div className="bg-white p-8 md:p-10 rounded-[2rem] border border-slate-200/60 shadow-sm space-y-8">
+              <h3 className="text-lg font-bold text-slate-800 flex items-center gap-3">
+                <span className="w-2 h-6 bg-teal-600/40 rounded-full" />
+                Point of Contact
+              </h3>
 
-          {/* Contact Person */}
-          <Section title="Contact Person Information (Optional)">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <FormikInput
-                label="Contact Person Name"
-                name="contactPersonName"
-                placeholder="Jane Smith"
-                required
-              />
-              <FormikPhoneInput
-                label="Contact Person Mobile"
-                name="contactPersonMobile"
-                placeholder="+91 9123456789"
-                required
-              />
-              <FormikInput
-                label="Contact Person Email"
-                name="contactPersonEmail"
-                placeholder="jane@company.com"
-              />
+              <div className="space-y-6">
+                <FormikInput 
+                  label="Representative Name" 
+                  name="contactPersonName" 
+                  placeholder="e.g. Sarah Jenkins" 
+                  required 
+                />
+                <FormikPhoneInput 
+                  label="Direct Extension / Mobile" 
+                  name="contactPersonMobile" 
+                  placeholder="+1 234 567 890" 
+                  required 
+                />
+                <FormikInput 
+                  label="Direct Business Email" 
+                  name="contactPersonEmail" 
+                  placeholder="sarah@client.com" 
+                />
+              </div>
             </div>
-          </Section>
-
-          {/* Actions */}
-          <div className="flex justify-end gap-4 pt-6 border-t">
-            <button
-              type="button"
-              onClick={onCancel}
-              className="px-6 py-2.5 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-100 transition"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={formik.isSubmitting}
-              className="px-6 py-2 bg-[#0f766e] text-white rounded-lg"
-            >
-              {isEditMode ? 'Update Customer' : 'Create Customer'}
-            </button>
           </div>
         </form>
       </FormikProvider>

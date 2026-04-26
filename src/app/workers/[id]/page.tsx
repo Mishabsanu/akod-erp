@@ -24,7 +24,9 @@ import {
   Minus,
   ShieldAlert,
   DollarSign,
-  ChevronRight
+  ChevronRight,
+  CreditCard,
+  Award
 } from 'lucide-react';
 import { getWorker } from '@/services/workerApi';
 import { getWorkerUtilities, issueBulkUtilities, deleteUtility, updateUtilityStatus } from '@/services/workerUtilityApi';
@@ -64,7 +66,8 @@ const getExpiryStatus = (date: string | undefined) => {
 };
 
 function WorkerProfilePage() {
-  const { id } = useParams();
+  const params = useParams();
+  const id = (params?.id as string) || '';
   const router = useRouter();
   const { can } = useAuth();
   
@@ -272,6 +275,23 @@ function WorkerProfilePage() {
                       </span>
                    </div>
                 )}
+                <div className="flex justify-between items-center group pt-4 border-t border-gray-50">
+                   <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                         <CreditCard size={14} />
+                      </div>
+                      <span className="text-[11px] font-black text-gray-500 uppercase tracking-widest">Passport No</span>
+                   </div>
+                   <span className="text-xs font-black text-gray-800">{worker.passportNo || '--'}</span>
+                </div>
+                {worker.passportNo && (
+                   <div className="flex justify-between items-center">
+                      <span className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] ml-11">Passport Expiry</span>
+                      <span className={`text-[10px] font-black px-3 py-1 rounded-full ${getExpiryStatus(worker.passportExpiryDate).bg} ${getExpiryStatus(worker.passportExpiryDate).color}`}>
+                         {getExpiryStatus(worker.passportExpiryDate).label}
+                      </span>
+                   </div>
+                )}
              </div>
           </div>
         </div>
@@ -308,6 +328,21 @@ function WorkerProfilePage() {
                    <h3 className="text-[12px] font-black text-[#0f172a] uppercase tracking-[0.3em]">Personnel Summary</h3>
                 </div>
                 
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                   <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Nationality</p>
+                      <p className="text-sm font-black text-slate-700 uppercase">{worker.nationality || 'Not Specified'}</p>
+                   </div>
+                   <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Contact Number</p>
+                      <p className="text-sm font-black text-slate-700">{worker.mobile || 'No Contact Record'}</p>
+                   </div>
+                   <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Current Facility</p>
+                      <p className="text-sm font-black text-slate-700">{(worker.facilityId as any)?.name || 'Out of Camp'}</p>
+                   </div>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                    <div className="space-y-2">
                       <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Internal Remarks & History</p>
@@ -437,7 +472,19 @@ function WorkerProfilePage() {
                      </div>
                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {worker.skills.map((skill: any, idx: number) => (
-                           skill.certificateDoc && <DocCard key={idx} title={skill.skillName || 'Certification'} path={skill.certificateDoc} />
+                           skill.certificateDoc ? (
+                              <DocCard key={idx} title={skill.skillName || 'Certification'} path={skill.certificateDoc} />
+                           ) : skill.skillName ? (
+                              <div key={idx} className="bg-slate-50 p-6 rounded-3xl border border-slate-100 flex items-center gap-4">
+                                 <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-teal-600 shadow-sm">
+                                    <Award size={20} />
+                                 </div>
+                                 <div>
+                                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Certification</h4>
+                                    <p className="text-sm font-black text-slate-700">{skill.skillName}</p>
+                                 </div>
+                              </div>
+                           ) : null
                         ))}
                      </div>
                   </div>

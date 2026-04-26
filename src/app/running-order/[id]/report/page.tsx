@@ -21,7 +21,8 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
 const ReportPage = () => {
-    const { id } = useParams();
+    const params = useParams();
+    const id = (params?.id as string) || '';
     const router = useRouter();
     const [order, setOrder] = useState<RunningOrder | null>(null);
     const [fulfillment, setFulfillment] = useState<any>(null);

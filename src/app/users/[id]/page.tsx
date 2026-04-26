@@ -13,7 +13,7 @@ import { toast } from 'sonner';
 const ViewUserPage = () => {
   const router = useRouter();
   const params = useParams();
-  const id = params.id as string;
+  const id = (params?.id as string) || '';
 
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);

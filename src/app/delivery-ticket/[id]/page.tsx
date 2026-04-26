@@ -14,7 +14,7 @@ import { FileText, Upload, Trash2, Eye, Download } from 'lucide-react';
 const ViewDeliveryTicketPage = () => {
   const router = useRouter();
   const params = useParams();
-  const id = params.id as string;
+  const id = (params?.id as string) || '';
 
   const [ticket, setTicket] = useState<DeliveryTicket | null>(null);
   const [loading, setLoading] = useState(true);

@@ -25,7 +25,8 @@ import { format } from 'date-fns';
 import { MechanicalCheckup } from '@/lib/types';
 
 const CheckupDetailPage = () => {
-  const { id } = useParams();
+  const params = useParams();
+  const id = (params?.id as string) || '';
   const router = useRouter();
   const [log, setLog] = useState<MechanicalCheckup | null>(null);
   const [loading, setLoading] = useState(true);

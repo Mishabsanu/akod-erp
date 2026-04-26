@@ -23,7 +23,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   const router = useRouter();
-  const pathname = usePathname();
+  const pathname = usePathname() || '';
 
   const login = async (email: string, password: string) => {
     await loginApi(email, password);

@@ -18,7 +18,8 @@ import { toast } from 'sonner';
 
 const ViewVendorPage = () => {
   const router = useRouter();
-  const { id } = useParams();
+  const params = useParams();
+  const id = (params?.id as string) || '';
 
   const [vendor, setVendor] = useState<Vendor | null>(null);
   const [history, setHistory] = useState<any[]>([]);

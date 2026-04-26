@@ -1,34 +1,26 @@
-'use client';
-
 import { FormikInput } from '@/components/shared/FormikInput';
-import { 
-  Building2, 
-  CheckCircle2, 
-  Camera, 
-  Package, 
-  Hash, 
-  Calendar as CalendarIcon, 
-  Clock, 
-  Minus, 
-  Plus, 
+import FormikSearchableSelect from '@/components/shared/FormikSearchableSelect';
+import {
+  Building2,
+  Camera,
+  Package,
+  Hash,
+  Calendar as CalendarIcon,
+  Clock,
+  Minus,
+  Plus,
   Layers,
-  ChevronRight,
-  PlusCircle,
   FileText,
-  AlertCircle
+  AlertCircle,
+  Edit3,
+  UserPlus,
+  Trash2
 } from 'lucide-react';
 import { getRawMaterialDropdown } from '@/services/rawMaterialApi';
 import { getProductDropdown } from '@/services/catalogApi';
 import { FormikProvider, useFormik, FieldArray } from 'formik';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import * as Yup from 'yup';
-import ItemDiscoveryModal from './shared/ItemDiscoveryModal';
-
-const ProductionValidationSchema = Yup.object({
-  productId: Yup.string().required('Product is required'),
-  quantity: Yup.number().required('Quantity is required').min(1, 'Minimum 1 unit'),
-  batchNumber: Yup.string().required('Batch number is required'),
-});
 
 interface FactoryFormProps {
   initialData?: any;
@@ -41,10 +33,26 @@ const FactoryForm: React.FC<FactoryFormProps> = ({ initialData, onSubmit, onCanc
   const [products, setProducts] = useState<any[]>([]);
   const [rawMaterials, setRawMaterials] = useState<any[]>([]);
   const [imageFile, setImageFile] = useState<File | null>(null);
-  
-  // Modal States
-  const [isProductModalOpen, setIsProductModalOpen] = useState(false);
-  const [activeMaterialIndex, setActiveMaterialIndex] = useState<number | null>(null);
+
+  const ProductionValidationSchema = useMemo(() => Yup.object({
+    productId: Yup.string().required('Product is required'),
+    quantity: Yup.number().required('Quantity is required').min(1, 'Minimum 1 unit'),
+    batchNumber: Yup.string().required('Batch number is required'),
+    rawMaterials: Yup.array().of(
+      Yup.object({
+        material: Yup.string().required('Material is required'),
+        quantity: Yup.number()
+          .required('Quantity is required')
+          .min(0.01, 'Quantity must be greater than 0')
+          .test('stock-check', 'Insufficient stock available', function (value) {
+            const materialId = this.parent.material;
+            const material = rawMaterials.find(rm => rm._id === materialId);
+            if (!material) return true;
+            return (value || 0) <= material.availableQty;
+          })
+      })
+    )
+  }), [rawMaterials]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -53,8 +61,8 @@ const FactoryForm: React.FC<FactoryFormProps> = ({ initialData, onSubmit, onCanc
           getProductDropdown(),
           getRawMaterialDropdown()
         ]);
-        setProducts(prodData);
-        setRawMaterials(rawData);
+        setProducts(prodData || []);
+        setRawMaterials(rawData || []);
       } catch (error) {
         console.error('Failed to load metadata');
       }
@@ -62,310 +70,304 @@ const FactoryForm: React.FC<FactoryFormProps> = ({ initialData, onSubmit, onCanc
     fetchData();
   }, []);
 
+  const productOptions = useMemo(() =>
+    products.map(p => ({ value: p._id, label: `${p.name} (${p.itemCode})` })),
+    [products]
+  );
+
+  const materialOptions = useMemo(() =>
+    rawMaterials
+      .filter(rm => isEditMode || rm.availableQty > 0)
+      .map(rm => ({
+        value: rm._id,
+        label: `${rm.name} [${rm.itemCode}]`
+      })),
+    [rawMaterials, isEditMode]
+  );
+
   const formik = useFormik({
     initialValues: {
       productId: initialData?.productId?._id || initialData?.productId || '',
-      productName: initialData?.productId?.name || '',
-      productCode: initialData?.productId?.itemCode || '',
       quantity: initialData?.quantity || '',
       batchNumber: initialData?.batchNumber || '',
       manufacturingDate: initialData?.manufacturingDate ? new Date(initialData.manufacturingDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
       remarks: initialData?.remarks || '',
-      rawMaterials: initialData?.rawMaterials?.map((rm: any) => ({ 
+      rawMaterials: initialData?.rawMaterials?.map((rm: any) => ({
         material: rm.material?._id || rm.material,
-        name: rm.material?.name || '',
-        itemCode: rm.material?.itemCode || '',
-        availableQty: rm.material?.availableQty || 0,
-        unit: rm.material?.unit || '',
-        quantity: rm.quantity 
-      })) || [{ material: '', name: '', itemCode: '', availableQty: 0, unit: '', quantity: '' }],
+        quantity: rm.quantity
+      })) || [{ material: '', quantity: '' }],
     },
     validationSchema: ProductionValidationSchema,
     onSubmit: async (values, helpers) => {
       const formData = new FormData();
       Object.keys(values).forEach(key => {
         if (key === 'rawMaterials') {
-          // Clean up for backend (remove extra labels used for UI)
-          const cleanedMaterials = values.rawMaterials.map((rm: { material: string; quantity: number | string }) => ({
+          const cleanedMaterials = values.rawMaterials.map((rm: any) => ({
             material: rm.material,
             quantity: Number(rm.quantity) || 0
           }));
           formData.append(key, JSON.stringify(cleanedMaterials));
-        } else if (key !== 'productName' && key !== 'productCode') {
+        } else {
           formData.append(key, (values as any)[key]);
         }
       });
-      if (imageFile) {
-        formData.append('image', imageFile);
-      }
+      if (imageFile) formData.append('image', imageFile);
       await onSubmit(formData, helpers);
     },
     enableReinitialize: true,
   });
 
   return (
-    <div className="w-full min-h-screen bg-[#f8fafc] p-6 lg:p-12 flex flex-col gap-10">
-      
-      {/* 1. HERO HEADER AREA */}
-      <div className="bg-white rounded-[3rem] p-10 shadow-2xl shadow-slate-200/50 border border-white flex flex-col lg:flex-row lg:items-center justify-between gap-8 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-teal-50 rounded-full blur-[80px] -mr-48 -mt-48 opacity-40 pointer-events-none" />
-        
-        <div className="flex items-center gap-8 relative z-10">
-          <div className="w-20 h-20 bg-teal-700 rounded-[2rem] flex items-center justify-center text-white shadow-xl shadow-teal-900/20">
-             <Building2 size={36} />
-          </div>
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-               <div className="w-1 h-3 bg-teal-700 rounded-full" />
-               <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.4em]">Manufacturing Intelligence</p>
+    <FormikProvider value={formik}>
+      <div className="w-full min-h-screen bg-[#f8fafc] p-4 md:p-8">
+        {/* HEADER SECTION */}
+        <div className="max-w-full mx-auto mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 rounded-[1.5rem] border border-slate-200/60 shadow-sm">
+          <div className="flex items-center gap-5">
+            <div className="w-14 h-14 bg-[#0f766e]/10 rounded-2xl flex items-center justify-center text-[#0f766e]">
+              {isEditMode ? <Edit3 size={28} /> : <Building2 size={28} />}
             </div>
-            <h1 className="text-4xl font-black text-slate-900 tracking-tight capitalize">
-               {isEditMode ? 'Authorize' : 'Initialize'} <span className="text-teal-700">Production Report</span>
-            </h1>
+            <div>
+              <h2 className="text-3xl font-bold text-slate-800 tracking-tight">
+                {isEditMode ? 'Edit Production' : 'New Production Cycle'}
+              </h2>
+              <p className="text-slate-400 font-medium text-sm">
+                Operational Terminal &bull; Manufacturing Execution
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={onCancel}
+              className="px-6 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 transition-all active:scale-95"
+            >
+              Cancel Report
+            </button>
+            <button
+              type="submit"
+              onClick={() => formik.handleSubmit()}
+              disabled={formik.isSubmitting}
+              className="px-8 py-2.5 bg-[#0f766e] text-white rounded-xl font-bold text-sm shadow-lg shadow-teal-900/20 hover:bg-[#134e4a] transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2"
+            >
+              {formik.isSubmitting ? <Clock size={16} className="animate-spin" /> : <FileText size={16} />}
+              {isEditMode ? 'Save Cycle' : 'Initialize Batch'}
+            </button>
           </div>
         </div>
 
-        {/* Product Selector Hero */}
-        <div className="w-full lg:w-96 relative z-10">
-           <button 
-             type="button"
-             onClick={() => setIsProductModalOpen(true)}
-             className={`w-full p-6 bg-slate-900 rounded-[2rem] text-left transition-all hover:scale-[1.02] active:scale-95 shadow-2xl shadow-slate-900/10 group ${formik.errors.productId ? 'ring-4 ring-rose-500/20 border-rose-500' : ''}`}
-           >
-              <div className="flex justify-between items-center mb-4">
-                 <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest px-1">Target Production Item</span>
-                 <PlusCircle size={16} className="text-teal-500 group-hover:rotate-90 transition-transform" />
-              </div>
-              {formik.values.productId ? (
-                <div>
-                   <h2 className="text-sm font-black text-white uppercase tracking-tight mb-1">{formik.values.productName}</h2>
-                   <p className="text-[10px] font-bold text-teal-500 uppercase tracking-widest">{formik.values.productCode}</p>
-                </div>
-              ) : (
-                <p className="text-xs font-black text-slate-400 uppercase tracking-widest py-2 italic font-sans flex items-center gap-2">
-                   Open Product Registry <ChevronRight size={14} className="text-teal-700" />
-                </p>
-              )}
-           </button>
-           {formik.errors.productId && <p className="absolute -bottom-6 left-6 text-[10px] font-black text-rose-500 uppercase tracking-widest">{formik.errors.productId as string}</p>}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 flex-1">
-          {/* 2. SIDEBAR (LOGISTICS) */}
-          <div className="lg:col-span-4 space-y-8">
-             <div className="bg-white rounded-[3rem] p-10 shadow-xl shadow-slate-200/40 border border-white h-full">
-                <h3 className="text-[10px] font-black text-gray-300 uppercase tracking-[0.3em] mb-10 flex items-center gap-2">
-                   <Clock size={14} className="text-teal-700" />
-                   Logistics Chronology
+        <form onSubmit={formik.handleSubmit} className="max-w-full mx-auto space-y-8 pb-20">
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+            {/* LEFT COLUMN: PRIMARY DATA */}
+            <div className="xl:col-span-2 space-y-8">
+              <div className="bg-white p-8 md:p-10 rounded-[2rem] border border-slate-200/60 shadow-sm">
+                <h3 className="text-lg font-bold text-slate-800 mb-8 flex items-center gap-3">
+                  <span className="w-2 h-6 bg-[#0f766e] rounded-full" />
+                  Cycle Specifications
                 </h3>
 
-                <div className="space-y-8">
-                  <FormikInput label="Batch Number" name="batchNumber" icon={<Hash size={16} />} placeholder="e.g. B-2024-001" required />
-                  <FormikInput label="Total Output Quantity" name="quantity" type="number" icon={<Package size={16} />} placeholder="0" required />
-                  <FormikInput label="Manufacturing Date" name="manufacturingDate" type="date" icon={<CalendarIcon size={16} />} required />
-                  
-                  <div className="pt-10 border-t border-gray-50">
-                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-4 block">Batch Visual Note</label>
-                    <div className="relative group h-48">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => e.target.files && setImageFile(e.target.files[0])}
-                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
-                      />
-                      <div className={`w-full h-full rounded-[2.5rem] border-2 border-dashed flex flex-col items-center justify-center transition-all duration-300 ${imageFile ? 'bg-teal-50/50 border-teal-700' : 'bg-gray-50 border-gray-100 hover:border-teal-700'}`}>
-                        {imageFile ? (
-                          <div className="text-center p-6">
-                            <CheckCircle2 size={32} className="text-teal-700 mx-auto mb-2" />
-                            <p className="text-[9px] font-black text-teal-900 uppercase truncate px-4">{imageFile.name}</p>
-                          </div>
-                        ) : (
-                          <>
-                             <Camera size={24} className="text-gray-300 mb-2" />
-                             <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest font-sans">Sync Visual</p>
-                          </>
-                        )}
-                      </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="md:col-span-2">
+                    <FormikSearchableSelect
+                      label="Target Catalog Item"
+                      name="productId"
+                      options={productOptions}
+                      placeholder="Search product by name or SKU..."
+                      required
+                    />
+                  </div>
+                  <FormikInput
+                    label="Batch Number"
+                    name="batchNumber"
+                    placeholder="e.g. BTC-2024-001"
+                    required
+                  />
+                  <FormikInput
+                    label="Output Quantity"
+                    name="quantity"
+                    type="number"
+                    placeholder="0"
+                    required
+                  />
+                  <FormikInput
+                    label="Manufacturing Date"
+                    name="manufacturingDate"
+                    type="date"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* MATERIAL CONSUMPTION */}
+              <div className="bg-white p-8 md:p-10 rounded-[2rem] border border-slate-200/60 shadow-sm">
+                <div className="flex items-center justify-between mb-10">
+                  <div className="flex items-center gap-4">
+                    <div className="w-2 h-8 bg-amber-500 rounded-full shadow-[0_0_15px_rgba(245,158,11,0.3)]" />
+                    <div>
+                      <h3 className="text-xl font-bold text-slate-800 tracking-tight">Resource Consumption</h3>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">Inventory Deduction Ledger</p>
                     </div>
                   </div>
-                </div>
-             </div>
-          </div>
-
-          {/* 3. MAIN WORKSPACE (CONSUMPTION) */}
-          <div className="lg:col-span-8 flex flex-col gap-10 h-full">
-             <div className="bg-[#0f172a] rounded-[3rem] p-10 shadow-2xl shadow-slate-900/20 text-white flex-1 flex flex-col relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-teal-500 rounded-full blur-[100px] opacity-10 -mr-32 -mt-32 pointer-events-none" />
-                
-                <div className="flex items-center justify-between mb-10 relative z-10">
-                   <div>
-                      <h3 className="text-xl font-black tracking-tight mb-1">Consumption Manifest</h3>
-                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                        <Layers size={12} className="text-teal-500" />
-                        Synchronized Resource Depletion
-                      </p>
-                   </div>
-                   <button 
-                      type="button"
-                      onClick={() => {
-                        formik.setFieldValue('rawMaterials', [...formik.values.rawMaterials, { material: '', name: '', itemCode: '', availableQty: 0, unit: '', quantity: '' }]);
-                      }}
-                      className="w-12 h-12 rounded-2xl bg-teal-700 hover:bg-teal-600 transition-all flex items-center justify-center text-white shadow-xl shadow-teal-900/40 active:scale-90"
-                   >
-                     <Plus size={24} strokeWidth={3} />
-                   </button>
+                  <button 
+                    type="button"
+                    onClick={() => {
+                      formik.setFieldValue('rawMaterials', [...formik.values.rawMaterials, { material: '', quantity: '' }]);
+                    }}
+                    className="flex items-center gap-2 px-5 py-2.5 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-slate-800 transition-all active:scale-95 shadow-lg shadow-slate-900/10"
+                  >
+                    <Plus size={14} strokeWidth={3} />
+                    Add Resource
+                  </button>
                 </div>
 
-                <div className="flex-1 overflow-y-auto pr-4 space-y-4 custom-scrollbar relative z-10 max-h-[600px]">
-                   <FieldArray name="rawMaterials">
-                      {({ remove }) => (
-                        <>
-                          {formik.values.rawMaterials.map((rm: { material: string; name: string; itemCode: string; availableQty: number; unit: string; quantity: number | string }, idx: number) => (
-                            <div key={idx} className="bg-slate-800/50 border border-slate-700/50 rounded-[2.5rem] p-8 flex flex-col md:flex-row md:items-center gap-8 transition-all hover:bg-slate-800 animate-in slide-in-from-bottom-4 duration-300">
-                               <div className="flex-1 space-y-4">
-                                  <button 
-                                    type="button"
-                                    onClick={() => setActiveMaterialIndex(idx)}
-                                    className="w-full text-left bg-slate-900/50 p-6 rounded-3xl border border-slate-700 hover:border-teal-500 transition-all group"
-                                  >
-                                     <div className="flex justify-between items-center mb-2">
-                                        <span className="text-[8px] font-black text-slate-500 uppercase tracking-[0.2em]">Select Material Node</span>
-                                        <ChevronRight size={14} className="text-teal-700 group-hover:translate-x-1 transition-transform" />
-                                     </div>
-                                     <div className="flex items-center gap-4">
-                                        <div className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center text-slate-500">
-                                           <Hash size={18} />
-                                        </div>
-                                        <div>
-                                           {rm.material ? (
-                                              <>
-                                                <h4 className="text-sm font-black text-white uppercase truncate">{rm.name}</h4>
-                                                <div className="flex items-center gap-4 mt-1">
-                                                   <span className="text-[9px] font-bold text-teal-400 tracking-widest">{rm.itemCode}</span>
-                                                   <span className={`text-[9px] font-black px-2 py-0.5 rounded-full ${rm.availableQty > 10 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'}`}>
-                                                      {rm.availableQty} {rm.unit} Available
-                                                   </span>
-                                                </div>
-                                              </>
-                                           ) : (
-                                              <span className="text-xs font-black text-slate-600 uppercase tracking-widest italic">Identify Source Material...</span>
-                                           )}
-                                        </div>
-                                     </div>
-                                  </button>
-                               </div>
+                <div className="space-y-4">
+                  {/* HEADER ROW - HIDDEN ON MOBILE */}
+                  <div className="hidden md:grid grid-cols-12 gap-6 px-4 mb-2">
+                    <div className="col-span-7">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Material Specification</label>
+                    </div>
+                    <div className="col-span-4">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Consumption Qty</label>
+                    </div>
+                  </div>
 
-                               <div className="w-full md:w-48 space-y-2">
-                                  <label className="text-[8px] font-black text-slate-500 uppercase tracking-widest px-2">Depletion Quantity</label>
-                                  <div className="relative">
-                                    <input 
-                                      type="number" 
-                                      name={`rawMaterials[${idx}].quantity`}
-                                      value={rm.quantity}
-                                      onChange={formik.handleChange}
-                                      placeholder="0.00"
-                                      className={`w-full h-14 bg-slate-900 border border-slate-700 rounded-2xl px-6 text-sm font-black text-white outline-none focus:border-teal-500 transition-all ${Number(rm.quantity) > (rm.availableQty || 0) ? 'border-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.2)]' : ''}`}
-                                    />
-                                    {Number(rm.quantity) > (rm.availableQty || 0) && (
-                                       <AlertCircle size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-rose-500" />
-                                    )}
-                                  </div>
-                               </div>
+                  <FieldArray name="rawMaterials">
+                    {({ remove }) => (
+                      <div className="space-y-4">
+                        {formik.values.rawMaterials.map((rm: any, idx: number) => (
+                          <div 
+                            key={idx} 
+                            className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 p-6 bg-slate-50/50 hover:bg-white rounded-[1.5rem] border border-slate-100 hover:border-teal-100/50 transition-all group relative items-start shadow-sm hover:shadow-md hover:shadow-teal-900/5 focus-within:z-10"
+                          >
+                            {/* INDICATOR TAG */}
+                            <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-12 bg-slate-200 group-hover:bg-teal-500 rounded-r-full transition-colors" />
 
-                               <div className="flex items-center justify-center pt-5">
-                                  <button 
-                                    type="button"
-                                    onClick={() => remove(idx)}
-                                    disabled={formik.values.rawMaterials.length === 1}
-                                    className="w-12 h-12 flex items-center justify-center rounded-2xl text-slate-600 hover:text-rose-500 hover:bg-rose-500/10 transition-all disabled:opacity-0"
-                                  >
-                                     <Minus size={20} strokeWidth={3} />
-                                  </button>
-                               </div>
+                            <div className="col-span-1 md:col-span-7 space-y-3">
+                              <FormikSearchableSelect
+                                name={`rawMaterials[${idx}].material`}
+                                options={materialOptions}
+                                placeholder="Select available material..."
+                              />
+                              {/* AVAILABILITY BADGE */}
+                              {rm.material && (
+                                <div className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-lg border border-slate-200/60 shadow-sm animate-in fade-in slide-in-from-top-1 w-fit">
+                                  <Layers size={10} className="text-[#0f766e]" />
+                                  <span className="text-[9px] font-bold text-slate-600 uppercase tracking-widest flex items-center gap-1.5">
+                                    Current Stock: 
+                                    <span className={`px-1.5 py-0.5 rounded ${
+                                      rawMaterials.find(m => m._id === rm.material)?.availableQty <= 5 ? 'bg-rose-50 text-rose-600' : 'bg-teal-50 text-teal-700'
+                                    }`}>
+                                      {rawMaterials.find(m => m._id === rm.material)?.availableQty.toLocaleString() || '0'} 
+                                      {" "}{rawMaterials.find(m => m._id === rm.material)?.unit || ''}
+                                    </span>
+                                  </span>
+                                </div>
+                              )}
                             </div>
-                          ))}
-                        </>
-                      )}
-                   </FieldArray>
+                            <div className="col-span-1 md:col-span-4">
+                              <FormikInput
+                                name={`rawMaterials[${idx}].quantity`}
+                                type="number"
+                                placeholder="0.00"
+                                wrapperClassName="mb-0"
+                                suffix={
+                                  <span className="text-[10px] font-black text-slate-300 uppercase mr-1">
+                                    {rawMaterials.find(m => m._id === rm.material)?.unit || 'Unit'}
+                                  </span>
+                                }
+                              />
+                            </div>
+                            <div className="col-span-1 md:col-span-1 flex justify-center pt-2">
+                              <button 
+                                type="button"
+                                onClick={() => remove(idx)}
+                                disabled={formik.values.rawMaterials.length === 1}
+                                className="w-10 h-10 flex items-center justify-center text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all disabled:opacity-0 active:scale-90"
+                                title="Remove item"
+                              >
+                                <Trash2 size={18} />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </FieldArray>
                 </div>
+              </div>
+            </div>
 
-                {/* Remarks & Footer within Dark Section */}
-                <div className="mt-8 pt-8 border-t border-slate-800/50 space-y-6 relative z-10">
-                   <div className="flex flex-col gap-2">
-                      <label className="text-[8px] font-black text-slate-500 uppercase tracking-[0.3em] px-4">Internal Operational Remarks</label>
-                      <textarea 
-                        name="remarks"
-                        value={formik.values.remarks}
-                        onChange={formik.handleChange}
-                        className="w-full h-24 bg-slate-900/50 border border-slate-800 rounded-[1.5rem] p-6 text-xs text-slate-300 outline-none focus:border-teal-500 transition-all resize-none"
-                        placeholder="Environmental notes, abnormalities, or batch metrics..."
-                      />
-                   </div>
+            {/* RIGHT COLUMN: DOCUMENTATION */}
+            <div className="xl:col-span-1 space-y-8">
+              <div className="bg-white p-8 rounded-[2rem] border border-slate-200/60 shadow-sm">
+                <h3 className="text-sm font-black text-slate-400 uppercase tracking-[0.2em] mb-6">
+                  Batch documentation
+                </h3>
 
-                   <div className="flex justify-between items-center gap-6 pt-4">
-                      <button 
-                        type="button"
-                        onClick={onCancel}
-                        className="text-[10px] font-black text-slate-600 uppercase tracking-widest hover:text-white transition-colors"
-                      >
-                         Discard Session
-                      </button>
-                      <button 
-                        type="submit"
-                        disabled={formik.isSubmitting}
-                        className="px-12 py-5 bg-teal-700 text-white rounded-3xl text-[11px] font-black uppercase tracking-[0.2em] shadow-2xl shadow-teal-900/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-4 disabled:opacity-50"
-                      >
-                         {formik.isSubmitting ? <Clock size={16} className="animate-spin" /> : <FileText size={16} />}
-                         {isEditMode ? 'Authorize Update' : 'Finalize Module'}
-                      </button>
-                   </div>
+                <div className="space-y-6">
+                  <div className="relative group aspect-square bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center transition-all hover:border-[#0f766e] overflow-hidden">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => e.target.files && setImageFile(e.target.files[0])}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
+                    />
+                    {imageFile ? (
+                      <div className="text-center p-6">
+                        <Package size={48} className="text-[#0f766e] mx-auto mb-4 opacity-20" />
+                        <p className="text-sm font-bold text-[#0f766e] truncate max-w-[200px]">{imageFile.name}</p>
+                        <p className="text-[10px] text-slate-400 font-black uppercase mt-2">Ready to upload</p>
+                      </div>
+                    ) : initialData?.image ? (
+                      <div className="absolute inset-0 group">
+                        <img 
+                          src={initialData.image.startsWith('http') ? initialData.image : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${initialData.image}`} 
+                          alt="Current Batch"
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-slate-900/60 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
+                          <Camera size={24} className="text-white mb-2" />
+                          <p className="text-[10px] font-black text-white uppercase tracking-widest">Change Image</p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-center p-6">
+                        <Camera size={40} className="text-slate-300 mx-auto mb-4" />
+                        <p className="text-xs font-bold text-slate-400">Capture Batch Image</p>
+                        <p className="text-[10px] text-slate-300 mt-2 italic">JPEG or PNG &bull; Max 5MB</p>
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 ml-1">Process Remarks</label>
+                    <textarea
+                      name="remarks"
+                      value={formik.values.remarks}
+                      onChange={formik.handleChange}
+                      rows={5}
+                      className="w-full bg-slate-50/50 border border-slate-100 rounded-2xl p-5 text-sm text-slate-600 outline-none focus:border-[#0f766e] transition-all resize-none shadow-inner"
+                      placeholder="Enter quality observations or shift notes..."
+                    />
+                  </div>
                 </div>
-             </div>
+              </div>
+
+              <div className="bg-slate-900 p-8 rounded-[2rem] shadow-xl text-white relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 blur-3xl" />
+                <div className="relative z-10">
+                  <h4 className="text-xs font-black uppercase tracking-widest text-slate-500 mb-4">Stock Policy</h4>
+                  <p className="text-lg font-bold leading-snug">Approval required for inventory integration.</p>
+                  <p className="text-[11px] text-slate-500 mt-4 leading-relaxed italic">
+                    Once saved, this report moves to the Inventory Approval queue for validation by quality supervisors.
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
+        </form>
       </div>
-
-      {/* --- MODALS --- */}
-      <ItemDiscoveryModal 
-        isOpen={isProductModalOpen}
-        onClose={() => setIsProductModalOpen(false)}
-        title="Produced Item Registry"
-        placeholder="Search Catalog..."
-        items={products}
-        type="product"
-        onSelect={(item) => {
-          formik.setFieldValue('productId', item._id);
-          formik.setFieldValue('productName', item.name);
-          formik.setFieldValue('productCode', item.itemCode);
-        }}
-      />
-
-      <ItemDiscoveryModal 
-        isOpen={activeMaterialIndex !== null}
-        onClose={() => setActiveMaterialIndex(null)}
-        title="Material Consumption Registry"
-        placeholder="Identify Raw Materials..."
-        items={rawMaterials}
-        type="material"
-        onSelect={(item) => {
-          if (activeMaterialIndex !== null) {
-            formik.setFieldValue(`rawMaterials[${activeMaterialIndex}].material`, item._id);
-            formik.setFieldValue(`rawMaterials[${activeMaterialIndex}].name`, item.name);
-            formik.setFieldValue(`rawMaterials[${activeMaterialIndex}].itemCode`, item.itemCode);
-            formik.setFieldValue(`rawMaterials[${activeMaterialIndex}].availableQty`, item.availableQty || 0);
-            formik.setFieldValue(`rawMaterials[${activeMaterialIndex}].unit`, item.unit || '');
-          }
-        }}
-      />
-
-      <style jsx global>{`
-        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #475569; }
-      `}</style>
-
-    </div>
+    </FormikProvider>
   );
 };
 

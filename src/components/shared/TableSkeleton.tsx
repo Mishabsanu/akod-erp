@@ -10,25 +10,7 @@ interface TableSkeletonProps {
 
 export const TableSkeleton: React.FC<TableSkeletonProps> = ({ rows = 7 }) => {
   return (
-    <div className="space-y-8 animate-pulse">
-      {/* 🚀 Brand Loading Indicator */}
-      <div className="flex flex-col items-center justify-center py-12">
-        <div className="relative w-24 h-24 mb-4">
-          <div className="absolute inset-0 bg-teal-500/20 rounded-full animate-ping" />
-          <div className="relative bg-white rounded-full p-2 shadow-xl border-2 border-teal-500/30 overflow-hidden w-24 h-24 flex items-center justify-center">
-            <Image 
-              src="/loading.jpeg" 
-              alt="Loading..." 
-              width={80} 
-              height={80} 
-              className="object-contain rounded-md animate-pulse"
-            />
-          </div>
-        </div>
-        <p className="text-[10px] font-black text-teal-600 uppercase tracking-[0.4em] animate-pulse">
-          Processing Data...
-        </p>
-      </div>
+    <div className="space-y-4 animate-pulse">
 
       <div className="akod-table-shell">
         <div className="akod-table-scroll">

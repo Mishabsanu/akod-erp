@@ -32,7 +32,7 @@ const AddSalePage = () => {
   const handleCancel = () => router.push('/sales');
 
   return (
-    <div className="min-h-screen bg-[#f9fafc] p-6 lg:p-10">
+    <div className="min-h-screen bg-[#f9fafc] p-2 lg:p-4">
       <SalesForm
         onSubmit={handleSubmit}
         onCancel={handleCancel}

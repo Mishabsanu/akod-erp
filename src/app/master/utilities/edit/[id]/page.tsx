@@ -11,7 +11,7 @@ import withAuth from '@/components/withAuth';
 const EditUtilityPage = () => {
   const router = useRouter();
   const params = useParams();
-  const id = params.id as string;
+  const id = (params?.id as string) || '';
   
   const [initialData, setInitialData] = useState<UtilityItem | null>(null);
   const [loading, setLoading] = useState(true);
