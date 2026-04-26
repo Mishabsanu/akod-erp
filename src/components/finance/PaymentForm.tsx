@@ -385,7 +385,7 @@ const PaymentFormInner: React.FC<PaymentFormProps> = ({ initialData, onSubmit, o
               }`}
             >
               <Activity size={16} />
-              {isEditMode ? 'Authorize Collection Update' : 'Post Collection Entry'}
+              {isEditMode ? 'Update' : 'Save'}
             </button>
           </div>
         </form>

@@ -201,7 +201,7 @@ const LeaveForm: React.FC<LeaveFormProps> = ({ initialData, onSubmit, onCancel, 
                onClick={onCancel}
                className="text-sm font-black text-gray-400 uppercase tracking-widest hover:text-gray-600 transition-colors"
             >
-              Discard Changes
+              Cancel
             </button>
             <button
               type="submit"
@@ -210,7 +210,7 @@ const LeaveForm: React.FC<LeaveFormProps> = ({ initialData, onSubmit, onCancel, 
             >
               {formik.isSubmitting ? (
                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              ) : isEditMode ? 'Authorize Update' : 'Finalize Leave Entry'}
+              ) : isEditMode ? 'Update' : 'Save'}
               {!formik.isSubmitting && <CheckCircle2 size={18} strokeWidth={3} />}
             </button>
           </div>

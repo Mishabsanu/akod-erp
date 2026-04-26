@@ -243,7 +243,7 @@ const UserForm: React.FC<UserFormProps> = ({
                   : 'bg-[#0f766e] hover:bg-teal-800'
                 }`}
             >
-              {isEditMode ? 'Update User' : 'Create User'}
+              {isEditMode ? 'Update' : 'Save'}
             </button>
           </div>
         </form>

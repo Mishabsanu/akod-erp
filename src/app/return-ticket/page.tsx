@@ -272,7 +272,7 @@ const ReturnTicketPage = () => {
             className="page-header-button secondary"
           >
             <Filter className="w-4 h-4" />
-            {showFilters ? 'Hide Filters' : 'Show Filters'}
+            {showFilters ? 'Hide' : 'Filter'}
           </button>
           </>
         }

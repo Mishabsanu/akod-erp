@@ -187,7 +187,7 @@ const RawMaterialRegistryPage = () => {
                         </button>
                         <button onClick={() => router.push('/production/raw-materials/add')} className="page-header-button">
                             <Plus size={16} />
-                            Register Material
+                            Add
                         </button>
                     </div>
                 }

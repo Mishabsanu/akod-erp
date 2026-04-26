@@ -320,6 +320,7 @@ export interface DeliveryTicket {
   projectLocation: string;
   noteCategory: string;
   vehicleNo: string;
+  driverName?: string;
   status: 'pending' | 'delivered' | 'cancelled';
   items: LineItem[];
   totalAmount: number;
@@ -367,6 +368,7 @@ export interface ReturnTicket {
   projectLocation?: string;
   noteCategory?: string;
   vehicleNo?: string;
+  driverName?: string;
   qatarId?: string;
   attachments?: {
     signedTicket?: string;
@@ -481,8 +483,10 @@ export interface RunningOrder {
   etd?: string;
   eta?: string;
   remarks?: string;
+  sales_person?: string;
   status: string;
   transaction_type: 'Sale' | 'Hire' | 'Contract';
+  project_location?: string;
 }
 
 // New interface for InventoryForm's initialData

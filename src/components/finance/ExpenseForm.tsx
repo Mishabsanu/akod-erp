@@ -428,7 +428,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ initialData, onSubmit, onCanc
               onClick={onCancel}
               className="px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition-all border border-transparent hover:border-rose-100"
             >
-              Discard
+              Cancel
             </button>
             <button
               type="submit"
@@ -440,7 +440,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ initialData, onSubmit, onCanc
               }`}
             >
               <Wallet size={16} />
-              {isEditMode ? 'Authorize Update' : 'Register Expense'}
+              {isEditMode ? 'Update' : 'Save'}
             </button>
           </div>
         </form>

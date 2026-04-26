@@ -202,7 +202,7 @@ function PaymentsPage() {
               className="page-header-button"
             >
               <Plus className="w-4 h-4" />
-              Register Transaction
+              Add
             </button>
           )}
           <button 
@@ -210,7 +210,7 @@ function PaymentsPage() {
             className="page-header-button secondary"
           >
             <Filter size={18} />
-            {showFilters ? 'Hide Filters' : 'Show Filters'}
+            {showFilters ? 'Hide' : 'Filter'}
           </button>
           </>
         }

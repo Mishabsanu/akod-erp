@@ -426,7 +426,7 @@ const QuoteTrackForm: React.FC<any> = ({
                 <Save size={20} strokeWidth={3} />
               )
               }
-              <span>{isEditMode ? 'Authorize Update' : 'Initialize Quote'}</span>
+              <span>{isEditMode ? 'Update' : 'Save'}</span>
             </button>
           </div>
         </form>

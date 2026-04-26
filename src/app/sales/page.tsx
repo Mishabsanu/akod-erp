@@ -43,7 +43,6 @@ const getStatusColor = (status: string) => {
     Processing: '#06b6d4',
     Shipped: '#6366f1',
     Delivered: '#10b981',
-    'Request to Developer': '#8b5cf6',
   };
   return colors[status] || '#6b7280';
 };

@@ -142,7 +142,7 @@ const AccountForm: React.FC<AccountFormProps> = ({ initialData, onSubmit, onCanc
                   : 'bg-teal-700 hover:bg-teal-800'
               }`}
             >
-              {isEditMode ? 'Update Account' : 'Save Account'}
+              {isEditMode ? 'Update' : 'Save'}
             </button>
           </div>
         </form>

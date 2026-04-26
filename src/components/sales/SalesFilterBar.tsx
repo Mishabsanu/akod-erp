@@ -23,7 +23,6 @@ const statuses = [
   'Processing',
   'Shipped',
   'Delivered',
-  'Request to Developer',
 ];
 
 interface SalesFilterBarProps {

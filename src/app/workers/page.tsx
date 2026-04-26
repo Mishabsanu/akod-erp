@@ -160,7 +160,7 @@ const WorkforcePage: React.FC = () => {
             className="page-header-button"
           >
             <Plus className="w-4 h-4" />
-            Enroll Worker
+            Add
           </button>
         }
       />

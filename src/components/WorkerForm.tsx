@@ -399,7 +399,7 @@ const WorkerForm: React.FC<WorkerFormProps> = ({ initialData, onSubmit, onCancel
                 : 'bg-teal-700 hover:bg-teal-800'
                 }`}
             >
-              {isEditMode ? 'Authorize Update' : 'Finalize Enrollment'}
+              {isEditMode ? 'Update' : 'Save'}
             </button>
           </div>
         </form>

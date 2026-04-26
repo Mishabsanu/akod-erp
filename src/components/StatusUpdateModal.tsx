@@ -27,7 +27,6 @@ export default function StatusUpdateModal({ sale, onClose, onUpdated }: any) {
     "Processing",
     "Shipped",
     "Delivered",
-    ...(sale.platform === "Akod Tech" ? ["Request to Developer"] : []),
   ];
 
   const handleSubmit = async () => {

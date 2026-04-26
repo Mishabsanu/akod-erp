@@ -184,7 +184,7 @@ const RoleForm: React.FC<RoleFormProps> = ({ initialData, onSubmit, onCancel, is
                     Discard
                   </button>
                   <button type="submit" disabled={formik.isSubmitting} className="page-header-button flex items-center gap-2">
-                    {formik.isSubmitting ? 'Architecting...' : isEditMode ? 'Commit Role' : 'Launch Role'}
+                    {formik.isSubmitting ? 'Architecting...' : isEditMode ? 'Update' : 'Save'}
                     {!formik.isSubmitting && <CheckCircle2 size={14} />}
                   </button>
                 </div>

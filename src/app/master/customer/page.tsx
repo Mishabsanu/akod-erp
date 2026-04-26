@@ -230,7 +230,7 @@ const CustomerPage: React.FC = () => {
               onClick={handleAddCustomer}
               className="page-header-button"
             >
-              <Plus className="w-4 h-4" /> Add Customer
+              <Plus className="w-4 h-4" /> Add
             </button>
           )}
           <button
@@ -238,7 +238,7 @@ const CustomerPage: React.FC = () => {
             className="page-header-button secondary"
           >
             <Filter className="w-4 h-4" />
-            {showFilters ? 'Hide Filters' : 'Show Filters'}
+            {showFilters ? 'Hide' : 'Filter'}
           </button>
           </>
         }

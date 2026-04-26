@@ -1,6 +1,7 @@
 'use client';
 
 import { FormikInput } from '@/components/shared/FormikInput';
+import { FormikTextarea } from '@/components/shared/FormikTextarea';
 import { FormikSelect } from '@/components/shared/FormikSelect';
 import { Section } from '@/components/ui/Section';
 import { DeliveryTicket, PODropdownItem } from '@/lib/types';
@@ -45,10 +46,10 @@ const SOURCE_OPTIONS = [
 /* ---------------- VALIDATION ---------------- */
 const LineItemValidationSchema = Yup.object().shape({
   productId: Yup.string().required('Product is required'),
-  name: Yup.string().required('Product name is required'),
+  name: Yup.string().required('Product name is required').max(100, 'Max 100 characters'),
   itemCode: Yup.string().required('Item code is required'),
   unit: Yup.string().required('Unit is required'),
-  description: Yup.string(),
+  description: Yup.string().max(80, 'Max 80 characters'),
   availableQty: Yup.number(),
   quantity: Yup.number()
     .typeError('Quantity must be a number')
@@ -70,7 +71,7 @@ const validationSchema = Yup.object().shape({
   deliveryDate: Yup.date().nullable().required('Delivery date is required'),
   subject: Yup.string().required('Delivered From is required'),
   projectLocation: Yup.string().required('Project location is required'),
-  poNo: Yup.string().required('Purchase Order No is required'),
+  poNo: Yup.string(),
   invoiceNo: Yup.string().required('Invoice No is required'),
   noteCategory: Yup.string().required('Note category is required'),
   vehicleNo: Yup.string().required('Vehicle number is required'),
@@ -81,10 +82,9 @@ const validationSchema = Yup.object().shape({
     .required('At least one item is required'),
 
   deliveredBy: Yup.object().shape({
-    deliveredByName: Yup.string().required('Delivered by name is required'),
+    deliveredByName: Yup.string(),
     deliveredByMobile: Yup.string()
-      .matches(/^\+?\d{8,15}$/, 'Invalid mobile number')
-      .required('Delivered by mobile is required'),
+      .matches(/^\+?\d{8,15}$/, 'Invalid mobile number'),
     deliveredDate: Yup.date().nullable().required('Delivered date is required'),
   }),
 
@@ -173,6 +173,7 @@ const DeliveryTicketForm = ({
       invoiceNo: initialData?.invoiceNo || '',
       referenceNo: initialData?.referenceNo || '',
       subject: initialData?.subject || '',
+      driverName: initialData?.driverName || '',
       projectLocation: initialData?.projectLocation || '',
       noteCategory: initialData?.noteCategory || 'Sale',
       vehicleNo: initialData?.vehicleNo || '',
@@ -227,7 +228,7 @@ const DeliveryTicketForm = ({
         : values.customerName;
 
       const formData = new FormData();
-      
+
       // Add simple fields
       Object.keys(values).forEach(key => {
         if (!['items', 'deliveredBy', 'receivedBy', 'customerName'].includes(key)) {
@@ -264,8 +265,8 @@ const DeliveryTicketForm = ({
   const filteredRunningOrders = useMemo(() => {
     const customer = customers.find(c => c.value === formik.values.customerId);
     if (customer) {
-      return runningOrders.filter(ro => 
-        (ro.company_name && ro.company_name === customer.label) || 
+      return runningOrders.filter(ro =>
+        (ro.company_name && ro.company_name === customer.label) ||
         (ro.client_name && ro.client_name === customer.label)
       );
     }
@@ -304,6 +305,10 @@ const DeliveryTicketForm = ({
       formik.setFieldValue('invoiceNo', order.invoice_number);
       formik.setFieldValue('poNo', order.po_number || '');
       formik.setFieldValue('noteCategory', order.transaction_type);
+      if (order.project_location) {
+        setIsCustomLocation(true);
+        formik.setFieldValue('projectLocation', order.project_location);
+      }
 
       // Try to link customer by name
       const customer = customers.find((c) => c.label === order.company_name);
@@ -347,13 +352,12 @@ const DeliveryTicketForm = ({
         formik.setFieldValue(`items.${index}.name`, orderItem.name);
         formik.setFieldValue(`items.${index}.itemCode`, orderItem.itemCode);
         formik.setFieldValue(`items.${index}.unit`, orderItem.unit);
-        formik.setFieldValue(`items.${index}.description`, orderItem.description);
         formik.setFieldValue(`items.${index}.requiredQty`, orderItem.quantity);
-        
+
         const delivered = fulfillmentMap[orderItem.productId?._id || orderItem.productId] || 0;
         const remaining = (orderItem.quantity || 0) - delivered;
         formik.setFieldValue(`items.${index}.quantity`, remaining > 0 ? remaining : 0);
-        
+
         // Also find available stock from the main product list if needed
         const inventoryProduct = availableProducts.find((p) => {
           const pId = p.productId?.toString();
@@ -451,8 +455,8 @@ const DeliveryTicketForm = ({
             {isEditMode ? 'Modify' : 'Initialize'} <span className="gradient-text">Delivery Note</span>
           </h1>
           <p className="page-header-description">
-            {isEditMode 
-              ? 'Update the details of this delivery authorization. Changes will be reflected in inventory and tracking logs.' 
+            {isEditMode
+              ? 'Update the details of this delivery authorization. Changes will be reflected in inventory and tracking logs.'
               : 'Initialize a new delivery record. Select the customer and items to generate an official delivery note.'}
           </p>
         </div>
@@ -515,7 +519,7 @@ const DeliveryTicketForm = ({
                 disabled={!formik.values.customerId}
               />
 
-              <FormikInput label="PO Number" name="poNo" readOnly required />
+              <FormikInput label="PO Number" name="poNo" readOnly />
               <FormikInput label="Reference No" name="referenceNo" />
 
               {!isCustomSource ? (
@@ -536,13 +540,6 @@ const DeliveryTicketForm = ({
               ) : (
                 <div className="relative">
                   <FormikInput label="Delivered From" name="subject" required />
-                  <button 
-                    type="button"
-                    onClick={() => { setIsCustomSource(false); formik.setFieldValue('subject', ''); }}
-                    className="absolute top-0 right-0 text-[10px] text-sky-600 hover:underline"
-                  >
-                    Back to List
-                  </button>
                 </div>
               )}
 
@@ -552,6 +549,7 @@ const DeliveryTicketForm = ({
                   name="projectLocation"
                   options={LOCATION_OPTIONS}
                   required
+                  disabled={!!formik.values.runningOrderId}
                   onChange={(e) => {
                     if (e.target.value === 'Other') {
                       setIsCustomLocation(true);
@@ -563,19 +561,17 @@ const DeliveryTicketForm = ({
                 />
               ) : (
                 <div className="relative">
-                  <FormikInput label="Project Location" name="projectLocation" required />
-                  <button 
-                    type="button"
-                    onClick={() => { setIsCustomLocation(false); formik.setFieldValue('projectLocation', ''); }}
-                    className="absolute top-0 right-0 text-[10px] text-sky-600 hover:underline"
-                  >
-                    Back to List
-                  </button>
+                  <FormikInput
+                    label="Project Location"
+                    name="projectLocation"
+                    required
+                    readOnly={!!formik.values.runningOrderId}
+                  />
                 </div>
               )}
 
               <FormikSelect
-                label="Material Transaction Type"
+                label="Service Type"
                 name="noteCategory"
                 options={[
                   { value: 'Sale', label: 'Sale' },
@@ -584,8 +580,10 @@ const DeliveryTicketForm = ({
                   { value: 'Contract', label: 'Contract' },
                 ]}
                 required
+                disabled={!!formik.values.runningOrderId}
               />
-              <FormikInput label="Vehicle Number" name="vehicleNo" required />
+              <FormikInput label="Vehicle No" name="vehicleNo" required />
+              <FormikInput label="Driver Name" name="driverName" />
             </div>
           </Section>
 
@@ -599,20 +597,19 @@ const DeliveryTicketForm = ({
                       <tr>
                         <th className="p-2 border border-gray-200">S.No</th>
                         <th className="p-2 border border-gray-200 min-w-[250px]">
-                          Product <span className="text-red-500">*</span>
+                          Product / Unit <span className="text-red-500">*</span>
                         </th>
-                        <th className="p-2 border border-gray-200 min-w-[120px]">
+                        <th className="p-2 border border-gray-200 min-w-[80px]">
                           Item Code <span className="text-red-500">*</span>
                         </th>
-                        <th className="p-2 border border-gray-200 min-w-[80px]">Unit <span className="text-red-500">*</span></th>
-                        <th className="p-2 border border-gray-200 min-w-[100px]">
+                        <th className="p-2 border border-gray-200 min-w-[80px]">
                           Required Qty <span className="text-red-500">*</span>
                         </th>
-                        <th className="p-2 border border-gray-200 min-w-[120px]">
-                          Delivery Qty <span className="text-red-500">*</span>
+                        <th className="p-2 border border-gray-200 min-w-[80px]">
+                          Delivered Qty <span className="text-red-500">*</span>
                         </th>
-                        <th className="p-2 border border-gray-200 min-w-[200px]">
-                          Description
+                        <th className="p-2 border border-gray-200 min-w-[400px]">
+                          Remarks
                         </th>
                         <th className="p-2 border border-gray-200">Actions</th>
                       </tr>
@@ -629,24 +626,33 @@ const DeliveryTicketForm = ({
                             </td>
 
                             <td className="p-2 border border-gray-200">
-                              <FormikSelect
-                                name={`items.${idx}.productId`}
-                                options={
-                                  formik.values.runningOrderId && selectedOrderItems.length > 0 
-                                    ? selectedOrderItems.map(p => ({ 
-                                        value: p.productId?._id || p.productId, 
-                                        label: `${p.name}` 
+                              <div className="space-y-1.5">
+                                <FormikSelect
+                                  name={`items.${idx}.productId`}
+                                  options={
+                                    formik.values.runningOrderId && selectedOrderItems.length > 0
+                                      ? selectedOrderItems.map(p => ({
+                                        value: p.productId?._id || p.productId,
+                                        label: `${p.name}`
                                       }))
-                                    : availableProducts.map((p) => ({
+                                      : availableProducts.map((p) => ({
                                         value: p._id!,
                                         label: p.name,
                                       }))
-                                }
-                                onChange={(e) => {
-                                  formik.handleChange(e);
-                                  handleProductSelection(idx, e.target.value);
-                                }}
-                              />
+                                  }
+                                  onChange={(e) => {
+                                    formik.handleChange(e);
+                                    handleProductSelection(idx, e.target.value);
+                                  }}
+                                />
+                                {item.unit && (
+                                  <div className="px-2">
+                                    <span className="text-[10px] font-black text-teal-600 uppercase bg-teal-50 px-2 py-0.5 rounded border border-teal-100">
+                                      Unit: {item.unit}
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
                             </td>
 
                             <td className="p-2 border border-gray-200">
@@ -654,16 +660,6 @@ const DeliveryTicketForm = ({
                                 label=""
                                 name={`items.${idx}.itemCode`}
                                 readOnly
-
-                              />
-                            </td>
-
-                            <td className="p-2 border border-gray-200">
-                              <FormikInput
-                                label=""
-                                name={`items.${idx}.unit`}
-                                readOnly
-
                               />
                             </td>
                             <td className="p-2 border border-gray-200 align-top">
@@ -706,10 +702,17 @@ const DeliveryTicketForm = ({
                             </td>
 
                             <td className="p-2 border border-gray-200">
-                              <FormikInput
-                                label=""
-                                name={`items.${idx}.description`}
-                              />
+                              <div className="space-y-1">
+                                <FormikTextarea
+                                  label=""
+                                  name={`items.${idx}.description`}
+                                  placeholder="Add manual description..."
+                                  rows={2}
+                                  maxLength={80}
+                                  wrapperClassName="mb-0"
+                                />
+                                <div className="text-[9px] text-gray-400 font-bold uppercase tracking-tight pl-1">Max 80 Characters</div>
+                              </div>
                             </td>
 
                             <td className="p-2 text-center border border-gray-200">
@@ -752,8 +755,8 @@ const DeliveryTicketForm = ({
                         });
                       }}
                       className={`px-4 py-2 text-white rounded-lg transition ${formik.values.items.length >= 15
-                          ? 'bg-gray-400 cursor-not-allowed'
-                          : 'bg-sky-600 hover:bg-sky-700'
+                        ? 'bg-gray-400 cursor-not-allowed'
+                        : 'bg-sky-600 hover:bg-sky-700'
                         }`}
                     >
                       Add Item
@@ -769,15 +772,14 @@ const DeliveryTicketForm = ({
             </FieldArray>
           </Section>
 
-          {/* 🚚 DELIVERY INFO */}
+          {/*  DELIVERY INFO */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            <Section title="Delivery Details">
+            <Section title="Basic Details">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormikSelect
-                  label="Delivered By (Staff)"
+                  label="Delivered By"
                   name="deliveredBy.deliveredByName"
                   options={STAFF_LIST.map(s => ({ value: s.name, label: s.name }))}
-                  required
                   onChange={(e) => {
                     formik.handleChange(e);
                     const staff = STAFF_LIST.find(s => s.name === e.target.value);
@@ -791,7 +793,6 @@ const DeliveryTicketForm = ({
                 <FormikPhoneInput
                   label="Delivered By Mobile"
                   name="deliveredBy.deliveredByMobile"
-                  required
                 />
                 <FormikInput
                   label="Delivered Date"
@@ -846,7 +847,7 @@ const DeliveryTicketForm = ({
                 : 'bg-sky-600 hover:bg-sky-700'
                 }`}
             >
-              Preview Delivery Ticket
+              Preview
             </button>
           </div>
         </form>

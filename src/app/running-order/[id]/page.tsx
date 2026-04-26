@@ -207,7 +207,7 @@ const ViewRunningOrderPage = ({ params: paramsPromise }: ViewRunningOrderPagePro
                 Order Information
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
-                <DetailItem label="Client Name" value={order.client_name || '---'} icon={CheckCircle2} />
+                <DetailItem label="Sales Person" value={order.sales_person || '---'} icon={CheckCircle2} />
                 <DetailItem label="Company Name" value={order.company_name || '---'} icon={Truck} />
                 <DetailItem label="Invoice Number" value={order.invoice_number || '---'} icon={FileText} />
                 <DetailItem label="PO Number" value={order.po_number || '---'} icon={Hash} />

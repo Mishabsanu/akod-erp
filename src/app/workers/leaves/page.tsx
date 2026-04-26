@@ -190,14 +190,14 @@ function LeavePage() {
               className="page-header-button"
             >
               <Plus className="w-4 h-4" />
-              Register Leave
+              Add
             </button>
             <button
                onClick={() => setShowFilters(!showFilters)}
                className="page-header-button secondary"
             >
               <Filter className="w-4 h-4" />
-              {showFilters ? 'Hide States' : 'Filter States'}
+              {showFilters ? 'Hide' : 'Filter'}
             </button>
           </>
         }

@@ -2,6 +2,7 @@
 
 import formatDateToYYYYMMDD from '@/app/utils/formatDateToYYYYMMDD';
 import { FormikInput } from '@/components/shared/FormikInput';
+import { FormikTextarea } from '@/components/shared/FormikTextarea';
 import { FormikSelect } from '@/components/shared/FormikSelect';
 import { Section } from '@/components/ui/Section';
 import { DeliveryTicket, ReturnTicket } from '@/lib/types';
@@ -42,7 +43,7 @@ const LineItemValidationSchema = Yup.object().shape({
   productId: Yup.string().required('Product is required'),
   name: Yup.string().required('Product name is required'),
   unit: Yup.string().required('Unit is required'),
-  description: Yup.string(),
+  description: Yup.string().max(80, 'Max 80 characters'),
   quantity: Yup.number()
     .typeError('Quantity must be a number')
     .min(0, 'Min 0')
@@ -73,10 +74,9 @@ const validationSchema = Yup.object().shape({
     .min(1, 'At least one item is required'),
 
   deliveredBy: Yup.object().shape({
-    deliveredByName: Yup.string().required('Delivered by name is required'),
+    deliveredByName: Yup.string(),
     deliveredByMobile: Yup.string()
-      .matches(/^\+?\d{8,15}$/, 'Invalid mobile number')
-      .required('Delivered by mobile is required'),
+      .matches(/^\+?\d{8,15}$/, 'Invalid mobile number'),
     deliveredDate: Yup.date().nullable().required('Delivered date is required'),
   }),
   receivedBy: Yup.object().shape({
@@ -361,7 +361,7 @@ const ReturnTicketForm = ({
                 name: item.name || item.product?.name || '',
                 itemCode: item.itemCode || item.product?.itemCode || '',
                 unit: item.unit || item.product?.unit || '',
-                description: item.description || '',
+                description: '',
                 quantity: deliveredQty,
                 totalReturnedQty: returnedQty,
                 returnQty: availableQty,
@@ -503,7 +503,7 @@ const ReturnTicketForm = ({
                 }}
               />
 
-              <FormikInput label="PO Number" name="poNo" readOnly required />
+              <FormikInput label="PO Number" name="poNo" readOnly />
 
               <FormikInput
                 label="Return Date"
@@ -543,10 +543,14 @@ const ReturnTicketForm = ({
                 required
                 disabled={isPoSelected}
               />
-              <FormikInput
+                 <FormikInput
                 label="Vehicle No"
                 name="vehicleNo"
                 disabled={isPoSelected}
+              />
+              <FormikInput
+                label="Driver Name"
+                name="driverName"
               />
             </div>
           </Section>
@@ -555,16 +559,16 @@ const ReturnTicketForm = ({
             <FieldArray name="items">
               {({ push, remove }) => (
                 <div className="overflow-x-auto">
-                  <table className="akod-table">
+                  <table className="akod-table whitespace-nowrap">
                     <thead>
                       <tr>
-                        <th className="p-2 border border-gray-200">S.No</th>
-                        <th className="p-2 border border-gray-200">Product Info</th>
-                        <th className="p-2 border border-gray-200 w-24">Item Code</th>
-                        <th className="p-2 border border-gray-200 w-20">Unit</th>
-                        <th className="p-2 border border-gray-200 w-44">Delivered Qty</th>
-                        <th className="p-2 border border-gray-200 w-32 font-black text-teal-800 text-center">Return Qty</th>
-                        <th className="p-2 border border-gray-200">Description</th>
+                         <th className="p-2 border border-gray-200">S.No</th>
+                         <th className="p-2 border border-gray-200 min-w-[250px]">Product / Unit</th>
+                         <th className="p-2 border border-gray-200 min-w-[80px]">Item Code</th>
+                         <th className="p-2 border border-gray-200 min-w-[80px]">Delivered Qty</th>
+                         <th className="p-2 border border-gray-200 min-w-[80px] font-black text-teal-800 text-center">Return Qty</th>
+                         <th className="p-2 border border-gray-200 min-w-[400px]">Remarks</th>
+                         <th className="p-2 border border-gray-200">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -579,12 +583,21 @@ const ReturnTicketForm = ({
                               {idx + 1}
                             </td>
                             <td className="p-2 border border-gray-200">
-                              <FormikInput
-                                label=""
-                                name={`items.${idx}.name`}
-                                readOnly
-                                className="font-bold border-none bg-transparent h-auto py-0 shadow-none mb-0 text-sm"
-                              />
+                              <div className="space-y-1">
+                                <FormikInput
+                                  label=""
+                                  name={`items.${idx}.name`}
+                                  readOnly
+                                  className="font-bold border-none bg-transparent h-auto py-0 shadow-none mb-0 text-sm"
+                                />
+                                {row.unit && (
+                                  <div className="px-1">
+                                    <span className="text-[10px] font-black text-teal-600 uppercase bg-teal-50 px-2 py-0.5 rounded border border-teal-100">
+                                      Unit: {row.unit}
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
                             </td>
                             <td className="p-2 border border-gray-200">
                               <FormikInput
@@ -594,12 +607,6 @@ const ReturnTicketForm = ({
                                 className="border-none bg-transparent h-auto py-0 shadow-none mb-0 text-xs text-gray-500"
                               />
                             </td>
-                            <td className="p-2 border border-gray-200">
-                              <div className="flex justify-center uppercase text-xs font-bold text-gray-400">
-                                {row.unit}
-                              </div>
-                            </td>
-
                             <td className="p-2 border border-gray-200">
                               <div className="flex flex-col">
                                 <FormikInput
@@ -632,21 +639,31 @@ const ReturnTicketForm = ({
                                 </div>
                               </div>
                             </td>
-                            <td className="p-2 border border-gray-200 ">
-                              <FormikInput
-                                label=""
-                                name={`items.${idx}.description`}
-                              />
-                            </td>
+                             <td className="p-2 border border-gray-200">
+                               <div className="space-y-1">
+                                 <FormikTextarea
+                                   label=""
+                                   name={`items.${idx}.description`}
+                                   placeholder="Add manual description..."
+                                   rows={2}
+                                   maxLength={80}
+                                   wrapperClassName="mb-0"
+                                 />
+                                 <div className="text-[9px] text-gray-400 font-bold uppercase tracking-tight pl-1">Max 80 Characters</div>
+                               </div>
+                             </td>
+                             <td className="p-2 text-center border border-gray-200">
+                               {/* No actions for return items as they are from source */}
+                             </td>
                           </tr>
                         );
                       })}
                       {formik.values.items.length === 0 && (
                         <tr>
-                          <td
-                            colSpan={8}
-                            className="p-4 text-center text-gray-500"
-                          >
+                           <td
+                             colSpan={7}
+                             className="p-4 text-center text-gray-500"
+                           >
                             No items added
                           </td>
                         </tr>
@@ -659,13 +676,12 @@ const ReturnTicketForm = ({
           </Section>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            <Section title="Delivered Details">
+            <Section title="Basic Details">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormikSelect
                   label="Delivered By (Staff)"
                   name="deliveredBy.deliveredByName"
                   options={STAFF_LIST.map(s => ({ value: s.name, label: s.name }))}
-                  required
                   onChange={(e) => {
                     formik.handleChange(e);
                     const staff = STAFF_LIST.find(s => s.name === e.target.value);
@@ -678,7 +694,6 @@ const ReturnTicketForm = ({
                 <FormikPhoneInput
                   label="Delivered By Mobile"
                   name="deliveredBy.deliveredByMobile"
-                  required
                 />
                 <FormikInput
                   label="Delivered Date"
@@ -729,7 +744,7 @@ const ReturnTicketForm = ({
                 : 'bg-sky-600 hover:bg-sky-700'
                 }`}
             >
-              Preview Return Ticket
+              Preview
             </button>
           </div>
         </form>

@@ -7,15 +7,15 @@ import { SearchInput } from '@/components/shared/SearchInput';
 import { TableSkeleton } from '@/components/shared/TableSkeleton';
 import withAuth from '@/components/withAuth';
 import { RunningOrder } from '@/lib/types';
-import { deleteRunningOrder, getRunningOrders, updateRunningOrderStatusApi } from '@/services/runningOrderApi';
+import { deleteRunningOrder, getRunningOrders } from '@/services/runningOrderApi';
 import { format } from 'date-fns';
 import {
-  Filter,
-  Edit2,
-  BarChart2,
-  Eye,
-  Trash2,
-  Plus,
+    Filter,
+    Edit2,
+    BarChart2,
+    Eye,
+    Trash2,
+    Plus,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -41,9 +41,9 @@ const getStatusColor = (status: string) => {
 const RunningOrdersPage = () => {
     const [orders, setOrders] = useState<RunningOrder[]>([]);
     const [loading, setLoading] = useState(true);
-    const [openMenu, setOpenMenu] = useState<string | null>(null);
     const [showFilters, setShowFilters] = useState(false);
     const { can } = useAuth();
+    const [activeTab, setActiveTab] = useState<'pending' | 'completed'>('pending');
 
     // Filters State
     const [searchTerm, setSearchTerm] = useState('');
@@ -57,13 +57,15 @@ const RunningOrdersPage = () => {
 
     const router = useRouter();
 
-    const toggleActionMenu = (id: string) => {
-        setOpenMenu(openMenu === id ? null : id);
-    };
-
     const fetchOrders = useCallback(async () => {
         setLoading(true);
         try {
+            // If tab is pending, we might want to filter for non-completed statuses
+            // But the API might not support multi-status filter easily without changes.
+            // For now, we fetch and then filter if needed, OR we just use the statusFilter.
+            
+            const effectiveStatus = activeTab === 'completed' ? 'Completed' : statusFilter;
+
             const {
                 result,
                 totalPages: fetchedTotalPages,
@@ -72,10 +74,16 @@ const RunningOrdersPage = () => {
                 searchTerm,
                 currentPage,
                 limit,
-                statusFilter
+                effectiveStatus
             );
 
-            setOrders(result ?? []);
+            // If activeTab is pending, filter out 'Completed' if statusFilter is not set
+            let filteredResults = result ?? [];
+            if (activeTab === 'pending' && !statusFilter) {
+                filteredResults = filteredResults.filter(o => o.status !== 'Completed');
+            }
+
+            setOrders(filteredResults);
             setTotalPages(fetchedTotalPages ?? 1);
             setTotalCount(fetchedTotalCount ?? 0);
         } catch (err) {
@@ -85,7 +93,7 @@ const RunningOrdersPage = () => {
         } finally {
             setLoading(false);
         }
-    }, [searchTerm, currentPage, limit, statusFilter]);
+    }, [searchTerm, currentPage, limit, statusFilter, activeTab]);
 
     useEffect(() => {
         fetchOrders();
@@ -123,22 +131,32 @@ const RunningOrdersPage = () => {
     const columns: Column<RunningOrder>[] = useMemo(() => {
         const baseColumns: Column<RunningOrder>[] = [
             {
-                accessor: 'order_number',
-                header: 'Order #',
+                accessor: 'company_name',
+                header: 'Company Name',
                 render: (order) => (
-                    <span className="font-black text-[#0f766e] tracking-tight text-sm uppercase">{order.order_number}</span>
+                    <div className="flex flex-col">
+                        <span className="font-black text-gray-900 text-sm uppercase leading-tight">{order.company_name || '---'}</span>
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{order.order_number}</span>
+                    </div>
                 )
             },
             {
                 accessor: 'invoice_number',
                 header: 'Invoice #',
                 render: (order) => (
-                    <span className="text-xs font-black text-gray-400 uppercase tracking-widest">{order.invoice_number || '---'}</span>
+                    <span className="text-xs font-black text-[#0f766e] uppercase tracking-widest">{order.invoice_number || '---'}</span>
+                )
+            },
+            {
+                accessor: 'sales_person',
+                header: 'Sales Person',
+                render: (order) => (
+                    <span className="text-xs font-bold text-gray-600 uppercase">{order.sales_person || '---'}</span>
                 )
             },
             {
                 accessor: 'po_number',
-                header: 'PO Number',
+                header: 'PO No',
                 render: (order) => (
                     <span className="text-xs font-black text-gray-500 uppercase tracking-widest">{order.po_number || '---'}</span>
                 )
@@ -147,37 +165,30 @@ const RunningOrdersPage = () => {
                 accessor: 'ordered_date', 
                 header: 'Order Date',
                 render: (order) => (
-                    <div className="flex flex-col">
-                        <span className="text-xs font-bold text-gray-700">
-                            {order.ordered_date ? format(new Date(order.ordered_date), 'dd MMM yyyy') : '--'}
-                        </span>
-                        <span className="text-[9px] text-gray-400 font-black uppercase tracking-widest">Scheduled Date</span>
-                    </div>
+                    <span className="text-xs font-bold text-gray-700">
+                        {order.ordered_date ? format(new Date(order.ordered_date), 'dd MMM yyyy') : '--'}
+                    </span>
                 )
             },
             {
-                accessor: 'transaction_type',
-                header: 'Type',
+                accessor: 'status',
+                header: 'Status',
                 render: (order) => (
-                    <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border 
-                        ${order.transaction_type === 'Sale' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 
-                          order.transaction_type === 'Hire' ? 'bg-blue-50 text-blue-700 border-blue-100' : 
-                          'bg-purple-50 text-purple-700 border-purple-100'}`}>
-                        {order.transaction_type || 'Sale'}
+                    <span 
+                        className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-white shadow-sm"
+                        style={{ backgroundColor: getStatusColor(order.status || '') }}
+                    >
+                        {order.status}
                     </span>
                 )
             },
             {
                 accessor: 'items' as any,
-                header: 'Inventory Metrics',
+                header: 'Order Metrics',
                 render: (order) => {
                     const totalQty = order.items?.reduce((sum, item) => sum + (Number(item.quantity) || 0), 0) || 0;
                     return (
                         <div className="flex items-center gap-3">
-                            <div className="flex flex-col items-center justify-center bg-gray-50 border border-gray-100 rounded-lg px-2 py-1 min-w-[60px]">
-                                <span className="text-[10px] font-black text-[#0f766e]">{order.items?.length || 0}</span>
-                                <span className="text-[7px] font-black text-gray-300 uppercase">Items</span>
-                            </div>
                             <div className="flex flex-col items-center justify-center bg-[#0f766e]/5 border border-[#0f766e]/10 rounded-lg px-2 py-1 min-w-[60px]">
                                 <span className="text-[10px] font-black text-[#0f766e]">{totalQty}</span>
                                 <span className="text-[7px] font-black text-[#0f766e]/30 uppercase">Total Qty</span>
@@ -185,25 +196,6 @@ const RunningOrdersPage = () => {
                         </div>
                     );
                 }
-            },
-
-            {
-                accessor: 'createdAt' as any,
-                header: 'Created Date',
-                render: (order: RunningOrder) => (
-                    <span className="text-xs font-bold text-gray-500">
-                        {(order as any).createdAt ? format(new Date((order as any).createdAt), 'dd MMM yyyy') : '--'}
-                    </span>
-                ),
-            },
-            {
-                accessor: 'createdBy' as any,
-                header: 'Created By',
-                render: (order: RunningOrder) => (
-                    <span className="text-[9px] text-[#0f766e] font-black uppercase tracking-widest">
-                        {typeof (order as any).createdBy === 'object' ? (order as any).createdBy.name : ((order as any).createdBy || 'System')}
-                    </span>
-                ),
             },
         ];
 
@@ -219,7 +211,7 @@ const RunningOrdersPage = () => {
                                 router.push(`/running-order/${(order as any)._id}/report`);
                             }}
                             className="w-9 h-9 flex items-center justify-center text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-all border border-gray-100 hover:border-emerald-200"
-                            title="Lifecycle Report"
+                            title="Order Report"
                         >
                             <BarChart2 className="w-4 h-4" />
                         </button>
@@ -270,17 +262,17 @@ const RunningOrdersPage = () => {
     return (
         <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white p-6 md:p-10 font-sans">
             <ListPageHeader
-                eyebrow="Production Tracker"
+                eyebrow="Tracker your order"
                 title="Active"
                 highlight="Orders"
-                description="Track manufacturing status, shipping milestones, and logistics dates."
+                description="Track your devliery status , return status and manage you orders"
                 actions={
                     <>
                     <button
                         onClick={() => router.push('/running-order/add')}
                         className="page-header-button"
                     >
-                        <Plus className="w-4 h-4" /> New Tracker
+                        <Plus className="w-4 h-4" /> Add
                     </button>
                     <button
                         onClick={() => setShowFilters(!showFilters)}
@@ -291,6 +283,30 @@ const RunningOrdersPage = () => {
                     </>
                 }
             />
+
+            {/* Tabs Section */}
+            <div className="flex gap-1 mb-8 bg-gray-100 p-1 rounded-2xl w-fit">
+                <button
+                    onClick={() => setActiveTab('pending')}
+                    className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+                        activeTab === 'pending' 
+                        ? 'bg-white text-[#0f766e] shadow-sm' 
+                        : 'text-gray-400 hover:text-gray-600'
+                    }`}
+                >
+                    Pending & Partially
+                </button>
+                <button
+                    onClick={() => setActiveTab('completed')}
+                    className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+                        activeTab === 'completed' 
+                        ? 'bg-white text-[#0f766e] shadow-sm' 
+                        : 'text-gray-400 hover:text-gray-600'
+                    }`}
+                >
+                    Completed
+                </button>
+            </div>
 
             {showFilters && (
                 <RunningOrderFilterBar
@@ -308,7 +324,7 @@ const RunningOrdersPage = () => {
                 <SearchInput
                     initialSearchTerm={searchTerm}
                     onSearchChange={setSearchTerm}
-                    placeholder="Search by client, invoice or company..."
+                    placeholder="Search by invoice, company or sales person..."
                 />
             </div>
 

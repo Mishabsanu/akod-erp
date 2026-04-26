@@ -186,7 +186,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ initialData, onSubmit, onCanc
             >
               {formik.isSubmitting ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              ) : isEditMode ? 'Authorize Update' : 'Finalize Registration'}
+              ) : isEditMode ? 'Update' : 'Save'}
               {!formik.isSubmitting && <CheckCircle2 size={18} strokeWidth={3} />}
             </button>
           </div>

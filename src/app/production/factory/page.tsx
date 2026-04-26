@@ -202,7 +202,7 @@ function FactoryPage() {
             className="page-header-button"
           >
             <Plus className="w-4 h-4" />
-            Add Record
+            Add
           </button>
         }
       />

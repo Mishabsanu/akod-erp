@@ -71,7 +71,7 @@ const ReturnTicketPreview = ({
                             className={`px-6 py-2 text-white rounded shadow-md transition font-bold flex items-center gap-2 text-sm ${isSubmitting ? 'bg-gray-400' : 'bg-teal-800 hover:bg-teal-900'
                                 }`}
                         >
-                            {isSubmitting ? 'Confirming...' : 'Confirm & Create'}
+                            {isSubmitting ? 'Processing...' : 'Save'}
                         </button>
                     )}
                 </div>
@@ -81,29 +81,31 @@ const ReturnTicketPreview = ({
             <div className="bg-white text-black shadow-2xl w-[210mm] min-h-[297mm] px-10 py-8 relative print:shadow-none print:w-full print:h-auto overflow-hidden font-sans text-[10pt]">
 
                 {/* 1. Header Section */}
-                <div className="flex justify-between items-start mb-6 border-b-2 border-teal-800 pb-4">
+                <div className="flex justify-between items-start mb-6 border-b-2 border-[#0f766e] pb-4">
                     {/* Left: Contact Info */}
-                    <div className="w-[30%] text-[8pt] text-gray-700 space-y-0.5 pt-2">
-                        <p className="font-bold text-[9pt] mb-1 text-teal-800">PROSERVE TRADING & SERVICES</p>
-                        <p>Tel: +974 4421 4042</p>
+                    <div className="w-[35%] text-[8pt] text-gray-700 space-y-0.5 pt-2">
+                        <p className="font-bold text-[10pt] mb-1 text-[#0f766e]">PROSERVE TRADING & SERVICES WLL</p>
                         <p>Mob: +974 3030 3613</p>
-                        <p className="font-semibold mt-1 text-slate-800">info@proservets.com</p>
+                        <p>Tel: +974 4421 4042</p>
+                        <p>E-mail: info@proservets.com</p>
+                        <p>Website: www.proservets.com</p>
                     </div>
 
                     {/* Center: Logo & Title */}
-                    <div className="w-[40%] flex flex-col items-center">
-                        <div className="w-48 h-20 mb-2">
+                    <div className="w-[30%] flex flex-col items-center">
+                        <div className="w-56 h-24 mb-2">
                             <img src="/logo.png" alt="Company Logo" className="w-full h-full object-contain" />
                         </div>
-                        <h2 className="text-xl font-black uppercase text-teal-800 tracking-wider underline decoration-2 underline-offset-8 decoration-teal-600">Return Note</h2>
+                        <h2 className="text-xl font-black uppercase text-gray-800 tracking-wider underline decoration-2 underline-offset-8 decoration-[#0f766e]">Return Note</h2>
                     </div>
 
                     {/* Right: Address Info */}
-                    <div className="w-[30%] text-[8pt] text-gray-700 space-y-0.5 pt-2 text-right">
+                    <div className="w-[35%] text-[8pt] text-gray-700 space-y-0.5 pt-2 text-right">
                         <p>C.R. No: 147701</p>
                         <p>P.O. Box: 9044</p>
-                        <p>Zone: 27, Street: 310</p>
-                        <p>Building No: 43</p>
+                        <p>Building No: 64</p>
+                        <p>Street: 3083</p>
+                        <p>Zone: 91</p>
                         <p className="font-semibold text-slate-800">Doha - Qatar</p>
                     </div>
                 </div>
@@ -113,19 +115,18 @@ const ReturnTicketPreview = ({
                     <div className="flex border-b border-gray-400">
                         {/* Top Left: Customer Details */}
                         <div className="w-[60%] border-r border-gray-400 p-3 h-28 flex flex-col justify-center bg-gray-50/30">
-                            <p className="bg-gray-200 inline-block px-1.5 mb-1 text-[9px] font-black text-gray-700 rounded-sm self-start uppercase">CUSTOMER DETAILS</p>
+                            <p className="bg-gray-200 inline-block px-1.5 mb-1 text-[9px] font-black text-gray-700 rounded-sm self-start uppercase">Company Name</p>
                             <p className="font-black uppercase text-lg text-gray-900 ml-1 mt-1">{data.customerName}</p>
-                            {data.referenceNo && <p className="text-[10px] font-bold text-gray-500 ml-1">REF: {data.referenceNo}</p>}
                         </div>
 
                         {/* Top Right: RN Details */}
                         <div className="w-[40%] text-[10px] flex flex-col">
                             <div className="flex border-b border-gray-400 h-7 items-center">
                                 <div className="w-28 p-1 border-r border-gray-400 bg-gray-100/80 font-bold h-full flex items-center px-2">Return Note No.</div>
-                                <div className="flex-grow p-1 font-black pl-3 text-teal-800 text-[11pt]">{data.ticketNo}</div>
+                                <div className="flex-grow p-1 font-black pl-3 text-[#0f766e] text-[11pt]">{data.ticketNo}</div>
                             </div>
                             <div className="flex border-b border-gray-400 h-7 items-center">
-                                <div className="w-28 p-1 border-r border-gray-400 bg-gray-100/80 font-bold h-full flex items-center px-2">Dated</div>
+                                <div className="w-28 p-1 border-r border-gray-400 bg-gray-100/80 font-bold h-full flex items-center px-2">Date</div>
                                 <div className="flex-grow p-1 pl-3 font-semibold">{formatDate(data.returnDate)}</div>
                             </div>
                             <div className="flex border-b border-gray-400 h-7 items-center">
@@ -133,7 +134,7 @@ const ReturnTicketPreview = ({
                                 <div className="flex-grow p-1 pl-3 font-black text-rose-700">{data.invoiceNo || 'N/A'}</div>
                             </div>
                             <div className="flex h-7 items-center">
-                                <div className="w-28 p-1 border-r border-gray-400 bg-gray-100/80 font-bold h-full flex items-center px-2">Vehicle Name</div>
+                                <div className="w-28 p-1 border-r border-gray-400 bg-gray-100/80 font-bold h-full flex items-center px-2 uppercase">Vehicle No</div>
                                 <div className="flex-grow p-1 pl-3 uppercase font-medium">{data.vehicleNo}</div>
                             </div>
                         </div>
@@ -153,7 +154,7 @@ const ReturnTicketPreview = ({
                             </div>
                             <div className="flex">
                                 <div className="w-32 p-1 border-r border-gray-400 font-semibold text-xs text-gray-500 pl-2">Contact Person No</div>
-                                <div className="flex-grow p-1 pl-2 font-medium">{data.deliveredBy?.deliveredByMobile}</div>
+                                <div className="flex-grow p-1 pl-2 font-medium"></div>
                             </div>
                         </div>
 
@@ -161,7 +162,7 @@ const ReturnTicketPreview = ({
                         <div className="w-[40%] text-xs flex flex-col justify-center border-l border-gray-400">
                             <div className="flex items-center h-full">
                                 <div className="w-28 p-1 border-r border-gray-400 bg-gray-100/80 font-bold h-full flex items-center px-2">Driver Name</div>
-                                <div className="flex-grow p-1 pl-3 font-semibold uppercase">{data.deliveredBy?.deliveredByName || ''}</div>
+                                <div className="flex-grow p-1 pl-3 font-semibold uppercase">{data.driverName || ''}</div>
                             </div>
                         </div>
                     </div>
@@ -172,28 +173,26 @@ const ReturnTicketPreview = ({
                     <table className="w-full text-xs">
                         <thead>
                             <tr className="border-b border-gray-400 bg-gray-100/80">
-                                <th className="w-12 border-r border-gray-400 py-1.5 font-black text-gray-800 uppercase text-[9px] tracking-widest">S.No</th>
-                                <th className="border-r border-gray-400 py-1.5 font-black text-gray-800 uppercase text-[9px] tracking-widest text-left pl-3">Description of Goods</th>
-                                <th className="w-24 border-r border-gray-400 py-1.5 font-black text-gray-800 uppercase text-[9px] tracking-widest">Code</th>
-                                <th className="w-20 border-r border-gray-400 py-1.5 font-black text-gray-800 uppercase text-[9px] tracking-widest text-center">Prev Ret</th>
-                                <th className="w-20 border-r border-gray-400 py-1.5 font-black text-gray-800 uppercase text-[9px] tracking-widest text-center underline decoration-teal-600 decoration-2">Ret Qty</th>
-                                <th className="w-20 border-r border-gray-400 py-1.5 font-black text-gray-800 uppercase text-[9px] tracking-widest text-center">Unit</th>
+                                <th className="w-12 border-r border-gray-400 py-2 font-black text-gray-800 uppercase text-[9px] tracking-widest">S.No</th>
+                                <th className="border-r border-gray-400 py-2 font-black text-gray-800 uppercase text-[9px] tracking-widest text-left pl-3">Item & Description</th>
+                                <th className="w-32 border-r border-gray-400 py-2 font-black text-gray-800 uppercase text-[9px] tracking-widest text-left pl-3">Item Code</th>
+                                <th className="w-16 border-r border-gray-400 py-2 font-black text-gray-800 uppercase text-[9px] tracking-widest">Unit</th>
+                                <th className="w-20 border-r border-gray-400 py-2 font-black text-gray-800 uppercase text-[9px] tracking-widest">Qty</th>
+                                <th className="w-32 border-r border-gray-400 py-2 font-black text-gray-800 uppercase text-[9px] tracking-widest text-left pl-3">Remark</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-300">
-                            {filledRows.map((item, idx) => (
-                                <tr key={idx} className="h-10">
-                                    <td className="border-r border-gray-400 text-center text-gray-600 align-middle">{idx + 1}</td>
-                                    <td className="border-r border-gray-400 px-2 font-medium text-gray-900 uppercase align-middle">
-                                        <div className="flex flex-col justify-center">
-                                            <span>{item.name}</span>
-                                            {item.description && <span className="text-[8pt] text-gray-500 italic font-normal">{item.description}</span>}
-                                        </div>
+                             {filledRows.map((item, idx) => (
+                                <tr key={idx} className="min-h-12 align-top">
+                                    <td className="border-r border-gray-400 text-center text-gray-600 py-3">{idx + 1}</td>
+                                    <td className="border-r border-gray-400 px-3 py-3 text-gray-800 uppercase leading-snug">
+                                        <div className="font-black text-[10pt] mb-1">{item.name}</div>
+                                        {item.description && <div className="text-[8.5pt] text-gray-500 font-medium normal-case break-words whitespace-pre-wrap">{item.description}</div>}
                                     </td>
-                                    <td className="border-r border-gray-400 text-center text-gray-600 align-middle">{item.itemCode || '-'}</td>
-                                    <td className="border-r border-gray-400 text-center text-gray-500 align-middle">{item.totalReturnedQty ?? '-'}</td>
-                                    <td className="border-r border-gray-400 text-center font-bold text-teal-800 align-middle">{item.returnQty}</td>
-                                    <td className="border-r border-gray-400 text-center text-gray-600 uppercase align-middle">{item.unit}</td>
+                                    <td className="border-r border-gray-400 px-3 py-3 font-bold text-gray-700 uppercase break-all text-[9px]">{item.itemCode || '-'}</td>
+                                    <td className="border-r border-gray-400 text-center text-gray-600 uppercase py-3 font-bold">{item.unit}</td>
+                                    <td className="border-r border-gray-400 text-center font-black text-[11pt] py-3 text-[#0f766e]">{item.returnQty}</td>
+                                    <td className="border-r border-gray-400 px-3 py-3 text-gray-600 italic break-words"></td>
                                 </tr>
                             ))}
                             {/* Empty Filler Rows */}
@@ -209,10 +208,12 @@ const ReturnTicketPreview = ({
                             ))}
                         </tbody>
                     </table>
-                    <div className="mt-auto border-t border-gray-400 flex text-xs font-bold h-8 items-center bg-gray-50">
-                        <div className="flex-grow text-right pr-4 border-r border-gray-400 h-full flex items-center justify-end">Total Returned</div>
-                        <div className="w-20 text-center h-full flex items-center justify-center bg-white text-teal-800 text-sm">{totalReturnQty}</div>
-                        <div className="w-[160px] h-full bg-white"></div>
+                    <div className="mt-auto border-t border-gray-400 flex text-xs font-black h-12 items-center bg-gray-50 uppercase tracking-widest">
+                        <div className="flex-grow text-right pr-6 border-r border-gray-400 h-full flex items-center justify-end text-gray-500">Total Returned Volume</div>
+                        <div className="w-[110px] h-full bg-white flex items-center justify-center">
+                            <div className="w-16 text-center text-[#0f766e] text-lg tabular-nums font-black">{totalReturnQty}</div>
+                        </div>
+                        <div className="w-32 h-full bg-white border-l border-gray-400"></div>
                     </div>
                 </div>
                 <div className="text-right text-[8pt] font-bold italic mb-6">E & O.E</div>
@@ -225,7 +226,7 @@ const ReturnTicketPreview = ({
                         <div className="w-1/2 flex flex-col gap-3">
                             <div className="flex items-end">
                                 <span className="w-28 flex-shrink-0">DELIVERED BY:</span>
-                                <span className="flex-grow border-b border-dotted border-gray-600 px-2 text-slate-900">{data.deliveredBy?.deliveredByName}</span>
+                                <span className="flex-grow border-b border-dotted border-gray-600 px-2 text-slate-900">{data.deliveredBy?.deliveredByName || ''}</span>
                             </div>
                             <div className="flex items-end">
                                 <span className="w-28 flex-shrink-0">MOB NO:</span>
@@ -236,46 +237,55 @@ const ReturnTicketPreview = ({
                                 <span className="flex-grow border-b border-dotted border-gray-600 px-2">{formatDate(data.deliveredBy?.deliveredDate)}</span>
                             </div>
                             <div className="flex items-end mt-2">
-                                <span className="w-28 flex-shrink-0">SIGNATURE:</span>
-                                <div className="flex-grow border-b border-dotted border-gray-600 h-8"></div>
+                                <span className="w-28 flex-shrink-0 text-gray-400 text-[9px] font-black uppercase">SIGNATURE:</span>
+                                <div className="flex-grow border-b border-dotted border-gray-600 h-6"></div>
                             </div>
                         </div>
 
                         {/* Right: Received By (AKOD) */}
                         <div className="w-1/2 flex flex-col gap-3">
                             <div className="flex items-end">
-                                <span className="w-28 flex-shrink-0">RECEIVED BY:</span>
-                                <span className="flex-grow border-b border-dotted border-gray-600 px-2 text-slate-900">{data.receivedBy?.receivedByName}</span>
+                                <span className="w-28 flex-shrink-0 text-gray-400 text-[9px] font-black uppercase">RECEIVED BY:</span>
+                                <span className="flex-grow border-b border-dotted border-gray-600 px-2 text-slate-900 font-black truncate">{data.receivedBy?.receivedByName}</span>
                             </div>
                             <div className="flex items-end">
-                                <span className="w-28 flex-shrink-0">MOB NO:</span>
-                                <span className="flex-grow border-b border-dotted border-gray-600 px-2">{data.receivedBy?.receivedByMobile}</span>
+                                <span className="w-28 flex-shrink-0 text-gray-400 text-[9px] font-black uppercase">MOB NO:</span>
+                                <span className="flex-grow border-b border-dotted border-gray-600 px-2 font-black">{data.receivedBy?.receivedByMobile}</span>
                             </div>
                             <div className="flex items-end">
-                                <span className="w-28 flex-shrink-0">DATE:</span>
+                                <span className="w-28 flex-shrink-0 text-gray-400 text-[9px] font-black uppercase">DATE:</span>
                                 <span className="flex-grow border-b border-dotted border-gray-600 px-2">{formatDate(data.receivedBy?.receivedDate)}</span>
                             </div>
                             <div className="flex items-end mt-2">
-                                <span className="w-28 flex-shrink-0">SIGNATURE:</span>
-                                <div className="flex-grow border-b border-dotted border-gray-600 h-8"></div>
+                                <span className="w-28 flex-shrink-0 text-gray-400 text-[9px] font-black uppercase">SIGNATURE:</span>
+                                <div className="flex-grow border-b border-dotted border-gray-600 h-6"></div>
                             </div>
                         </div>
                     </div>
 
                     {/* Disclaimer */}
-                    <div className="mt-8 text-[7pt] text-gray-500 text-center">
+                    <div className="mt-8 text-[7pt] text-gray-500 text-center font-bold uppercase tracking-widest">
                         RECEIVED ABOVE ITEMS IN GOOD CONDITION.
                     </div>
                 </div>
 
-                {/* 5. Company Footer - Solid Red Bar */}
-                <div className="mt-2 text-center text-white font-sans bg-[#0f766e] py-2 -mx-10 px-10 mb-[-32px]">
-                    <div className="flex flex-col gap-1 text-[8pt] font-medium leading-tight">
-                        <div>
-                            Mob: +974 3030 3613 | Tel: +974 4421 4042 | E-mail: info@proservets.com
+                {/* 5. Company Footer - Solid Bar */}
+                <div className="mt-4 text-center text-white font-sans bg-[#0f766e] py-4 -mx-10 px-10 mb-[-32px]">
+                    <div className="flex flex-col gap-1.5 text-[8.5pt] font-bold leading-tight tracking-wide">
+                        <div className="flex items-center justify-center gap-4">
+                            <span>Mob: +974 3030 3613</span>
+                            <span className="w-1 h-1 bg-teal-400 rounded-full" />
+                            <span>Tel: +974 4421 4042</span>
+                            <span className="w-1 h-1 bg-teal-400 rounded-full" />
+                            <span>E-mail: info@proservets.com</span>
+                            <span className="w-1 h-1 bg-teal-400 rounded-full" />
+                            <span>Website: www.proservets.com</span>
                         </div>
-                        <div className="border-t border-teal-400 pt-1 mt-0.5 opacity-90 text-[7pt]">
-                            C.R.No: 147701 | P.O.Box: 9044 | Zone: 27, Street: 310, Bldg: 43 | Doha - Qatar
+                        <div className="border-t border-teal-400/30 pt-2 mt-1 opacity-90 text-[7pt] font-black uppercase tracking-widest flex items-center justify-center gap-6">
+                            <span>C.R. No: 147701</span>
+                            <span>P.O. Box: 9044</span>
+                            <span>Bldg No: 64, Street: 3083, Zone: 91</span>
+                            <span>Doha - Qatar</span>
                         </div>
                     </div>
                 </div>

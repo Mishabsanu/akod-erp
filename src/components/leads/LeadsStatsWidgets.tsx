@@ -4,8 +4,7 @@ import React from 'react';
 import { 
   Users, 
   MessageSquare, 
-  FileText, 
-  CheckCircle2, 
+  PhoneCall, 
   Clock, 
   TrendingUpIcon
 } from 'lucide-react';
@@ -30,19 +29,19 @@ const LeadsStatsWidgets: React.FC<StatsProps> = ({ stats, loading }) => {
       color: 'bg-sky-50 text-sky-600 border-sky-100',
     },
     {
-      label: 'Verified Content',
-      value: stats['Contacted'] || 0,
-      icon: CheckCircle2,
+      label: 'Call Required',
+      value: stats['Call Required'] || 0,
+      icon: PhoneCall,
       color: 'bg-emerald-50 text-emerald-600 border-emerald-100',
     },
     {
-      label: 'Fiscal Proposals',
-      value: stats['Quotation Sent'] || 0,
-      icon: FileText,
+      label: 'Today Follow-up',
+      value: stats['Today Follow-up'] || 0,
+      icon: Clock,
       color: 'bg-amber-50 text-amber-600 border-amber-100',
     },
     {
-      label: 'Market Interest',
+      label: 'Interested',
       value: stats['Interested'] || 0,
       icon: TrendingUpIcon,
       color: 'bg-indigo-50 text-indigo-600 border-indigo-100',
@@ -69,7 +68,7 @@ const LeadsStatsWidgets: React.FC<StatsProps> = ({ stats, loading }) => {
             </h3>
           </div>
           <div className={`w-14 h-14 rounded-2xl border-2 flex items-center justify-center transition-transform group-hover:rotate-6 shadow-sm ${card.color}`}>
-            {card.label === 'Market Interest' ? <TrendingIcon /> : <card.icon size={28} strokeWidth={2.5} />}
+            {card.label === 'Interested' ? <TrendingIcon /> : <card.icon size={28} strokeWidth={2.5} />}
           </div>
         </div>
       ))}

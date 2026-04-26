@@ -103,7 +103,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
             disabled={isLoading}
             className="px-8 py-2.5 bg-[#0f766e] text-white rounded-xl font-bold text-sm shadow-lg shadow-teal-900/20 hover:bg-[#134e4a] transition-all active:scale-95 disabled:opacity-50"
           >
-            {isLoading ? 'Syncing...' : (isEditMode ? 'Authorize Sync' : 'Finalize Catalog Entry')}
+            {isLoading ? 'Syncing...' : (isEditMode ? 'Update' : 'Save')}
           </button>
         </div>
       </div>

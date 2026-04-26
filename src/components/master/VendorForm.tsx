@@ -109,7 +109,7 @@ const VendorForm: React.FC<VendorFormProps> = ({
             disabled={formik.isSubmitting}
             className="px-8 py-2.5 bg-[#0f766e] text-white rounded-xl font-bold text-sm shadow-lg shadow-teal-900/20 hover:bg-[#134e4a] transition-all active:scale-95 disabled:opacity-50"
           >
-            {isEditMode ? 'Save Updates' : 'Initialize Vendor'}
+            {isEditMode ? 'Update' : 'Save'}
           </button>
         </div>
       </div>

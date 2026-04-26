@@ -303,7 +303,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ initialData, onSubmit, onCanc
               }`}
             >
               <Receipt size={18} />
-              {isEditMode ? 'Update Invoice' : 'Save Invoice'}
+              {isEditMode ? 'Update' : 'Save'}
             </button>
           </div>
         </form>

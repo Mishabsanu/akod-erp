@@ -151,7 +151,7 @@ const FactoryForm: React.FC<FactoryFormProps> = ({ initialData, onSubmit, onCanc
               className="px-8 py-2.5 bg-[#0f766e] text-white rounded-xl font-bold text-sm shadow-lg shadow-teal-900/20 hover:bg-[#134e4a] transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2"
             >
               {formik.isSubmitting ? <Clock size={16} className="animate-spin" /> : <FileText size={16} />}
-              {isEditMode ? 'Save Cycle' : 'Initialize Batch'}
+              {isEditMode ? 'Update' : 'Save'}
             </button>
           </div>
         </div>

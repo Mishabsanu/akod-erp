@@ -38,7 +38,7 @@ interface RunningOrderFormProps {
 
 const validationSchema = Yup.object().shape({
     order_number: Yup.string().required('Required'),
-    invoice_number: Yup.string().optional(),
+    invoice_number: Yup.string().required('Required'),
     ordered_date: Yup.string().required('Required'),
     transaction_type: Yup.string().oneOf(['Sale', 'Hire', 'Contract'], 'Invalid').required('Required'),
     items: Yup.array().of(
@@ -73,7 +73,7 @@ const RunningOrderForm: React.FC<RunningOrderFormProps> = ({
                 if (customerData?.customers) {
                     setCustomers(customerData.customers.map((c: any) => ({ value: c.name, label: c.name })));
                 }
-                
+                                
                 const stockMap: Record<string, number> = {};
                 stockData.forEach(item => {
                     if (item.productId) {
@@ -100,10 +100,12 @@ const RunningOrderForm: React.FC<RunningOrderFormProps> = ({
             order_number: initialData?.order_number || '',
             invoice_number: initialData?.invoice_number || '',
             po_number: initialData?.po_number || '',
+            sales_person: initialData?.sales_person || '',
             ordered_date: initialData?.ordered_date ? new Date(initialData.ordered_date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
             items: initialData?.items || [{ productId: '', name: '', itemCode: '', description: '', unit: '', quantity: 1 }],
             status: initialData?.status || 'Order placed',
             transaction_type: initialData?.transaction_type || 'Sale',
+            project_location: initialData?.project_location || '',
         },
         validationSchema,
         enableReinitialize: true,
@@ -123,7 +125,6 @@ const RunningOrderForm: React.FC<RunningOrderFormProps> = ({
                 productId: product._id || productId,
                 name: product.name,
                 itemCode: product.itemCode,
-                description: product.description,
                 unit: product.unit
             };
             formik.setFieldValue('items', items);
@@ -138,72 +139,44 @@ const RunningOrderForm: React.FC<RunningOrderFormProps> = ({
                 eyebrow="Inventory Logistics"
                 title={isEditMode ? 'Modify' : 'Launch'}
                 highlight="Running Order"
-                description="Streamlined product fulfillment tracker. Define your items and monitor statuses across the production lifecycle."
+                description="Track your delivery status, return status and manage your orders."
                 className="mb-12"
             />
 
             <FormikProvider value={formik}>
                 <form onSubmit={formik.handleSubmit} className="space-y-10">
-                    
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                        
+                    <div className="grid grid-cols-1 gap-8">
                         <Section title="Basic Information" eyebrow="Order Registry">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <FormikSelect 
-                                    label="Company Name" 
-                                    name="company_name" 
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <FormikSelect  
+                                    label="Company Name"  
+                                    name="company_name"  
                                     options={customers}
                                     required
                                 />
-                                <FormikInput 
-                                    label="Client Name" 
-                                    name="client_name" 
-                                />
-                                <div className="relative group">
-                                    <FormikInput 
-                                        label="Order Number (Auto)" 
-                                        name="order_number" 
-                                        placeholder="RO-0000"
-                                        required
-                                        readOnly
-                                        suffix={<FileText size={14} className="text-gray-300" />}
-                                    />
-                                    {!isEditMode && (
-                                        <button
-                                            type="button"
-                                            onClick={async () => {
-                                                setIsSyncingNo(true);
-                                                const nextNo = await getLatestRunningOrderNo();
-                                                formik.setFieldValue('order_number', nextNo);
-                                                setIsSyncingNo(false);
-                                                toast.success('Order number synchronized');
-                                            }}
-                                            className="absolute right-10 top-[34px] p-1 text-slate-400 hover:text-[#0f766e] transition-colors"
-                                            title="Sync Latest Order Number"
-                                        >
-                                            <RefreshCcw size={14} className={isSyncingNo ? 'animate-spin' : ''} />
-                                        </button>
-                                    )}
-                                </div>
-                                <FormikInput 
-                                    label="Invoice Number" 
-                                    name="invoice_number" 
+                                                              
+                                <FormikInput  
+                                    label="Invoice Number"  
+                                    name="invoice_number"  
                                     placeholder="INV-0000"
+                                    required
                                     suffix={<FileText size={14} className="text-gray-300" />}
                                 />
-                                <FormikInput 
-                                    label="Order Date" 
-                                    name="ordered_date" 
+                                <FormikInput  
+                                    label="Order Date"  
+                                    name="ordered_date"  
                                     type="date"
                                     required
                                 />
-                                <FormikInput 
-                                    label="PO Number" 
-                                    name="po_number" 
+                                <FormikInput  
+                                    label="PO Number"  
+                                    name="po_number"  
                                     placeholder="PO-0000"
                                     suffix={<Hash size={14} className="text-gray-300" />}
                                 />
                                 <FormikSelect
-                                    label="Material Transaction Type"
+                                    label="Service Type"
                                     name="transaction_type"
                                     options={[
                                         { value: 'Sale', label: 'Sale' },
@@ -212,42 +185,24 @@ const RunningOrderForm: React.FC<RunningOrderFormProps> = ({
                                     ]}
                                     required
                                 />
-                            </div>
-                        </Section>
-
-                        <Section title="Delivery & Status" eyebrow="Logistics Management">
-                            <div className="space-y-6">
-                                <FormikSelect
-                                    label="Execution Status"
-                                    name="status"
-                                    options={[
-                                        { value: 'Order placed', label: 'Order placed' },
-                                        { value: 'Production going on', label: 'Production going on' },
-                                        { value: 'Ready to dispatch', label: 'Ready to dispatch' },
-                                        { value: 'Loaded', label: 'Loaded' },
-                                        { value: 'On the way to port', label: 'On the way to port' },
-                                        { value: 'Arrive at port', label: 'Arrive at port' },
-                                        { value: 'Depart from port', label: 'Depart from port' },
-                                        { value: 'In transit to destination', label: 'In transit to destination' },
-                                        { value: 'Arrived at destination', label: 'Arrived at destination' },
-                                        { value: 'Completed', label: 'Completed' },
-                                    ]}
+                                <FormikInput
+                                    label="Project Location"
+                                    name="project_location"
+                                    placeholder="Enter project location"
                                     required
                                 />
-                                <div className="p-6 bg-[#0f766e]/5 rounded-2xl border border-[#0f766e]/10">
-                                    <p className="text-[10px] font-black text-[#0f766e] uppercase tracking-widest mb-2 flex items-center gap-2">
-                                        <Layers size={12} />
-                                        Contextual Metadata
-                                    </p>
-                                    <p className="text-xs text-gray-500 font-medium leading-relaxed italic">
-                                        Monitor the production lifecycle. Changes to status will be reflected in the detailed timeline view.
-                                    </p>
-                                </div>
+                                  <FormikInput
+                                    label="Sales Person"  
+                                    name="sales_person"  
+                                    placeholder="Enter sales person name"
+                                    required
+                                />
                             </div>
                         </Section>
+
                     </div>
 
-                    <Section title="Inventory Manifest" eyebrow="Line Items" highlight="Items">
+                    <Section title="Order" eyebrow="Line Items" highlight="Items">
                         <FieldArray name="items">
                             {({ push, remove }) => (
                                 <div className="overflow-x-auto">
@@ -256,8 +211,7 @@ const RunningOrderForm: React.FC<RunningOrderFormProps> = ({
                                             <tr className="bg-[#f8f9fc] text-[11px] font-black uppercase tracking-[0.1em] text-gray-500">
                                                 <th className="p-4 w-12 text-center rounded-l-xl">S.No</th>
                                                 <th className="p-4 min-w-[350px] text-left">Product & Code</th>
-                                                <th className="p-4 w-40 text-center">Available Stock</th>
-                                                <th className="p-4 min-w-[200px] text-left">Manual Description</th>
+                                                <th className="p-4 min-w-[200px] text-left">Description</th>
                                                 <th className="p-4 w-28 text-center">Unit</th>
                                                 <th className="p-4 w-32 text-center text-[#0f766e]">Quantity</th>
                                                 <th className="p-4 w-16 text-center rounded-r-xl">Action</th>
@@ -273,9 +227,9 @@ const RunningOrderForm: React.FC<RunningOrderFormProps> = ({
                                                         <div className="space-y-2">
                                                             <FormikSelect
                                                                 name={`items.${index}.productId`}
-                                                                options={products.map(p => ({ 
-                                                                    value: p._id, 
-                                                                    label: `${p.name} ${availableStock[p._id] !== undefined ? `(Stock: ${availableStock[p._id]})` : ''}` 
+                                                                options={products.map(p => ({  
+                                                                    value: p._id,  
+                                                                    label: `${p.name} ${availableStock[p._id] !== undefined ? `(Stock: ${availableStock[p._id]})` : ''}`  
                                                                 }))}
                                                                 onChange={(e) => {
                                                                     formik.handleChange(e);
@@ -283,33 +237,23 @@ const RunningOrderForm: React.FC<RunningOrderFormProps> = ({
                                                                 }}
                                                             />
                                                             {item.itemCode && (
-                                                                <div className="flex items-center gap-2 px-2 mt-1">
-                                                                    <Hash size={10} className="text-gray-400" />
-                                                                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{item.itemCode}</span>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    </td>
-                                                    <td className="p-4 border-b border-gray-50">
-                                                        <div className="flex justify-center">
-                                                            {availableStock[item.productId] !== undefined ? (
-                                                                <div className={`inline-flex flex-col items-center gap-1 px-4 py-2 rounded-2xl border transition-all
-                                                                    ${availableStock[item.productId] > 0 
-                                                                        ? (Number(item.quantity) > availableStock[item.productId] 
-                                                                            ? 'bg-rose-50 border-rose-200 text-rose-700 animate-pulse outline outline-2 outline-rose-500/20' 
-                                                                            : 'bg-emerald-50 border-emerald-100 text-emerald-700') 
-                                                                        : 'bg-slate-50 border-slate-200 text-slate-400 opacity-60'}
-                                                                `}>
-                                                                    <span className="text-[10px] font-black uppercase tracking-widest leading-none">In Stock</span>
-                                                                    <span className="text-sm font-black tracking-tighter">
-                                                                        {availableStock[item.productId].toLocaleString()}
-                                                                    </span>
-                                                                    {Number(item.quantity) > availableStock[item.productId] && availableStock[item.productId] > 0 && (
-                                                                        <span className="text-[8px] font-black uppercase text-rose-500 tracking-tighter mt-1 italic">Stock Exceeded!</span>
+                                                                <div className="flex items-center justify-between px-2 mt-1">
+                                                                    <div className="flex items-center gap-2">
+                                                                        <Hash size={10} className="text-gray-400" />
+                                                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{item.itemCode}</span>
+                                                                    </div>
+                                                                    {availableStock[item.productId] !== undefined && (
+                                                                        <span className={`text-[9px] font-black uppercase tracking-tighter px-2 py-0.5 rounded-full border
+                                                                            ${availableStock[item.productId] > 0 
+                                                                                ? (Number(item.quantity) > availableStock[item.productId] 
+                                                                                    ? 'bg-rose-50 border-rose-200 text-rose-700' 
+                                                                                    : 'bg-emerald-50 border-emerald-100 text-emerald-700') 
+                                                                                : 'bg-slate-50 border-slate-200 text-slate-400 opacity-60'}
+                                                                        `}>
+                                                                            Available: {availableStock[item.productId].toLocaleString()}
+                                                                        </span>
                                                                     )}
                                                                 </div>
-                                                            ) : (
-                                                                <div className="text-[10px] font-black text-slate-300 uppercase tracking-widest italic">Not Checked</div>
                                                             )}
                                                         </div>
                                                     </td>
@@ -318,8 +262,8 @@ const RunningOrderForm: React.FC<RunningOrderFormProps> = ({
                                                             name={`items.${index}.description`}
                                                             value={item.description}
                                                             onChange={formik.handleChange}
-                                                            placeholder="Enter item specifications..."
-                                                            className="w-full min-h-[44px] p-3 text-xs font-medium text-gray-600 bg-gray-50/50 rounded-xl border border-transparent focus:bg-white focus:border-teal-200 outline-none transition-all resize-none italic"
+                                                            placeholder="Enter detailed specifications or long description..."
+                                                            className="w-full min-h-[44px] p-3 text-xs font-medium text-gray-600 bg-white rounded-xl border border-slate-200 focus:border-[#0f766e] focus:ring-1 focus:ring-[#0f766e]/10 outline-none transition-all italic shadow-sm resize-y"
                                                         />
                                                     </td>
                                                     <td className="p-4 border-b border-gray-50">
@@ -337,7 +281,7 @@ const RunningOrderForm: React.FC<RunningOrderFormProps> = ({
                                                                 className={`w-full h-11 px-3 border rounded-xl text-center font-black transition-all outline-none
                                                                     ${Number(item.quantity) > (availableStock[item.productId] || 0) && (availableStock[item.productId] !== undefined)
                                                                         ? 'bg-rose-50 border-rose-300 text-rose-700'
-                                                                        : 'bg-teal-50/30 border-teal-100/50 text-[#0f766e] focus:bg-white focus:border-[#0f766e]'
+                                                                        : 'bg-white border-slate-200 text-[#0f766e] focus:border-[#0f766e] focus:ring-1 focus:ring-[#0f766e]/10'
                                                                     }
                                                                 `}
                                                             />
@@ -360,7 +304,7 @@ const RunningOrderForm: React.FC<RunningOrderFormProps> = ({
                                             ))}
                                         </tbody>
                                     </table>
-                                    
+                                                                        
                                     <div className="mt-8 flex justify-between items-center bg-white p-6 rounded-2xl border border-dashed border-gray-200">
                                         <button
                                             type="button"
@@ -371,7 +315,7 @@ const RunningOrderForm: React.FC<RunningOrderFormProps> = ({
                                             Add line item
                                         </button>
                                         <div className="text-right">
-                                            <span className="block text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">Total Manifest Units</span>
+                                            <span className="block text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">Total Qty</span>
                                             <span className="text-xl font-bold text-gray-800">
                                                 {formik.values.items.reduce((sum, item) => sum + (Number(item.quantity) || 0), 0)} Qty
                                             </span>
@@ -388,7 +332,7 @@ const RunningOrderForm: React.FC<RunningOrderFormProps> = ({
                             onClick={onCancel}
                             className="text-sm font-black text-gray-400 uppercase tracking-widest hover:text-gray-600 transition-colors"
                         >
-                            Discard Changes
+                            Cancel
                         </button>
                         <button
                             type="submit"
@@ -401,7 +345,7 @@ const RunningOrderForm: React.FC<RunningOrderFormProps> = ({
                                 <Save size={20} strokeWidth={3} />
                             )
                             }
-                            <span>{isEditMode ? 'Authorize Update' : 'Initialize Order'}</span>
+                            <span>{isEditMode ? 'Update' : 'Save'}</span>
                         </button>
                     </div>
 
