@@ -216,18 +216,6 @@ const RunningOrdersPage = () => {
                             <BarChart2 className="w-4 h-4" />
                         </button>
                     )}
-                    {can('running_order', 'view') && (
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                router.push(`/running-order/${(order as any)._id}`);
-                            }}
-                            className="w-9 h-9 flex items-center justify-center text-sky-600 hover:text-sky-700 hover:bg-sky-50 rounded-lg transition-all border border-gray-100 hover:border-sky-200"
-                            title="View"
-                        >
-                            <Eye className="w-4 h-4" />
-                        </button>
-                    )}
                     {can('running_order', 'update') && (
                         <button
                             onClick={(e) => {
@@ -294,7 +282,7 @@ const RunningOrdersPage = () => {
                         : 'text-gray-400 hover:text-gray-600'
                     }`}
                 >
-                    Pending & Partially
+                    Ongoing Orders
                 </button>
                 <button
                     onClick={() => setActiveTab('completed')}

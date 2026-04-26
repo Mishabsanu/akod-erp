@@ -14,7 +14,7 @@ import {
 } from '@/services/returnTicketApi';
 import { getRunningOrderById, getRunningOrdersDropdown } from '@/services/runningOrderApi';
 import { FieldArray, FormikProvider, useFormik } from 'formik';
-import { FilePlus } from 'lucide-react';
+import { FilePlus, Trash2, Save, ChevronLeft, CheckCircle2 } from 'lucide-react';
 import { useEffect, useState, useMemo } from 'react';
 import * as Yup from 'yup';
 import { FormikPhoneInput } from './shared/FormikPhoneInput';
@@ -242,12 +242,17 @@ const ReturnTicketForm = ({
 
     const customer = customers.find(c => c.value === formik.values.customerId);
     if (customer) {
-      const filtered = runningOrders.filter(ro =>
-        (ro.company_name && ro.company_name === customer.label) ||
-        (ro.client_name && ro.client_name === customer.label)
-      );
-      // If no invoices found for this specific customer, show all to avoid "empty dropdown" confusion
-      return filtered.length > 0 ? filtered : runningOrders;
+      return runningOrders.filter(ro => {
+        // Condition 1: Must match Company Name
+        const isCustomerMatch = (ro.company_name && ro.company_name === customer.label) ||
+          (ro.client_name && ro.client_name === customer.label);
+
+        // Condition 2: Filter out Hire, Contract and Completed status for Returns
+        const isEligibleType = ro.transaction_type !== 'Hire' && ro.transaction_type !== 'Contract';
+        const isNotCompleted = ro.status !== 'Completed';
+
+        return isCustomerMatch && isEligibleType && isNotCompleted;
+      });
     }
     return runningOrders;
   }, [formik.values.customerId, runningOrders, customers]);
@@ -374,8 +379,8 @@ const ReturnTicketForm = ({
               customerId: deliveryTicket.customerId || formik.values.customerId,
               customerName: deliveryTicket.customerName || formik.values.customerName,
               parentTicketNo: deliveryTicket.ticketNo,
-              subject: deliveryTicket.subject || formik.values.subject,
-              projectLocation: deliveryTicket.projectLocation || formik.values.projectLocation,
+              subject: formik.values.subject,
+              projectLocation: formik.values.projectLocation,
               noteCategory: deliveryTicket.noteCategory || formik.values.noteCategory,
               vehicleNo: deliveryTicket.vehicleNo || formik.values.vehicleNo,
               invoiceNo: deliveryTicket.invoiceNo || formik.values.invoiceNo,
@@ -491,8 +496,6 @@ const ReturnTicketForm = ({
                     // Populate basic fields immediately
                     formik.setFieldValue('poNo', selected.po_number || '');
                     formik.setFieldValue('invoiceNo', selected.invoice_number);
-                    formik.setFieldValue('subject', selected.location_from || '');
-                    formik.setFieldValue('projectLocation', selected.location_to || '');
                     formik.setFieldValue('noteCategory', selected.transaction_type || 'Sale');
 
                     // This poNo update will trigger the autoFillFromPO useEffect for products
@@ -515,24 +518,23 @@ const ReturnTicketForm = ({
               <FormikInput label="Ticket No" name="ticketNo" readOnly />
 
               <FormikInput
-                label="Reference No"
+                label="Reference"
                 name="referenceNo"
                 disabled={isPoSelected}
               />
-              <FormikInput
-                label="Subject"
+              <FormikSelect
+                label="Delivery To"
                 name="subject"
+                options={LOCATION_OPTIONS}
                 required
-                disabled={isPoSelected}
               />
               <FormikInput
                 label="Project Location"
                 name="projectLocation"
                 required
-                disabled={isPoSelected}
               />
               <FormikSelect
-                label="Category"
+                label="Service Type"
                 name="noteCategory"
                 options={[
                   { value: 'Sale', label: 'Sale' },
@@ -543,7 +545,7 @@ const ReturnTicketForm = ({
                 required
                 disabled={isPoSelected}
               />
-                 <FormikInput
+              <FormikInput
                 label="Vehicle No"
                 name="vehicleNo"
                 disabled={isPoSelected}
@@ -562,13 +564,12 @@ const ReturnTicketForm = ({
                   <table className="akod-table whitespace-nowrap">
                     <thead>
                       <tr>
-                         <th className="p-2 border border-gray-200">S.No</th>
-                         <th className="p-2 border border-gray-200 min-w-[250px]">Product / Unit</th>
-                         <th className="p-2 border border-gray-200 min-w-[80px]">Item Code</th>
-                         <th className="p-2 border border-gray-200 min-w-[80px]">Delivered Qty</th>
-                         <th className="p-2 border border-gray-200 min-w-[80px] font-black text-teal-800 text-center">Return Qty</th>
-                         <th className="p-2 border border-gray-200 min-w-[400px]">Remarks</th>
-                         <th className="p-2 border border-gray-200">Actions</th>
+                        <th className="p-2 border border-gray-200">S.No</th>
+                        <th className="p-2 border border-gray-200 min-w-[350px]">Item & Code</th>
+                        <th className="p-2 border border-gray-200 min-w-[100px]">Delivered Qty</th>
+                        <th className="p-2 border border-gray-200 min-w-[80px] font-black text-teal-800 text-center">Return Qty</th>
+                        <th className="p-2 border border-gray-200 min-w-[400px]">Remarks</th>
+                        <th className="p-2 border border-gray-200">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -590,22 +591,12 @@ const ReturnTicketForm = ({
                                   readOnly
                                   className="font-bold border-none bg-transparent h-auto py-0 shadow-none mb-0 text-sm"
                                 />
-                                {row.unit && (
-                                  <div className="px-1">
-                                    <span className="text-[10px] font-black text-teal-600 uppercase bg-teal-50 px-2 py-0.5 rounded border border-teal-100">
-                                      Unit: {row.unit}
-                                    </span>
+                                {row.itemCode && (
+                                  <div className="text-[10px] font-medium text-gray-500 uppercase tracking-tight pl-1">
+                                    Code: {row.itemCode}
                                   </div>
                                 )}
                               </div>
-                            </td>
-                            <td className="p-2 border border-gray-200">
-                              <FormikInput
-                                label=""
-                                name={`items.${idx}.itemCode`}
-                                readOnly
-                                className="border-none bg-transparent h-auto py-0 shadow-none mb-0 text-xs text-gray-500"
-                              />
                             </td>
                             <td className="p-2 border border-gray-200">
                               <div className="flex flex-col">
@@ -616,9 +607,12 @@ const ReturnTicketForm = ({
                                   readOnly
                                   className="text-center font-bold bg-gray-50"
                                 />
-                                <div className="flex justify-center mt-1">
+                                <div className="flex justify-center mt-1 gap-2">
+                                  <span className="text-[9px] font-black px-1.5 rounded border bg-teal-50 text-teal-600 border-teal-100 uppercase tracking-tighter whitespace-nowrap">
+                                    {row.unit}
+                                  </span>
                                   <span className="text-[9px] font-black px-1.5 rounded border bg-slate-50 text-slate-500 border-slate-200 uppercase tracking-tighter whitespace-nowrap">
-                                    prev. Return: {previouslyReturned}
+                                    prev: {previouslyReturned}
                                   </span>
                                 </div>
                               </div>
@@ -639,31 +633,38 @@ const ReturnTicketForm = ({
                                 </div>
                               </div>
                             </td>
-                             <td className="p-2 border border-gray-200">
-                               <div className="space-y-1">
-                                 <FormikTextarea
-                                   label=""
-                                   name={`items.${idx}.description`}
-                                   placeholder="Add manual description..."
-                                   rows={2}
-                                   maxLength={80}
-                                   wrapperClassName="mb-0"
-                                 />
-                                 <div className="text-[9px] text-gray-400 font-bold uppercase tracking-tight pl-1">Max 80 Characters</div>
-                               </div>
-                             </td>
-                             <td className="p-2 text-center border border-gray-200">
-                               {/* No actions for return items as they are from source */}
-                             </td>
+                            <td className="p-2 border border-gray-200">
+                              <div className="space-y-1">
+                                <FormikTextarea
+                                  label=""
+                                  name={`items.${idx}.description`}
+                                  placeholder="Add manual description..."
+                                  rows={2}
+                                  maxLength={80}
+                                  wrapperClassName="mb-0"
+                                />
+                                <div className="text-[9px] text-gray-400 font-bold uppercase tracking-tight pl-1">Max 80 Characters</div>
+                              </div>
+                            </td>
+                            <td className="p-2 text-center border border-gray-200">
+                              <button
+                                type="button"
+                                onClick={() => remove(idx)}
+                                className="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"
+                                title="Remove Item"
+                              >
+                                <Trash2 size={18} />
+                              </button>
+                            </td>
                           </tr>
                         );
                       })}
                       {formik.values.items.length === 0 && (
                         <tr>
-                           <td
-                             colSpan={7}
-                             className="p-4 text-center text-gray-500"
-                           >
+                          <td
+                            colSpan={6}
+                            className="p-4 text-center text-gray-500"
+                          >
                             No items added
                           </td>
                         </tr>
@@ -676,20 +677,11 @@ const ReturnTicketForm = ({
           </Section>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            <Section title="Basic Details">
+            <Section title="Delivery Details">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormikSelect
-                  label="Delivered By (Staff)"
+                <FormikInput
+                  label="Delivered By"
                   name="deliveredBy.deliveredByName"
-                  options={STAFF_LIST.map(s => ({ value: s.name, label: s.name }))}
-                  onChange={(e) => {
-                    formik.handleChange(e);
-                    const staff = STAFF_LIST.find(s => s.name === e.target.value);
-                    if (staff) {
-                      const phone = staff.phone.startsWith('+') ? staff.phone : `+974${staff.phone}`;
-                      formik.setFieldValue('deliveredBy.deliveredByMobile', phone);
-                    }
-                  }}
                 />
                 <FormikPhoneInput
                   label="Delivered By Mobile"
@@ -706,9 +698,18 @@ const ReturnTicketForm = ({
 
             <Section title="Receiving Details">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormikInput
-                  label="Received By"
+                <FormikSelect
+                  label="Received By (Staff)"
                   name="receivedBy.receivedByName"
+                  options={STAFF_LIST.map(s => ({ value: s.name, label: s.name }))}
+                  onChange={(e) => {
+                    formik.handleChange(e);
+                    const staff = STAFF_LIST.find(s => s.name === e.target.value);
+                    if (staff) {
+                      const phone = staff.phone.startsWith('+') ? staff.phone : `+974${staff.phone}`;
+                      formik.setFieldValue('receivedBy.receivedByMobile', phone);
+                    }
+                  }}
                   required
                 />
                 <FormikPhoneInput

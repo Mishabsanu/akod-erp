@@ -126,6 +126,7 @@ export interface LineItem {
   totalReturnedQty?: number;
   returnQty?: number;
   returnedQty?: string;
+  orderQty?: number;
 }
 
 export interface QuoteLineItem {

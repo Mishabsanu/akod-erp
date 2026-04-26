@@ -207,12 +207,12 @@ const ViewRunningOrderPage = ({ params: paramsPromise }: ViewRunningOrderPagePro
                 Order Information
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
-                <DetailItem label="Sales Person" value={order.sales_person || '---'} icon={CheckCircle2} />
                 <DetailItem label="Company Name" value={order.company_name || '---'} icon={Truck} />
+                <DetailItem label="Order Date" value={order.ordered_date ? format(new Date(order.ordered_date), 'dd MMM yyyy') : '---'} icon={Calendar} />
                 <DetailItem label="Invoice Number" value={order.invoice_number || '---'} icon={FileText} />
                 <DetailItem label="PO Number" value={order.po_number || '---'} icon={Hash} />
-                <DetailItem label="Order Date" value={order.ordered_date ? format(new Date(order.ordered_date), 'dd MMM yyyy') : '---'} icon={Calendar} />
-                <DetailItem label="Transaction Type" value={order.transaction_type || 'Sale'} icon={Layers} />
+                <DetailItem label="Service Type" value={order.transaction_type || 'Sale'} icon={Layers} />
+                <DetailItem label="Sales Person" value={order.sales_person || '---'} icon={CheckCircle2} />
               </div>
             </div>
 

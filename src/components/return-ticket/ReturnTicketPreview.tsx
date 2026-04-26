@@ -152,10 +152,7 @@ const ReturnTicketPreview = ({
                                 <div className="w-32 p-1 border-r border-gray-400 font-semibold text-xs text-gray-500 pl-2">Subject</div>
                                 <div className="flex-grow p-1 pl-2 font-medium uppercase">{data.subject}</div>
                             </div>
-                            <div className="flex">
-                                <div className="w-32 p-1 border-r border-gray-400 font-semibold text-xs text-gray-500 pl-2">Contact Person No</div>
-                                <div className="flex-grow p-1 pl-2 font-medium"></div>
-                            </div>
+                            
                         </div>
 
                         {/* Middle Right: Driver Info */}

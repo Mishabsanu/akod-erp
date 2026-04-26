@@ -14,6 +14,7 @@ import { Trash2 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import * as Yup from 'yup';
 import { FormikPhoneInput } from './shared/FormikPhoneInput';
+import { toast } from 'sonner';
 
 
 const STAFF_LIST = [
@@ -187,6 +188,7 @@ const DeliveryTicketForm = ({
           availableQty: item.availableQty || '',
           requiredQty: item.requiredQty || '',
           quantity: item.quantity || '',
+          orderQty: item.orderQty || '',
           description: item.description || '', // Ensure description is mapped
         }))
         : [
@@ -198,6 +200,7 @@ const DeliveryTicketForm = ({
             availableQty: '',
             requiredQty: '',
             quantity: '',
+            orderQty: '',
             description: '',
           },
         ],
@@ -265,10 +268,15 @@ const DeliveryTicketForm = ({
   const filteredRunningOrders = useMemo(() => {
     const customer = customers.find(c => c.value === formik.values.customerId);
     if (customer) {
-      return runningOrders.filter(ro =>
-        (ro.company_name && ro.company_name === customer.label) ||
-        (ro.client_name && ro.client_name === customer.label)
-      );
+      return runningOrders.filter(ro => {
+        const isCustomerMatch = (ro.company_name && ro.company_name === customer.label) ||
+          (ro.client_name && ro.client_name === customer.label);
+
+        // Condition: Filter out Completed status for Deliveries
+        const isNotCompleted = ro.status !== 'Completed';
+
+        return isCustomerMatch && isNotCompleted;
+      });
     }
     return [];
   }, [formik.values.customerId, runningOrders, customers]);
@@ -281,6 +289,7 @@ const DeliveryTicketForm = ({
   // File Upload State
   const [signedTicketFile, setSignedTicketFile] = useState<File | null>(null);
   const [supportingDocsFiles, setSupportingDocsFiles] = useState<File[]>([]);
+  const [isFetchingNo, setIsFetchingNo] = useState(false);
 
 
   /* ---------------- APPLY BACKEND ERRORS ---------------- */
@@ -352,11 +361,12 @@ const DeliveryTicketForm = ({
         formik.setFieldValue(`items.${index}.name`, orderItem.name);
         formik.setFieldValue(`items.${index}.itemCode`, orderItem.itemCode);
         formik.setFieldValue(`items.${index}.unit`, orderItem.unit);
-        formik.setFieldValue(`items.${index}.requiredQty`, orderItem.quantity);
-
         const delivered = fulfillmentMap[orderItem.productId?._id || orderItem.productId] || 0;
         const remaining = (orderItem.quantity || 0) - delivered;
-        formik.setFieldValue(`items.${index}.quantity`, remaining > 0 ? remaining : 0);
+
+        formik.setFieldValue(`items.${index}.orderQty`, orderItem.quantity);
+        formik.setFieldValue(`items.${index}.requiredQty`, remaining > 0 ? remaining : 0);
+        formik.setFieldValue(`items.${index}.quantity`, 1);
 
         // Also find available stock from the main product list if needed
         const inventoryProduct = availableProducts.find((p) => {
@@ -381,21 +391,8 @@ const DeliveryTicketForm = ({
     }
   };
 
-  useEffect(() => {
-    if (isEditMode) return;
-    const fetchTicketNo = async () => {
-      try {
-        const res = await GetNextDeliveryTicketNo();
-
-        if (res?.success && res.data) {
-          formik.setFieldValue('ticketNo', res.data);
-        }
-      } catch (error) {
-        console.error('Failed to fetch ticket number', error);
-      }
-    };
-    fetchTicketNo();
-  }, [isEditMode]);
+  // Removed auto-fetch on mount to prevent multi-user race conditions.
+  // Next ticket number will be fetched during Preview.
 
   useEffect(() => {
     if (!availableProducts.length || !formik.values.items.length) return;
@@ -417,6 +414,29 @@ const DeliveryTicketForm = ({
   const handlePreview = async () => {
     const errors = await formik.validateForm();
     if (Object.keys(errors).length === 0) {
+      // If creating new ticket, fetch the latest number right before preview
+      if (!isEditMode) {
+        const loadingNoToast = toast.loading('Generating Ticket Number...');
+        setIsFetchingNo(true);
+        try {
+          const res = await GetNextDeliveryTicketNo();
+          if (res?.success && res.data) {
+            formik.setFieldValue('ticketNo', res.data);
+            toast.dismiss(loadingNoToast);
+          } else {
+            toast.error('Failed to generate ticket number. Please try again.');
+            toast.dismiss(loadingNoToast);
+            return; // Don't proceed to preview if we couldn't get a number
+          }
+        } catch (error) {
+          console.error('Failed to fetch ticket number', error);
+          toast.error('Network error while generating ticket number.');
+          toast.dismiss(loadingNoToast);
+          return;
+        } finally {
+          setIsFetchingNo(false);
+        }
+      }
       setIsPreviewMode(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
@@ -425,7 +445,6 @@ const DeliveryTicketForm = ({
       );
       // Also touch nested fields if any (like items array)
       if (errors.items && Array.isArray(errors.items)) {
-        const touchedItems = errors.items.map(() => true); // Simplified touch for array
         formik.setFieldTouched('items', true);
       }
     }
@@ -496,8 +515,10 @@ const DeliveryTicketForm = ({
               <FormikInput
                 label="Delivery Note No"
                 name="ticketNo"
-                readOnly // Assuming this is auto-generated
+                value={!isEditMode && !formik.values.ticketNo ? 'Auto-generated on Preview' : formik.values.ticketNo}
+                readOnly
                 required
+                className={!isEditMode && !formik.values.ticketNo ? 'text-gray-400 italic font-medium' : 'font-bold text-teal-700'}
               />
 
               <FormikInput
@@ -520,7 +541,7 @@ const DeliveryTicketForm = ({
               />
 
               <FormikInput label="PO Number" name="poNo" readOnly />
-              <FormikInput label="Reference No" name="referenceNo" />
+              <FormikInput label="Reference" name="referenceNo" />
 
               {!isCustomSource ? (
                 <FormikSelect
@@ -596,16 +617,13 @@ const DeliveryTicketForm = ({
                     <thead>
                       <tr>
                         <th className="p-2 border border-gray-200">S.No</th>
-                        <th className="p-2 border border-gray-200 min-w-[250px]">
-                          Product / Unit <span className="text-red-500">*</span>
+                        <th className="p-2 border border-gray-200 min-w-[350px]">
+                          Item & Code <span className="text-red-500">*</span>
                         </th>
-                        <th className="p-2 border border-gray-200 min-w-[80px]">
-                          Item Code <span className="text-red-500">*</span>
-                        </th>
-                        <th className="p-2 border border-gray-200 min-w-[80px]">
+                        <th className="p-2 border border-gray-200 min-w-[100px]">
                           Required Qty <span className="text-red-500">*</span>
                         </th>
-                        <th className="p-2 border border-gray-200 min-w-[80px]">
+                        <th className="p-2 border border-gray-200 min-w-[100px]">
                           Delivered Qty <span className="text-red-500">*</span>
                         </th>
                         <th className="p-2 border border-gray-200 min-w-[400px]">
@@ -645,22 +663,12 @@ const DeliveryTicketForm = ({
                                     handleProductSelection(idx, e.target.value);
                                   }}
                                 />
-                                {item.unit && (
-                                  <div className="px-2">
-                                    <span className="text-[10px] font-black text-teal-600 uppercase bg-teal-50 px-2 py-0.5 rounded border border-teal-100">
-                                      Unit: {item.unit}
-                                    </span>
+                                {item.itemCode && (
+                                  <div className="text-[10px] font-medium text-gray-500 uppercase tracking-tight pl-1">
+                                    Code: {item.itemCode}
                                   </div>
                                 )}
                               </div>
-                            </td>
-
-                            <td className="p-2 border border-gray-200">
-                              <FormikInput
-                                label=""
-                                name={`items.${idx}.itemCode`}
-                                readOnly
-                              />
                             </td>
                             <td className="p-2 border border-gray-200 align-top">
                               <div className="flex flex-col gap-1.5">
@@ -668,12 +676,16 @@ const DeliveryTicketForm = ({
                                   label=""
                                   name={`items.${idx}.requiredQty`}
                                   type="number"
-                                  min={1}
+                                  readOnly
+                                  className="text-center font-bold bg-blue-50/50 border-blue-200 text-blue-700"
                                 />
                                 {item.productId && (
-                                  <div className="flex justify-start">
-                                    <span className={`text-[11px] font-medium px-2 rounded border ${fulfillmentMap[item.productId] ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-gray-50 text-gray-400 border-gray-100'}`}>
-                                      Prev Delivered: {fulfillmentMap[item.productId] || 0} {item.unit || ''}
+                                  <div className="flex flex-wrap gap-2 mt-1">
+                                    <span className={`text-[10px] font-black px-1.5 rounded border uppercase tracking-tighter whitespace-nowrap ${fulfillmentMap[item.productId] ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-gray-50 text-gray-400 border-gray-100'}`}>
+                                      Prev Delivered: {fulfillmentMap[item.productId] || 0}
+                                    </span>
+                                    <span className="text-[10px] font-black px-1.5 rounded border bg-slate-50 text-slate-500 border-slate-200 uppercase tracking-tighter whitespace-nowrap">
+                                      Total Order: {item.orderQty || 0}
                                     </span>
                                   </div>
                                 )}
@@ -692,9 +704,12 @@ const DeliveryTicketForm = ({
 
                                 {/* Available Qty Badge */}
                                 {availableQty !== '' && (
-                                  <div className="flex justify-start mt-1">
-                                    <span className={`text-[11px] font-medium px-2 rounded border ${availableQty > 10 ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
-                                      Stock Available: {availableQty} {item.unit || ''}
+                                  <div className="flex justify-start mt-1 gap-1">
+                                    <span className="text-[10px] font-black px-1.5 rounded border bg-teal-50 text-teal-600 border-teal-100 uppercase tracking-tighter whitespace-nowrap">
+                                      {item.unit}
+                                    </span>
+                                    <span className={`text-[10px] font-medium px-2 rounded border ${availableQty > 10 ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
+                                      Stock: {availableQty}
                                     </span>
                                   </div>
                                 )}
@@ -774,7 +789,7 @@ const DeliveryTicketForm = ({
 
           {/*  DELIVERY INFO */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            <Section title="Basic Details">
+            <Section title="Delivery Details">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormikSelect
                   label="Delivered By"

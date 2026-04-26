@@ -81,12 +81,12 @@ export const Sidebar = () => {
     },
     // Inventory & Logistics Items
     can('delivery_ticket', 'view') && {
-      name: 'Delivery Challan',
+      name: 'Delivery Note',
       icon: Truck,
       href: '/delivery-ticket',
     },
     can('return_ticket', 'view') && {
-      name: 'Return Challan',
+      name: 'Return Note',
       icon: RotateCcw,
       href: '/return-ticket',
     },

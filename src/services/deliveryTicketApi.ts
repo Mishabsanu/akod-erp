@@ -71,7 +71,7 @@ export const updateDeliveryTicket = async (
 };
 export const GetNextDeliveryTicketNo = async () => {
   const { data } =
-    await api.get<ApiResponse<DeliveryTicket>>(`/delivery-tickets/next-ticket-no`);
+    await api.get<ApiResponse<string>>(`/delivery-tickets/next-ticket-no`);
   return data;
 };
 

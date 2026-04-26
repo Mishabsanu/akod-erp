@@ -153,8 +153,8 @@ const ReturnTicketPage = () => {
 
   const columns: Column<ReturnTicket>[] = useMemo(() => {
     const baseColumns: Column<ReturnTicket>[] = [
-      { accessor: 'ticketNo', header: 'Ticket No' },
-      { accessor: 'customerName', header: 'Customer' },
+      { accessor: 'ticketNo', header: 'RN #' },
+      { accessor: 'customerName', header: 'Company' },
 
       { accessor: 'poNo', header: 'PO No' },
       { accessor: 'invoiceNo', header: 'Invoice No' },
@@ -189,15 +189,7 @@ const ReturnTicketPage = () => {
           </span>
         ),
       },
-      {
-        accessor: 'createdAt',
-        header: 'Date Created',
-        render: (ticket: ReturnTicket) => (
-          <span className="text-sm font-medium text-gray-600">
-            {ticket.createdAt ? new Date(ticket.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '--'}
-          </span>
-        ),
-      },
+
     ];
 
     if (can('return_ticket', 'update') || can('return_ticket', 'delete')) {
@@ -206,18 +198,7 @@ const ReturnTicketPage = () => {
         header: 'Actions',
         render: (ticket) => (
           <div className="flex items-center gap-2">
-            {can('return_ticket', 'view') && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (ticket._id) router.push(`/return-ticket/${ticket._id}`);
-                }}
-                className="w-9 h-9 flex items-center justify-center text-gray-500 hover:text-sky-600 hover:bg-sky-50 rounded-lg transition-all border border-gray-100 hover:border-sky-200"
-                title="View"
-              >
-                <Eye className="w-4 h-4" />
-              </button>
-            )}
+       
             {can('return_ticket', 'update') && (
               <button
                 onClick={(e) => {

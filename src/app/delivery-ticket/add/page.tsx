@@ -3,16 +3,18 @@
 import DeliveryTicketForm from '@/components/DeliveryTicketForm';
 import { handleApiError } from '@/app/utils/errorHandler';
 import { DeliveryTicket } from '@/lib/types';
-import { createDeliveryTicket } from '@/services/deliveryTicketApi';
+import { createDeliveryTicket, GetNextDeliveryTicketNo } from '@/services/deliveryTicketApi';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import withAuth from '@/components/withAuth';
+import { useState } from 'react';
 
 const AddDeliveryTicketPage = () => {
   const router = useRouter();
+  const [initialData, setInitialData] = useState<Partial<DeliveryTicket>>({});
 
   const handleSubmit = async (
-    ticketData: Partial<DeliveryTicket>,
+    ticketData: any, // Using any because it's FormData
     { setErrors, setSubmitting }: { setErrors: any; setSubmitting: any }
   ) => {
     const loadingToast = toast.loading('Creating delivery ticket...');
@@ -29,6 +31,32 @@ const AddDeliveryTicketPage = () => {
     } catch (error: any) {
       toast.dismiss(loadingToast);
       const handledError = handleApiError(error);
+      
+      // Check for ticket number collision
+      const errorMessage = handledError.message.toLowerCase();
+      if (errorMessage.includes('already created') || errorMessage.includes('already exists') || errorMessage.includes('ticket no')) {
+        try {
+          const nextNoRes = await GetNextDeliveryTicketNo();
+          if (nextNoRes?.success && nextNoRes.data) {
+            toast.error(`Collision detected: Ticket number was already taken. Updating to ${nextNoRes.data}. Please review and confirm again.`, { duration: 5000 });
+            
+            // Extract current values from FormData to preserve them
+            // Note: This is a bit tricky with FormData, so we just update the ticketNo in initialData
+            // and Formik's enableReinitialize will do the rest if the form values are tied to initialData.
+            setInitialData((prev) => ({
+              ...prev,
+              ticketNo: nextNoRes.data
+            }));
+            
+            // We also need to clear the error for ticketNo if we set it
+            setErrors({ ticketNo: `Already taken. New available: ${nextNoRes.data}` });
+            return;
+          }
+        } catch (fetchError) {
+          console.error('Failed to fetch next ticket number after collision', fetchError);
+        }
+      }
+
       if (handledError.fields) {
         setErrors(handledError.fields);
         toast.error(handledError.message);
@@ -46,6 +74,7 @@ const AddDeliveryTicketPage = () => {
 
   return (
     <DeliveryTicketForm
+      initialData={initialData}
       onSubmit={handleSubmit}
       onCancel={handleCancel}
       isEditMode={false}
