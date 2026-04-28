@@ -12,6 +12,7 @@ export interface Column<T> {
   accessor: keyof T;
   header: React.ReactNode;
   render?: (item: T) => React.ReactNode;
+  width?: string;
 }
 
 interface DataTableProps<T> {
@@ -85,12 +86,16 @@ export function DataTable<T extends { _id?: string }>({
   return (
     <div className="akod-table-shell animate-fade-in">
       <div className="akod-table-scroll">
-        <table className="akod-table">
+        <table 
+          className="akod-table"
+          style={columns.some(c => c.width) ? { tableLayout: 'fixed' } : {}}
+        >
           <thead>
             <tr>
               {columns.map((col) => (
                 <th
                   key={String(col.accessor)}
+                  style={col.width ? { width: col.width } : {}}
                 >
                   {col.header}
                 </th>
@@ -117,6 +122,7 @@ export function DataTable<T extends { _id?: string }>({
                   {columns.map((col) => (
                     <td
                       key={String(col.accessor)}
+                      style={col.width ? { width: col.width } : {}}
                     >
                       {col.render
                         ? col.render(item)

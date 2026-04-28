@@ -7,6 +7,9 @@ import { Toaster } from 'sonner';
 export const metadata: Metadata = {
   title: 'PROSERVE ERP',
   description: 'Enterprise Resource Planning Application',
+  icons: {
+    icon: '/loading.jpeg',
+  },
 };
 
 export default function RootLayout({

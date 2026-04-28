@@ -150,7 +150,7 @@ const DeliveryTicketForm = ({
 
         if (customerRes?.customers) {
           setCustomers(
-            customerRes.customers.map((c) => ({ value: c._id!, label: c.name || 'Unknown' }))
+            customerRes.customers.map((c) => ({ value: c._id!, label: c.company || c.name || 'Unknown' }))
           );
         }
       } catch (error) {
@@ -512,14 +512,16 @@ const DeliveryTicketForm = ({
               />
 
 
-              <FormikInput
-                label="Delivery Note No"
-                name="ticketNo"
-                value={!isEditMode && !formik.values.ticketNo ? 'Auto-generated on Preview' : formik.values.ticketNo}
-                readOnly
-                required
-                className={!isEditMode && !formik.values.ticketNo ? 'text-gray-400 italic font-medium' : 'font-bold text-teal-700'}
-              />
+              {(isEditMode || formik.values.ticketNo) && (
+                <FormikInput
+                  label="Delivery Note No"
+                  name="ticketNo"
+                  value={formik.values.ticketNo}
+                  readOnly
+                  required
+                  className="font-bold text-teal-700"
+                />
+              )}
 
               <FormikInput
                 label="Delivery Date"
@@ -648,7 +650,7 @@ const DeliveryTicketForm = ({
                                 <FormikSelect
                                   name={`items.${idx}.productId`}
                                   options={
-                                    formik.values.runningOrderId && selectedOrderItems.length > 0
+                                    (formik.values.runningOrderId && selectedOrderItems.length > 0
                                       ? selectedOrderItems.map(p => ({
                                         value: p.productId?._id || p.productId,
                                         label: `${p.name}`
@@ -657,6 +659,13 @@ const DeliveryTicketForm = ({
                                         value: p._id!,
                                         label: p.name,
                                       }))
+                                    ).filter(opt => {
+                                      // Only show products NOT already selected in other rows
+                                      const isAlreadySelected = formik.values.items.some((it: any, i: number) => 
+                                        i !== idx && it.productId === opt.value
+                                      );
+                                      return !isAlreadySelected;
+                                    })
                                   }
                                   onChange={(e) => {
                                     formik.handleChange(e);

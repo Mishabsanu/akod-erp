@@ -280,7 +280,15 @@ const QuoteTrackForm: React.FC<any> = ({
                             <FormikSelect
                               label=""
                               name={`items.${idx}.productId`}
-                              options={products.map(p => ({ value: p._id, label: `${p.name} (${p.itemCode})` }))}
+                              options={products
+                                .filter(opt => {
+                                  // Only show products NOT already selected in other rows
+                                  const isAlreadySelected = formik.values.items.some((it: any, i: number) => 
+                                    i !== idx && it.productId === opt._id
+                                  );
+                                  return !isAlreadySelected;
+                                })
+                                .map(p => ({ value: p._id, label: `${p.name} (${p.itemCode})` }))}
                               onChange={(e) => {
                                 formik.handleChange(e);
                                 updateLineItemDetails(idx, e.target.value);

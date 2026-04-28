@@ -91,8 +91,8 @@ const UserForm: React.FC<UserFormProps> = ({
       mobile: initialData?.mobile || '',
       password: '',
       role:
-        typeof initialData?.role === 'object'
-          ? initialData.role._id
+        (initialData?.role && typeof initialData.role === 'object')
+          ? (initialData.role as any)._id
           : (initialData?.role ?? ''),
       status: initialData?.status || 'active',
     },

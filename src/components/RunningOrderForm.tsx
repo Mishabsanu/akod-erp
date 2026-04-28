@@ -71,7 +71,10 @@ const RunningOrderForm: React.FC<RunningOrderFormProps> = ({
                 ]);
                 setProducts(productData);
                 if (customerData?.customers) {
-                    setCustomers(customerData.customers.map((c: any) => ({ value: c.name, label: c.name })));
+                    setCustomers(customerData.customers.map((c: any) => ({ 
+                        value: c.company || c.name, 
+                        label: c.company || c.name 
+                    })));
                 }
                                 
                 const stockMap: Record<string, number> = {};
@@ -103,7 +106,7 @@ const RunningOrderForm: React.FC<RunningOrderFormProps> = ({
             sales_person: initialData?.sales_person || '',
             ordered_date: initialData?.ordered_date ? new Date(initialData.ordered_date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
             items: initialData?.items || [{ productId: '', name: '', itemCode: '', description: '', unit: '', quantity: 1 }],
-            status: initialData?.status || 'Order placed',
+            status: initialData?.status || 'Pending',
             transaction_type: initialData?.transaction_type || 'Sale',
             project_location: initialData?.project_location || '',
         },
@@ -227,10 +230,19 @@ const RunningOrderForm: React.FC<RunningOrderFormProps> = ({
                                                         <div className="space-y-2">
                                                             <FormikSelect
                                                                 name={`items.${index}.productId`}
-                                                                options={products.map(p => ({  
-                                                                    value: p._id,  
-                                                                    label: `${p.name} ${availableStock[p._id] !== undefined ? `(Stock: ${availableStock[p._id]})` : ''}`  
-                                                                }))}
+                                                                options={products
+                                                                    .filter(p => (availableStock[p._id] > 0) || (p._id === item.productId))
+                                                                    .filter(opt => {
+                                                                        // Only show products NOT already selected in other rows
+                                                                        const isAlreadySelected = formik.values.items.some((it: any, i: number) => 
+                                                                            i !== index && it.productId === opt._id
+                                                                        );
+                                                                        return !isAlreadySelected;
+                                                                    })
+                                                                    .map(p => ({  
+                                                                        value: p._id,  
+                                                                        label: `${p.name} ${availableStock[p._id] !== undefined ? `(Stock: ${availableStock[p._id]})` : ''}`  
+                                                                    }))}
                                                                 onChange={(e) => {
                                                                     formik.handleChange(e);
                                                                     handleProductSelect(index, e.target.value);

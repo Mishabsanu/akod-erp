@@ -62,10 +62,8 @@ export const RunningOrderFilterBar: React.FC<RunningOrderFilterBarProps> = ({
               >
                 <option value="">All Status</option>
                 <option value="Pending">Pending</option>
-                <option value="Production">Production</option>
-                <option value="Shipped">Shipped</option>
-                <option value="Delivered">Delivered</option>
-                <option value="Closed">Closed</option>
+                <option value="Partially Completed">Partially Completed</option>
+                <option value="Completed">Completed</option>
               </Select>
             </div>
           </div>

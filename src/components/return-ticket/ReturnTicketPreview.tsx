@@ -114,7 +114,7 @@ const ReturnTicketPreview = ({
                 <div className="border border-gray-400 mb-6 text-sm">
                     <div className="flex border-b border-gray-400">
                         {/* Top Left: Customer Details */}
-                        <div className="w-[60%] border-r border-gray-400 p-3 h-28 flex flex-col justify-center bg-gray-50/30">
+                        <div className="w-[60%] border-r border-gray-400 p-3 h-28 flex flex-col justify-center bg-gray-50">
                             <p className="bg-gray-200 inline-block px-1.5 mb-1 text-[9px] font-black text-gray-700 rounded-sm self-start uppercase">Company Name</p>
                             <p className="font-black uppercase text-lg text-gray-900 ml-1 mt-1">{data.customerName}</p>
                         </div>
@@ -122,19 +122,19 @@ const ReturnTicketPreview = ({
                         {/* Top Right: RN Details */}
                         <div className="w-[40%] text-[10px] flex flex-col">
                             <div className="flex border-b border-gray-400 h-7 items-center">
-                                <div className="w-28 p-1 border-r border-gray-400 bg-gray-100/80 font-bold h-full flex items-center px-2">Return Note No.</div>
+                                <div className="w-28 p-1 border-r border-gray-400 bg-gray-100 font-bold h-full flex items-center px-2">Return Note No.</div>
                                 <div className="flex-grow p-1 font-black pl-3 text-[#0f766e] text-[11pt]">{data.ticketNo}</div>
                             </div>
                             <div className="flex border-b border-gray-400 h-7 items-center">
-                                <div className="w-28 p-1 border-r border-gray-400 bg-gray-100/80 font-bold h-full flex items-center px-2">Date</div>
+                                <div className="w-28 p-1 border-r border-gray-400 bg-gray-100 font-bold h-full flex items-center px-2">Date</div>
                                 <div className="flex-grow p-1 pl-3 font-semibold">{formatDate(data.returnDate)}</div>
                             </div>
                             <div className="flex border-b border-gray-400 h-7 items-center">
-                                <div className="w-28 p-1 border-r border-gray-400 bg-gray-100/80 font-bold h-full flex items-center px-2">Invoice Number</div>
+                                <div className="w-28 p-1 border-r border-gray-400 bg-gray-100 font-bold h-full flex items-center px-2">Invoice Number</div>
                                 <div className="flex-grow p-1 pl-3 font-black text-rose-700">{data.invoiceNo || 'N/A'}</div>
                             </div>
                             <div className="flex h-7 items-center">
-                                <div className="w-28 p-1 border-r border-gray-400 bg-gray-100/80 font-bold h-full flex items-center px-2 uppercase">Vehicle No</div>
+                                <div className="w-28 p-1 border-r border-gray-400 bg-gray-100 font-bold h-full flex items-center px-2 uppercase">Vehicle No</div>
                                 <div className="flex-grow p-1 pl-3 uppercase font-medium">{data.vehicleNo}</div>
                             </div>
                         </div>
@@ -158,7 +158,7 @@ const ReturnTicketPreview = ({
                         {/* Middle Right: Driver Info */}
                         <div className="w-[40%] text-xs flex flex-col justify-center border-l border-gray-400">
                             <div className="flex items-center h-full">
-                                <div className="w-28 p-1 border-r border-gray-400 bg-gray-100/80 font-bold h-full flex items-center px-2">Driver Name</div>
+                                <div className="w-28 p-1 border-r border-gray-400 bg-gray-100 font-bold h-full flex items-center px-2">Driver Name</div>
                                 <div className="flex-grow p-1 pl-3 font-semibold uppercase">{data.driverName || ''}</div>
                             </div>
                         </div>
@@ -169,7 +169,7 @@ const ReturnTicketPreview = ({
                 <div className="border border-gray-400 mb-2 min-h-[400px] flex flex-col">
                     <table className="w-full text-xs">
                         <thead>
-                            <tr className="border-b border-gray-400 bg-gray-100/80">
+                            <tr className="border-b border-gray-400 bg-gray-100">
                                 <th className="w-12 border-r border-gray-400 py-2 font-black text-gray-800 uppercase text-[9px] tracking-widest">S.No</th>
                                 <th className="border-r border-gray-400 py-2 font-black text-gray-800 uppercase text-[9px] tracking-widest text-left pl-3">Item & Description</th>
                                 <th className="w-32 border-r border-gray-400 py-2 font-black text-gray-800 uppercase text-[9px] tracking-widest text-left pl-3">Item Code</th>

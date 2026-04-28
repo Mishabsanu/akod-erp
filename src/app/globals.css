@@ -384,7 +384,6 @@ button {
   line-height: 1.2;
   text-align: left;
   text-transform: uppercase;
-  white-space: nowrap;
 }
 
 .akod-table tbody tr {

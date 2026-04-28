@@ -40,13 +40,14 @@ const EditDeliveryTicketPage = () => {
   }, [id]);
 
   const handleSubmit = async (
-    ticketData: Partial<DeliveryTicket>,
+    ticketData: any, 
     { setErrors, setSubmitting }: { setErrors: any; setSubmitting: any }
   ) => {
     const loadingToast = toast.loading('Updating delivery ticket...');
     setSubmitting(true);
     try {
       const response = await updateDeliveryTicket(id, ticketData);
+      
       toast.dismiss(loadingToast);
       if (response.success) {
         toast.success(response.message);
@@ -79,14 +80,14 @@ const EditDeliveryTicketPage = () => {
   if (!initialData) {
     return <div>Delivery ticket not found.</div>;
   }
-
+  
   return (
     <DeliveryTicketForm
       initialData={initialData}
       onSubmit={handleSubmit}
       onCancel={handleCancel}
       isEditMode={true}
-      isLoading={false} // Manage loading state in the page
+      isLoading={false}
     />
   );
 };

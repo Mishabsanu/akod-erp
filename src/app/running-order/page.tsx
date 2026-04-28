@@ -24,16 +24,9 @@ import { useAuth } from '@/contexts/AuthContext';
 
 const getStatusColor = (status: string) => {
     switch (status) {
-        case 'Order placed': return '#f59e0b';
-        case 'Production going on': return '#2563eb';
-        case 'Ready to dispatch': return '#8b5cf6';
-        case 'Loaded': return '#3b82f6';
-        case 'On the way to port': return '#06b6d4';
-        case 'Arrive at port': return '#0d9488';
-        case 'Depart from port': return '#0f766e';
-        case 'In transit to destination': return '#6366f1';
-        case 'Arrived at destination': return '#10b981';
-        case 'Completed': return '#047857';
+        case 'Pending': return '#6b7280'; // Gray
+        case 'Partially Completed': return '#0d9488'; // Teal
+        case 'Completed': return '#047857'; // Green
         default: return '#6b7280';
     }
 };
@@ -133,6 +126,7 @@ const RunningOrdersPage = () => {
             {
                 accessor: 'company_name',
                 header: 'Company Name',
+                width: '280px',
                 render: (order) => (
                     <div className="flex flex-col">
                         <span className="font-black text-gray-900 text-sm uppercase leading-tight">{order.company_name || '---'}</span>
@@ -143,6 +137,7 @@ const RunningOrdersPage = () => {
             {
                 accessor: 'invoice_number',
                 header: 'Invoice #',
+                width: '120px',
                 render: (order) => (
                     <span className="text-xs font-black text-[#0f766e] uppercase tracking-widest">{order.invoice_number || '---'}</span>
                 )
@@ -150,6 +145,7 @@ const RunningOrdersPage = () => {
             {
                 accessor: 'sales_person',
                 header: 'Sales Person',
+                width: '150px',
                 render: (order) => (
                     <span className="text-xs font-bold text-gray-600 uppercase">{order.sales_person || '---'}</span>
                 )
@@ -157,6 +153,7 @@ const RunningOrdersPage = () => {
             {
                 accessor: 'po_number',
                 header: 'PO No',
+                width: '120px',
                 render: (order) => (
                     <span className="text-xs font-black text-gray-500 uppercase tracking-widest">{order.po_number || '---'}</span>
                 )
@@ -164,6 +161,7 @@ const RunningOrdersPage = () => {
             { 
                 accessor: 'ordered_date', 
                 header: 'Order Date',
+                width: '130px',
                 render: (order) => (
                     <span className="text-xs font-bold text-gray-700">
                         {order.ordered_date ? format(new Date(order.ordered_date), 'dd MMM yyyy') : '--'}
@@ -173,6 +171,7 @@ const RunningOrdersPage = () => {
             {
                 accessor: 'status',
                 header: 'Status',
+                width: '160px',
                 render: (order) => (
                     <span 
                         className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-white shadow-sm"
@@ -184,7 +183,8 @@ const RunningOrdersPage = () => {
             },
             {
                 accessor: 'items' as any,
-                header: 'Order Metrics',
+                header: 'Metrics',
+                width: '110px',
                 render: (order) => {
                     const totalQty = order.items?.reduce((sum, item) => sum + (Number(item.quantity) || 0), 0) || 0;
                     return (
@@ -202,6 +202,7 @@ const RunningOrdersPage = () => {
         baseColumns.push({
             accessor: 'actions' as keyof RunningOrder,
             header: 'Actions',
+            width: '180px',
             render: (order) => (
                 <div className="flex items-center gap-2">
                     {can('running_order', 'view') && (

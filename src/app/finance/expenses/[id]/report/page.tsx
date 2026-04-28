@@ -62,36 +62,59 @@ const SettlementReportPage = () => {
         if (!reportRef.current || !expense) return;
         
         setIsDownloading(true);
-        try {
-            const element = reportRef.current;
-            const canvas = await html2canvas(element, {
-                scale: 2,
-                useCORS: true,
-                logging: false,
-                backgroundColor: '#ffffff'
-            });
-            
-            const imgData = canvas.toDataURL('image/jpeg', 1.0);
-            const pdf = new jsPDF({
-                orientation: 'portrait',
-                unit: 'mm',
-                format: 'a4'
-            });
-            
-            const imgProps = pdf.getImageProperties(imgData);
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-            
-            pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-            pdf.save(`Settlement_Report_${expense.expenseId}.pdf`);
-            
-            toast.success('Report downloaded successfully');
-        } catch (error) {
-            console.error('PDF Generation Error:', error);
-            toast.error('Failed to generate PDF');
-        } finally {
-            setIsDownloading(false);
-        }
+        toast.info('Generating PDF...');
+
+        setTimeout(async () => {
+            try {
+                const element = reportRef.current!;
+                const canvas = await html2canvas(element, {
+                    scale: 2,
+                    useCORS: true,
+                    logging: false,
+                    backgroundColor: '#ffffff',
+                    onclone: (clonedDoc) => {
+                        // Fix for Tailwind 4 / Modern CSS color functions
+                        const styleTags = clonedDoc.querySelectorAll('style');
+                        styleTags.forEach(tag => {
+                            if (tag.innerHTML) {
+                                tag.innerHTML = tag.innerHTML
+                                    .replace(/lab\([^)]+\)/g, '#000000')
+                                    .replace(/oklch\([^)]+\)/g, '#000000');
+                            }
+                        });
+                        
+                        const elements = clonedDoc.querySelectorAll('[style*="lab"], [style*="oklch"]');
+                        elements.forEach(el => {
+                            const s = el.getAttribute('style');
+                            if (s) {
+                                el.setAttribute('style', s.replace(/lab\([^)]+\)/g, '#000000').replace(/oklch\([^)]+\)/g, '#000000'));
+                            }
+                        });
+                    }
+                });
+                
+                const imgData = canvas.toDataURL('image/jpeg', 1.0);
+                const pdf = new jsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+                
+                const imgProps = pdf.getImageProperties(imgData);
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+                
+                pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+                pdf.save(`Settlement_Report_${expense.expenseId}.pdf`);
+                
+                toast.success('Report downloaded successfully');
+            } catch (error) {
+                console.error('PDF Generation Error:', error);
+                toast.error('Failed to generate PDF. Try again.');
+            } finally {
+                setIsDownloading(false);
+            }
+        }, 100);
     };
 
     if (loading) return (

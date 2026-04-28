@@ -93,7 +93,7 @@ const RunningOrderReport = React.forwardRef<HTMLDivElement, RunningOrderReportPr
                             <th className="px-4 py-4 text-center border-r border-slate-300">Dispatched</th>
                             <th className="px-4 py-4 text-center border-r border-slate-300">Balance</th>
                             <th className="px-4 py-4 text-center border-r border-slate-300">Returned</th>
-                            <th className="px-4 py-4 text-right bg-slate-50/80">Site Stock</th>
+                            <th className="px-4 py-4 text-right bg-slate-50">Site Stock</th>
                         </tr>
                     </thead>
                     <tbody className="text-[10pt]">
@@ -115,7 +115,7 @@ const RunningOrderReport = React.forwardRef<HTMLDivElement, RunningOrderReportPr
                                     <td className="px-4 py-4 text-center border-r border-slate-300 font-bold text-rose-500">
                                         {item.returnedQty > 0 ? `-${item.returnedQty}` : '-'}
                                     </td>
-                                    <td className="px-4 py-4 text-right font-black text-[#0f766e] bg-[#0f766e]/5">{siteBal}</td>
+                                    <td className="px-4 py-4 text-right font-black text-[#0f766e] bg-teal-50">{siteBal}</td>
                                 </tr>
                             );
                         })}
@@ -131,12 +131,12 @@ const RunningOrderReport = React.forwardRef<HTMLDivElement, RunningOrderReportPr
                     </h4>
                     <div className="space-y-1">
                         {fulfillment.tickets.deliveries.length > 0 ? fulfillment.tickets.deliveries.map((t: any, i: number) => (
-                            <div key={i} className="flex justify-between items-center px-3 py-2 bg-slate-50/50 rounded border border-slate-100">
+                            <div key={i} className="flex justify-between items-center px-3 py-2 bg-slate-50 rounded border border-slate-100">
                                 <span className="text-[8pt] font-bold text-slate-500 uppercase tracking-tight">{t.ticketNo}</span>
                                 <span className="text-[9pt] font-black text-[#0f766e]">+{t.qty} units</span>
                             </div>
                         )) : (
-                            <div className="p-4 text-center text-[8pt] text-slate-400 italic bg-slate-50/30 rounded border border-dashed border-slate-200">No delivery transactions</div>
+                            <div className="p-4 text-center text-[8pt] text-slate-400 italic bg-slate-50 rounded border border-dashed border-slate-200">No delivery transactions</div>
                         )}
                     </div>
                 </div>
@@ -147,12 +147,12 @@ const RunningOrderReport = React.forwardRef<HTMLDivElement, RunningOrderReportPr
                     </h4>
                     <div className="space-y-1">
                         {fulfillment.tickets.returns.length > 0 ? fulfillment.tickets.returns.map((t: any, i: number) => (
-                            <div key={i} className="flex justify-between items-center px-3 py-2 bg-slate-50/50 rounded border border-slate-100">
+                            <div key={i} className="flex justify-between items-center px-3 py-2 bg-slate-50 rounded border border-slate-100">
                                 <span className="text-[8pt] font-bold text-slate-500 uppercase tracking-tight">{t.ticketNo}</span>
                                 <span className="text-[9pt] font-black text-rose-600">-{t.qty} units</span>
                             </div>
                         )) : (
-                            <div className="p-4 text-center text-[8pt] text-slate-400 italic bg-slate-50/30 rounded border border-dashed border-slate-200">No return transactions</div>
+                            <div className="p-4 text-center text-[8pt] text-slate-400 italic bg-slate-50 rounded border border-dashed border-slate-200">No return transactions</div>
                         )}
                     </div>
                 </div>

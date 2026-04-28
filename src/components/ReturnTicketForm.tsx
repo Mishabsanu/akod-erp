@@ -14,11 +14,12 @@ import {
 } from '@/services/returnTicketApi';
 import { getRunningOrderById, getRunningOrdersDropdown } from '@/services/runningOrderApi';
 import { FieldArray, FormikProvider, useFormik } from 'formik';
-import { FilePlus, Trash2, Save, ChevronLeft, CheckCircle2 } from 'lucide-react';
+import { FilePlus, Trash2, Save, ChevronLeft, CheckCircle2, ArrowRight } from 'lucide-react';
 import { useEffect, useState, useMemo } from 'react';
 import * as Yup from 'yup';
 import { FormikPhoneInput } from './shared/FormikPhoneInput';
 import ReturnTicketPreview from './return-ticket/ReturnTicketPreview';
+import { toast } from 'sonner';
 
 const STAFF_LIST = [
   { name: 'MANSOOR', phone: '70814261' },
@@ -118,6 +119,7 @@ const ReturnTicketForm = ({
   >([]);
   const [runningOrders, setRunningOrders] = useState<any[]>([]);
   const [isPoSelected, setIsPoSelected] = useState(false);
+  const [isFetchingNo, setIsFetchingNo] = useState(false);
 
   useEffect(() => {
     const fetchDropdownData = async () => {
@@ -129,7 +131,7 @@ const ReturnTicketForm = ({
 
         if (customerRes?.customers) {
           setCustomers(
-            customerRes.customers.map((c) => ({ value: c._id!, label: c.name || 'Unknown' }))
+            customerRes.customers.map((c) => ({ value: c._id!, label: c.company || c.name || 'Unknown' }))
           );
         }
 
@@ -263,6 +265,28 @@ const ReturnTicketForm = ({
   const handlePreview = async () => {
     const errors = await formik.validateForm();
     if (Object.keys(errors).length === 0) {
+      if (!isEditMode && !formik.values.ticketNo) {
+        const loadingNoToast = toast.loading('Generating Ticket Number...');
+        setIsFetchingNo(true);
+        try {
+          const res = await GetNextReturnTicketNo();
+          if (res?.success && res.data) {
+            formik.setFieldValue('ticketNo', res.data);
+            toast.dismiss(loadingNoToast);
+          } else {
+            toast.error('Failed to generate ticket number. Please try again.');
+            toast.dismiss(loadingNoToast);
+            return;
+          }
+        } catch (error) {
+          console.error('Failed to fetch ticket number', error);
+          toast.error('Network error while generating ticket number.');
+          toast.dismiss(loadingNoToast);
+          return;
+        } finally {
+          setIsFetchingNo(false);
+        }
+      }
       setIsPreviewMode(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
@@ -411,22 +435,6 @@ const ReturnTicketForm = ({
     }
   }, [backendErrors]);
 
-  useEffect(() => {
-    if (isEditMode) return;
-    const fetchTicketNo = async () => {
-      try {
-        const res = await GetNextReturnTicketNo();
-
-        if (res?.success && res.data) {
-          console.log('GetNextReturnTicketNo response:', res);
-          formik.setFieldValue('ticketNo', res.data);
-        }
-      } catch (error) {
-        console.error('Failed to fetch ticket number', error);
-      }
-    };
-    fetchTicketNo();
-  }, [isEditMode]);
 
   if (isPreviewMode) {
     return (
@@ -515,7 +523,16 @@ const ReturnTicketForm = ({
                 required
               />
 
-              <FormikInput label="Ticket No" name="ticketNo" readOnly />
+              {(isEditMode || formik.values.ticketNo) && (
+                <FormikInput
+                  label="Ticket No"
+                  name="ticketNo"
+                  value={formik.values.ticketNo}
+                  readOnly
+                  required
+                  className="font-bold text-teal-700"
+                />
+              )}
 
               <FormikInput
                 label="Reference"

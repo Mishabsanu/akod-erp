@@ -64,42 +64,72 @@ const ViewRunningOrderPage = ({ params: paramsPromise }: ViewRunningOrderPagePro
   const [isDownloading, setIsDownloading] = useState(false);
   const reportRef = useRef<HTMLDivElement>(null);
 
-  const handleDownloadPdf = async () => {
-    if (!reportRef.current || !order) return;
-    
-    setIsDownloading(true);
-    try {
-      const element = reportRef.current;
+    const handleDownloadPdf = async () => {
+      if (!order) return;
+      if (!reportRef.current) {
+          toast.error('Report is not ready for download. Please wait a moment.');
+          return;
+      }
       
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#ffffff'
-      });
-      
-      const imgData = canvas.toDataURL('image/jpeg', 1.0);
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4'
-      });
-      
-      const imgProps = pdf.getImageProperties(imgData);
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-      
-      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-      pdf.save(`Audit_Report_${order.order_number}.pdf`);
-      
-      toast.success('Audit Report downloaded successfully');
-    } catch (error) {
-      console.error('PDF Generation Error:', error);
-      toast.error('Failed to generate PDF');
-    } finally {
-      setIsDownloading(false);
-    }
-  };
+      setIsDownloading(true);
+      toast.info('Generating PDF...');
+
+      // Small timeout to keep UI responsive
+      setTimeout(async () => {
+        try {
+          const element = reportRef.current!;
+          
+          const canvas = await html2canvas(element, {
+            scale: 2,
+            useCORS: true,
+            logging: false,
+            backgroundColor: '#ffffff',
+            windowWidth: element.scrollWidth,
+            windowHeight: element.scrollHeight,
+            onclone: (clonedDoc) => {
+              // Robust fix for Tailwind 4 / Modern CSS color functions
+              const styleTags = clonedDoc.querySelectorAll('style');
+              styleTags.forEach(tag => {
+                if (tag.innerHTML) {
+                  tag.innerHTML = tag.innerHTML
+                    .replace(/lab\([^)]+\)/g, '#000000')
+                    .replace(/oklch\([^)]+\)/g, '#000000');
+                }
+              });
+              
+              const elements = clonedDoc.querySelectorAll('[style*="lab"], [style*="oklch"]');
+              elements.forEach(el => {
+                const s = el.getAttribute('style');
+                if (s) {
+                  el.setAttribute('style', s.replace(/lab\([^)]+\)/g, '#000000').replace(/oklch\([^)]+\)/g, '#000000'));
+                }
+              });
+            }
+          });
+          
+          const imgData = canvas.toDataURL('image/jpeg', 1.0);
+          const pdf = new jsPDF({
+            orientation: 'portrait',
+            unit: 'mm',
+            format: 'a4'
+          });
+          
+          const imgProps = pdf.getImageProperties(imgData);
+          const pdfWidth = pdf.internal.pageSize.getWidth();
+          const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+          
+          pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+          pdf.save(`Audit_Report_${order.order_number}.pdf`);
+          
+          toast.success('Audit Report downloaded successfully');
+        } catch (error) {
+          console.error('PDF Generation Error:', error);
+          toast.error('Failed to generate PDF. Try again.');
+        } finally {
+          setIsDownloading(false);
+        }
+      }, 100);
+    };
 
   useEffect(() => {
     if (!id) return;
@@ -260,11 +290,22 @@ const ViewRunningOrderPage = ({ params: paramsPromise }: ViewRunningOrderPagePro
                             <span className="text-xs font-black text-rose-500 uppercase tracking-widest">{item.returnedQty || 0}</span>
                           </td>
                           <td className="py-6 pr-2 text-right">
-                            <div className={`inline-flex items-center px-4 py-1.5 rounded-full ${pendingQty > 0 ? 'bg-amber-100/50 text-amber-700 border border-amber-200/50' : 'bg-emerald-100/50 text-emerald-700 border border-emerald-200/50'}`}>
+                            <div className={`inline-flex items-center px-4 py-1.5 rounded-full 
+                              ${item.status === 'Completed' 
+                                ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' 
+                                : item.status === 'Partially Completed'
+                                  ? 'bg-teal-50 text-teal-700 border border-teal-100'
+                                  : 'bg-amber-50 text-amber-600 border border-amber-100'
+                              }`}>
                               <span className="text-[10px] font-black uppercase tracking-widest">
-                                {pendingQty > 0 ? `${pendingQty} Pending` : 'Fulfilled'}
+                                {item.status || 'Pending'}
                               </span>
                             </div>
+                            {item.status !== 'Completed' && (
+                              <p className="text-[9px] font-black text-gray-400 uppercase tracking-tighter mt-1 mr-2">
+                                {pendingQty} Units Left
+                              </p>
+                            )}
                           </td>
                         </tr>
                       );

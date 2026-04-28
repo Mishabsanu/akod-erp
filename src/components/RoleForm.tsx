@@ -23,7 +23,13 @@ import {
   Building2,
   HardHat,
   ClipboardCheck,
-  Package
+  Package,
+  Contact,
+  Calendar,
+  Banknote,
+  PieChart,
+  ReceiptText,
+  Wrench
 } from 'lucide-react';
 import React from 'react';
 import * as Yup from 'yup';
@@ -42,67 +48,93 @@ const RoleValidationSchema = Yup.object({
 });
 
 const emptyPermissions = {
-  user: { view: false, create: false, update: false, delete: false },
-  role: { view: false, create: false, update: false, delete: false },
-  vendor: { view: false, create: false, update: false, delete: false },
-  customer: { view: false, create: false, update: false, delete: false },
-  product: { view: false, create: false, update: false, delete: false },
-  inventory: { view: false, create: false, update: false, delete: false },
+  // CRM
+  sales: { view: false, create: false, update: false, delete: false },
+  running_order: { view: false, create: false, update: false, delete: false },
+  
+  // Inventory & Logistics
   delivery_ticket: { view: false, create: false, update: false, delete: false },
   return_ticket: { view: false, create: false, update: false, delete: false },
-  sales: { view: false, create: false, update: false, delete: false },
-  quote_track: { view: false, create: false, update: false, delete: false },
-  running_order: { view: false, create: false, update: false, delete: false },
-  invoice: { view: false, create: false, update: false, delete: false },
-  payment: { view: false, create: false, update: false, delete: false },
-  expense: { view: false, create: false, update: false, delete: false },
-  attendance: { view: false, create: false, update: false, delete: false },
-  payroll: { view: false, create: false, update: false, delete: false },
-  ledger: { view: false, create: false, update: false, delete: false },
+  inventory: { view: false, create: false, update: false, delete: false },
+  product: { view: false, create: false, update: false, delete: false },
+  customer: { view: false, create: false, update: false, delete: false },
+  vendor: { view: false, create: false, update: false, delete: false },
+
+  // Finance & Accounts
   accounts: { view: false, create: false, update: false, delete: false },
-  fleet: { view: false, create: false, update: false, delete: false },
-  facility: { view: false, create: false, update: false, delete: false },
+  ledger: { view: false, create: false, update: false, delete: false },
+  expense: { view: false, create: false, update: false, delete: false },
+  payment: { view: false, create: false, update: false, delete: false },
+  payroll: { view: false, create: false, update: false, delete: false },
+  salary_breakup: { view: false, create: false, update: false, delete: false },
+  salary_slip: { view: false, create: false, update: false, delete: false },
+
+  // Production & Factory
+  production: { view: false, create: false, update: false, delete: false },
+  raw_material_registry: { view: false, create: false, update: false, delete: false },
+  raw_material_stock: { view: false, create: false, update: false, delete: false },
+
+  // HR & Workforce
   worker: { view: false, create: false, update: false, delete: false },
   utility: { view: false, create: false, update: false, delete: false },
-  raw_material: { view: false, create: false, update: false, delete: false },
+  attendance: { view: false, create: false, update: false, delete: false },
+  leave: { view: false, create: false, update: false, delete: false },
+
+  // Operations & Fleet
+  fleet: { view: false, create: false, update: false, delete: false },
+  mechanical_checkup: { view: false, create: false, update: false, delete: false },
+  workshop_reports: { view: false, create: false, update: false, delete: false },
+  facility: { view: false, create: false, update: false, delete: false },
+  facility_audit: { view: false, create: false, update: false, delete: false },
+
+  // Administration
+  role: { view: false, create: false, update: false, delete: false },
+  user: { view: false, create: false, update: false, delete: false },
 };
 
 const MODULE_CONFIG: Record<string, { label: string; icon: any; category: string }> = {
   // CRM
   sales: { label: 'Leads', icon: UserPlus, category: 'CRM' },
-  quote_track: { label: 'Quote Tracking', icon: FileText, category: 'CRM' },
+  running_order: { label: 'Running Order', icon: Activity, category: 'CRM' },
 
-  // Finance
-  accounts: { label: 'Accounts', icon: BookOpen, category: 'Finance' },
-  ledger: { label: 'Ledger', icon: Database, category: 'Finance' },
-  expense: { label: 'Expenses', icon: Wallet, category: 'Finance' },
-  invoice: { label: 'Invoices', icon: FileText, category: 'Finance' },
-  payment: { label: 'Payment', icon: CreditCard, category: 'Finance' },
+  // Inventory & Logistics
+  delivery_ticket: { label: 'Delivery Note', icon: Truck, category: 'Inventory & Logistics' },
+  return_ticket: { label: 'Return Note', icon: RotateCcw, category: 'Inventory & Logistics' },
+  inventory: { label: 'Stock', icon: Layers, category: 'Inventory & Logistics' },
+  product: { label: 'Products', icon: Box, category: 'Inventory & Logistics' },
+  customer: { label: 'Customers Master', icon: Users, category: 'Inventory & Logistics' },
+  vendor: { label: 'Vendors Master', icon: Building2, category: 'Inventory & Logistics' },
 
-  // Inventory
-  product: { label: 'Products Catalog', icon: Box, category: 'Inventory' },
-  inventory: { label: 'Stock Status', icon: Layers, category: 'Inventory' },
-  delivery_ticket: { label: 'Delivery Challan', icon: Truck, category: 'Inventory' },
-  return_ticket: { label: 'Return Records', icon: RotateCcw, category: 'Inventory' },
-  running_order: { label: 'Running Order', icon: Activity, category: 'Inventory' },
-  raw_material: { label: 'Raw Material Stock', icon: Package, category: 'Inventory' },
+  // Finance & Accounts
+  accounts: { label: 'Accounts Dashboard', icon: BookOpen, category: 'Finance & Accounts' },
+  ledger: { label: 'Ledger', icon: Database, category: 'Finance & Accounts' },
+  expense: { label: 'Expenses', icon: Wallet, category: 'Finance & Accounts' },
+  payment: { label: 'Payments & Collections', icon: CreditCard, category: 'Finance & Accounts' },
+  payroll: { label: 'Payroll & Salary', icon: Banknote, category: 'Finance & Accounts' },
+  salary_breakup: { label: 'Salary Breakups', icon: PieChart, category: 'Finance & Accounts' },
+  salary_slip: { label: 'Salary Slips', icon: ReceiptText, category: 'Finance & Accounts' },
 
+  // Production & Factory
+  production: { label: 'Production Reports', icon: FileText, category: 'Production & Factory' },
+  raw_material_registry: { label: 'Raw Material Registry', icon: Layers, category: 'Production & Factory' },
+  raw_material_stock: { label: 'Raw Material Stock', icon: Package, category: 'Production & Factory' },
 
-  // HR & Payroll
-  user: { label: 'Employee', icon: Users, category: 'HR & Payroll' },
-  attendance: { label: 'Attendance', icon: Clock, category: 'HR & Payroll' },
-  payroll: { label: 'Payroll', icon: CreditCard, category: 'HR & Payroll' },
-  worker: { label: 'Worker Records', icon: HardHat, category: 'HR & Payroll' },
+  // HR & Workforce
+  worker: { label: 'Workers', icon: HardHat, category: 'HR & Workforce' },
+  utility: { label: 'Utility & Safety Master', icon: Package, category: 'HR & Workforce' },
+  attendance: { label: 'Attendance', icon: Clock, category: 'HR & Workforce' },
+  leave: { label: 'Leave Management', icon: Calendar, category: 'HR & Workforce' },
 
-  // Operations
-  fleet: { label: 'Fleet & Workshop', icon: Truck, category: 'Operations' },
-  facility: { label: 'Facility Audits', icon: Building2, category: 'Operations' },
+  // Operations & Fleet
+  fleet: { label: 'Vehicle Registry', icon: Truck, category: 'Operations & Fleet' },
+  mechanical_checkup: { label: 'Mechanical Checkup', icon: Wrench, category: 'Operations & Fleet' },
+  workshop_reports: { label: 'Workshop Reports', icon: FileText, category: 'Operations & Fleet' },
+  facility: { label: 'Offices & Camps', icon: Building2, category: 'Operations & Fleet' },
+  facility_audit: { label: 'Facility Audits', icon: ClipboardCheck, category: 'Operations & Fleet' },
 
   // Administration
   role: { label: 'Roles & Permissions', icon: ShieldCheck, category: 'Administration' },
-  customer: { label: 'Customers Master', icon: Users, category: 'Administration' },
-  vendor: { label: 'Vendors Master', icon: Truck, category: 'Administration' },
-  utility: { label: 'Utility & Safety Master', icon: Package, category: 'Administration' },
+  user: { label: 'Staff', icon: Contact, category: 'Administration' },
 };
 
 interface RoleFormProps {
@@ -118,9 +150,20 @@ const RoleForm: React.FC<RoleFormProps> = ({ initialData, onSubmit, onCancel, is
       name: initialData?.name || '',
       status: initialData?.status || 'active',
       description: initialData?.description || '',
-      permissions: initialData?.permissions
-        ? JSON.parse(JSON.stringify(initialData.permissions))
-        : JSON.parse(JSON.stringify(emptyPermissions)),
+      permissions: (() => {
+        const base = JSON.parse(JSON.stringify(emptyPermissions));
+        if (initialData?.permissions) {
+          Object.keys(initialData.permissions).forEach(key => {
+            if (base[key]) {
+              base[key] = { ...base[key], ...initialData.permissions[key] };
+            } else {
+              // Even if key is not in emptyPermissions anymore (like removed modules), 
+              // we can keep it or skip it. Skip is safer for UI consistency.
+            }
+          });
+        }
+        return base;
+      })(),
     },
     validationSchema: RoleValidationSchema,
     enableReinitialize: true,
@@ -164,7 +207,7 @@ const RoleForm: React.FC<RoleFormProps> = ({ initialData, onSubmit, onCancel, is
             className="mb-12"
             actions={
               <div className="flex items-center gap-6">
-                <div className="bg-[#0f766e]/5 border border-[#0f766e]/10 rounded-2xl px-4 py-2 flex items-center gap-4">
+                <div className="bg-teal-50 border border-teal-100 rounded-2xl px-4 py-2 flex items-center gap-4">
                   <div className="text-right">
                     <p className="text-[9px] font-black text-[#0f766e] uppercase tracking-widest leading-none">Super Admin</p>
                   </div>
@@ -251,7 +294,7 @@ const RoleForm: React.FC<RoleFormProps> = ({ initialData, onSubmit, onCancel, is
               <div className="flex items-center gap-3">
                 <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{modules.length} Modules Active</span>
                 {isSuperAdmin && (
-                  <div className="flex items-center gap-1.5 px-3 py-1 bg-[#0f766e]/10 text-[#0f766e] rounded-full">
+                  <div className="flex items-center gap-1.5 px-3 py-1 bg-teal-50 text-[#0f766e] rounded-full">
                     <ShieldCheck size={12} />
                     <span className="text-[9px] font-black uppercase tracking-widest">Full Bypass Active</span>
                   </div>
@@ -268,14 +311,14 @@ const RoleForm: React.FC<RoleFormProps> = ({ initialData, onSubmit, onCancel, is
                 return (
                   <div
                     key={m}
-                    className={`bg-white rounded-[2rem] border-2 transition-all duration-300 p-8 flex flex-col ${isAllSelected ? 'border-[#0f766e] shadow-xl shadow-teal-900/5' : isAnySelected ? 'border-teal-100' : 'border-gray-50'
+                    className={`bg-white rounded-[2rem] border-2 transition-all duration-300 p-8 flex flex-col ${isAllSelected ? 'border-[#0f766e] shadow-xl shadow-teal-900/5' : isAnySelected ? 'border-teal-50' : 'border-gray-50'
                       }`}
                   >
                     {/* Module Card Header */}
                     <div className="flex items-start justify-between mb-8">
                       <div className="flex items-center gap-4">
                         <div
-                          className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${isAnySelected ? 'bg-[#0f766e] text-white shadow-lg shadow-teal-900/20' : 'bg-gray-100 text-gray-400'
+                          className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${isAnySelected ? 'bg-[#0f766e] text-white shadow-lg shadow-teal-900/10' : 'bg-gray-100 text-gray-400'
                             }`}
                         >
                           <config.icon size={24} />
@@ -313,7 +356,7 @@ const RoleForm: React.FC<RoleFormProps> = ({ initialData, onSubmit, onCancel, is
                               }`}
                           >
                             <span className="text-[10px] font-black uppercase tracking-widest">{p.label}</span>
-                            <p.icon size={14} className={isActive ? 'text-white/70' : 'text-gray-300 group-hover:text-teal-400'} />
+                            <p.icon size={14} className={isActive ? 'text-white' : 'text-gray-300 group-hover:text-teal-400'} />
                           </button>
                         );
                       })}

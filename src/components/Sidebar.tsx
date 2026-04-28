@@ -104,7 +104,7 @@ export const Sidebar = () => {
     can('vendor', 'view') && { name: 'Vendors Master', icon: Building2, href: '/master/vendor' },
 
     // Finance & Accounts Module
-    (can('accounts', 'view') || can('ledger', 'view') || can('expense', 'view') || can('payment', 'view')) && {
+    (can('accounts', 'view') || can('ledger', 'view') || can('expense', 'view') || can('payment', 'view') || can('payroll', 'view') || can('salary_breakup', 'view') || can('salary_slip', 'view')) && {
       name: 'Finance & Accounts',
       icon: IndianRupee,
       subItems: [
@@ -112,34 +112,34 @@ export const Sidebar = () => {
         can('ledger', 'view') && { name: 'Ledger', icon: Database, href: '/finance/ledger' },
         can('expense', 'view') && { name: 'Expenses', icon: Wallet, href: '/finance/expenses' },
         can('payment', 'view') && { name: 'Payments & Collections', icon: CreditCard, href: '/finance/payment' },
-        can('payroll', 'view') && {
-          name: 'Payroll & Salary',
-          icon: Banknote,
-          href: '/hr/payroll',
-          subItems: [
-            { name: 'Salary Breakups', icon: PieChart, href: '/hr/payroll/breakups' },
-            { name: 'Salary Slips', icon: ReceiptText, href: '/hr/payroll/slips' },
-          ]
-        },
+          can('payroll', 'view') && {
+            name: 'Payroll & Salary',
+            icon: Banknote,
+            href: '/hr/payroll',
+            subItems: [
+              can('salary_breakup', 'view') && { name: 'Salary Breakups', icon: PieChart, href: '/hr/payroll/breakups' },
+              can('salary_slip', 'view') && { name: 'Salary Slips', icon: ReceiptText, href: '/hr/payroll/slips' },
+            ].filter(Boolean) as SubMenuItem[]
+          },
       ].filter(Boolean) as SubMenuItem[],
     },
 
     // // Production & Factory Module
-    can('production', 'view') && {
+    (can('production', 'view') || can('raw_material_registry', 'view') || can('raw_material_stock', 'view')) && {
       name: 'Production & Factory',
       icon: Building2,
       subItems: [
-        {
+        can('production', 'view') && {
           name: 'Production Reports',
           icon: FileText,
           href: '/production/factory',
         },
-        {
+        can('raw_material_registry', 'view') && {
           name: 'Raw Material Registry',
           icon: Layers,
           href: '/production/raw-materials',
         },
-        {
+        can('raw_material_stock', 'view') && {
           name: 'Raw Material Stock',
           icon: Package,
           href: '/production/raw-materials/stock',
@@ -174,27 +174,27 @@ export const Sidebar = () => {
     },
 
     // Operations & Fleet Module
-    can('fleet', 'view') && {
+    (can('fleet', 'view') || can('mechanical_checkup', 'view') || can('workshop_reports', 'view') || can('facility', 'view') || can('facility_audit', 'view')) && {
       name: 'Operations & Fleet',
       icon: Truck,
       subItems: [
-        {
+        can('fleet', 'view') && {
           name: 'Vehicle Registry',
           icon: Truck,
           href: '/fleet',
         },
-        {
+        can('mechanical_checkup', 'view') && {
           name: 'Mechanical Checkup',
           icon: Wrench,
           href: '/fleet/mechanical',
         },
-        {
+        can('workshop_reports', 'view') && {
           name: 'Workshop Reports',
           icon: FileText,
           href: '/fleet/reports',
         },
           can('facility', 'view') && { name: 'Offices & Camps', icon: Building2, href: '/facilities' },
-          can('facility', 'view') && { name: 'Facility Audits', icon: ClipboardCheck, href: '/facilities/checklist' },
+          can('facility_audit', 'view') && { name: 'Facility Audits', icon: ClipboardCheck, href: '/facilities/checklist' },
       ].filter(Boolean) as SubMenuItem[],
     },
 

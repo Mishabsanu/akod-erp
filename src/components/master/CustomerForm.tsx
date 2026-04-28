@@ -23,6 +23,8 @@ const CustomerValidationSchema = Yup.object({
   status: Yup.string()
     .oneOf(['active', 'inactive'])
     .required('Status is required'),
+  name: Yup.string().trim().nullable(),
+  address: Yup.string().trim().nullable(),
   // Contact Person Details
   contactPersonName: Yup.string()
     .trim()
@@ -59,6 +61,8 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
       email: initialData?.email || '',
       mobile: initialData?.mobile || '',
       status: initialData?.status || 'active',
+      name: initialData?.name || '',
+      address: initialData?.address || '',
       // Contact person (optional)
       contactPersonName: initialData?.contactPersonName || '',
       contactPersonEmail: initialData?.contactPersonEmail || '',
@@ -153,6 +157,16 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
                   label="General Correspondence Email" 
                   name="email" 
                   placeholder="hello@client.com" 
+                />
+                <FormikInput 
+                  label="Customer Display Name" 
+                  name="name" 
+                  placeholder="e.g. Acme HQ" 
+                />
+                <FormikInput 
+                  label="Full Address" 
+                  name="address" 
+                  placeholder="e.g. 123 Business Bay, Doha, Qatar" 
                 />
               </div>
             </div>

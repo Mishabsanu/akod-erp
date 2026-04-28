@@ -14,13 +14,14 @@ const AddDeliveryTicketPage = () => {
   const [initialData, setInitialData] = useState<Partial<DeliveryTicket>>({});
 
   const handleSubmit = async (
-    ticketData: any, // Using any because it's FormData
+    ticketData: any, 
     { setErrors, setSubmitting }: { setErrors: any; setSubmitting: any }
   ) => {
     const loadingToast = toast.loading('Creating delivery ticket...');
     setSubmitting(true);
     try {
       const response = await createDeliveryTicket(ticketData);
+      
       toast.dismiss(loadingToast);
       if (response.success) {
         toast.success(response.message);
@@ -40,15 +41,11 @@ const AddDeliveryTicketPage = () => {
           if (nextNoRes?.success && nextNoRes.data) {
             toast.error(`Collision detected: Ticket number was already taken. Updating to ${nextNoRes.data}. Please review and confirm again.`, { duration: 5000 });
             
-            // Extract current values from FormData to preserve them
-            // Note: This is a bit tricky with FormData, so we just update the ticketNo in initialData
-            // and Formik's enableReinitialize will do the rest if the form values are tied to initialData.
             setInitialData((prev) => ({
               ...prev,
               ticketNo: nextNoRes.data
             }));
             
-            // We also need to clear the error for ticketNo if we set it
             setErrors({ ticketNo: `Already taken. New available: ${nextNoRes.data}` });
             return;
           }

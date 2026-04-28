@@ -66,88 +66,149 @@ const LoginPage = () => {
   return (
     <div className="flex h-screen w-full flex-col overflow-hidden md:flex-row bg-[#f8fafc]">
       {/* LEFT PARTITION - PREMIUM BRANDING & VISUALS */}
-      <div className="relative hidden h-full w-[55%] overflow-hidden md:flex flex-col justify-between p-16 bg-[#0f172a]">
-        {/* Animated Background Mesh */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-[20%] -left-[10%] w-[60%] h-[60%] rounded-full bg-[#0f766e]/20 blur-[120px] animate-pulse" />
-          <div className="absolute -bottom-[20%] -right-[10%] w-[60%] h-[60%] rounded-full bg-teal-500/10 blur-[120px] animate-pulse delay-700" />
-          <div className="absolute top-[30%] left-[20%] w-[40%] h-[40%] rounded-full bg-blue-500/5 blur-[100px]" />
-          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-5" />
-        </div>
+       <div className="relative hidden md:flex h-full w-[55%] overflow-hidden flex-col justify-between p-16 bg-[#020617]">
+      
+      {/* 🌌 BACKGROUND */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
 
-        {/* Content */}
-        <div className="relative z-10 flex flex-col h-full justify-between">
-          {/* Logo Section - Sidebar Style */}
-          <div className="flex items-center gap-6 animate-in fade-in slide-in-from-top-10 duration-1000">
-             <div className="relative px-6 flex items-center justify-center border border-white/10 bg-gradient-to-br from-white/5 to-transparent backdrop-blur-md h-24 rounded-2xl transition-all duration-500 shadow-2xl">
-                <div className="w-full max-w-[160px] flex items-center justify-center overflow-hidden">
-                  <Image 
-                    src="/logo.png" 
-                    alt="Proserve Logo" 
-                    width={150} 
-                    height={50} 
-                    className="object-contain" 
-                    priority 
-                  />
-                </div>
-              </div>
-            <div className="text-white">
-              <h1 className="text-3xl font-black tracking-tighter uppercase italic leading-none">Proserve</h1>
-              {/* <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-teal-400 mt-1">Enterprise ERP</p> */}
-            </div>
-          </div>
+        {/* Base gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0f172a] via-[#020617] to-[#020617]" />
 
-          <div className="max-w-xl space-y-10 animate-in fade-in slide-in-from-left-10 duration-1000 delay-300">
-            <div className="space-y-4">
-              <div className="h-1 w-20 bg-teal-500 rounded-full" />
-              <h2 className="text-7xl font-black leading-[0.95] tracking-tight text-white">
-                Next-Gen <br /> 
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-emerald-300">Operations</span> <br />
-                Workspace.
-              </h2>
-            </div>
-            
-            <p className="text-xl font-medium leading-relaxed text-gray-400 max-w-lg">
-              Empower your enterprise with precision logistics, seamless finance, and intelligent resource management.
-            </p>
+        {/* Radial highlights */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(20,184,166,0.15),transparent_40%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_80%,rgba(59,130,246,0.1),transparent_40%)]" />
 
-            <div className="grid grid-cols-2 gap-8 pt-4">
-              <div className="flex items-start gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl group">
-                  <ShieldCheck className="text-teal-400 group-hover:scale-110 transition-transform" size={24} />
-                </div>
-                <div>
-                  <p className="text-base font-bold text-white">Encrypted</p>
-                  <p className="text-[11px] text-gray-500 font-medium uppercase tracking-wider">Industrial Security</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl group">
-                  <Zap className="text-teal-400 group-hover:scale-110 transition-transform" size={24} />
-                </div>
-                <div>
-                  <p className="text-base font-bold text-white">High Velocity</p>
-                  <p className="text-[11px] text-gray-500 font-medium uppercase tracking-wider">Real-time Sync</p>
-                </div>
-              </div>
-            </div>
-          </div>
+        {/* Glow blobs */}
+        <div className="absolute -top-[20%] -left-[10%] w-[60%] h-[60%] rounded-full bg-teal-500/20 blur-[120px] animate-pulse" />
+        <div className="absolute -bottom-[20%] -right-[10%] w-[60%] h-[60%] rounded-full bg-blue-500/10 blur-[120px] animate-pulse delay-700" />
 
-          <div className="flex items-center gap-6 text-[11px] font-black uppercase tracking-[0.3em] text-white/20">
-            <span>Core Infrastructure v2.4</span>
-            <div className="h-[1px] flex-1 bg-white/5" />
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>System Online</span>
-            </div>
-          </div>
-        </div>
+        {/* Grid overlay */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:40px_40px]" />
+
+        {/* Texture */}
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-5" />
       </div>
+
+      {/* 🚀 CONTENT */}
+      <div className="relative z-10 flex flex-col h-full justify-between">
+
+        {/* 🔷 PREMIUM BRANDING - TOP CENTERED */}
+        <div className="flex flex-col items-center justify-center w-full pt-4 animate-in fade-in slide-in-from-top-10 duration-1000">
+          <div className="relative group">
+            {/* Subtle glow effect behind logo */}
+            <div className="absolute -inset-4 bg-teal-500/10 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            
+            <Image
+              src="/logo.png"
+              alt="Proserve Logo"
+              width={240}
+              height={80}
+              className="relative object-contain transition-transform duration-500 group-hover:scale-105"
+              priority
+            />
+          </div>
+
+          <div className="mt-6 text-center">
+
+            <div className="mt-2 flex items-center justify-center gap-3">
+              <div className="h-[1px] w-8 bg-gradient-to-r from-transparent to-teal-500" />
+              <p className="text-[11px] font-bold uppercase tracking-[0.4em] text-teal-400">
+                Enterprise Systems
+              </p>
+              <div className="h-[1px] w-8 bg-gradient-to-l from-transparent to-teal-500" />
+            </div>
+          </div>
+        </div>
+
+        {/* 🧠 HERO SECTION - CENTERED & PREMIUM */}
+        <div className="flex flex-col items-center text-center max-w-2xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-300">
+          
+          <div className="space-y-6">
+            <div className="h-1.5 w-24 bg-gradient-to-r from-teal-500 to-emerald-400 rounded-full mx-auto" />
+
+            <h2 className="text-7xl font-black leading-[0.85] tracking-tighter text-white">
+              <span className="block opacity-90">Next-Gen</span>
+              <span className="bg-gradient-to-r from-teal-400 via-cyan-300 to-emerald-300 text-transparent bg-clip-text drop-shadow-sm">
+                ERP Intelligence
+              </span>
+              <span className="block text-white/70 mt-2">Workspace</span>
+            </h2>
+          </div>
+
+          <p className="text-xl font-medium leading-relaxed text-gray-400 max-w-lg mx-auto">
+            Empower your enterprise with precision logistics, seamless finance,
+            and intelligent resource management at scale.
+          </p>
+
+          {/* ⚡ FEATURES - CENTERED GRID */}
+          <div className="grid grid-cols-2 gap-12 pt-4 w-full">
+            
+            <div className="flex flex-col items-center gap-4 group transition-all duration-300 hover:-translate-y-2">
+              <div className="flex h-16 w-16 items-center justify-center rounded-[2rem] bg-white/5 border border-white/10 backdrop-blur-xl shadow-2xl transition-all duration-500 group-hover:border-teal-500/50 group-hover:bg-teal-500/10">
+                <ShieldCheck className="text-teal-400 group-hover:scale-110 transition-all duration-300" size={32} />
+              </div>
+              <div>
+                <p className="text-lg font-bold text-white">Encrypted</p>
+                <p className="text-[11px] text-gray-500 font-bold uppercase tracking-[0.2em]">
+                  Industrial Security
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-col items-center gap-4 group transition-all duration-300 hover:-translate-y-2">
+              <div className="flex h-16 w-16 items-center justify-center rounded-[2rem] bg-white/5 border border-white/10 backdrop-blur-xl shadow-2xl transition-all duration-500 group-hover:border-teal-500/50 group-hover:bg-teal-500/10">
+                <Zap className="text-teal-400 group-hover:scale-110 transition-all duration-300" size={32} />
+              </div>
+              <div>
+                <p className="text-lg font-bold text-white">High Velocity</p>
+                <p className="text-[11px] text-gray-500 font-bold uppercase tracking-[0.2em]">
+                  Real-time Sync
+                </p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        {/* 📊 FLOATING STATS CARD - REPOSITIONED & REFINED */}
+        <div className="absolute bottom-28 left-1/2 -translate-x-1/2 backdrop-blur-2xl bg-white/5 border border-white/10 rounded-[2rem] p-6 shadow-2xl animate-bounce duration-[3000ms] hover:scale-105 transition-transform cursor-default">
+          <div className="flex items-center gap-4">
+             <div className="bg-emerald-500/20 p-3 rounded-2xl">
+               <Globe className="text-emerald-400" size={20} />
+             </div>
+             <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Global Active Orders</p>
+                <div className="flex items-baseline gap-3">
+                  <h3 className="text-3xl font-black text-white">1,284</h3>
+                  <span className="text-emerald-400 text-xs font-bold">+12.4%</span>
+                </div>
+             </div>
+          </div>
+        </div>
+
+        {/* 🟢 FOOTER STATUS - BALANCED */}
+        <div className="flex items-center justify-between text-[11px] font-black uppercase tracking-[0.4em] text-white/20 border-t border-white/5 pt-8">
+          
+          <span className="hover:text-white/40 transition-colors cursor-default">Build: v2.4.08</span>
+
+          <div className="flex items-center gap-4 px-6 py-2.5 rounded-full bg-emerald-500/5 border border-emerald-500/20 backdrop-blur-xl group">
+            <div className="relative">
+              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping absolute inset-0" />
+              <div className="w-2 h-2 rounded-full bg-emerald-500 relative z-10" />
+            </div>
+            <span className="text-[10px] text-emerald-500/80 tracking-[0.3em] font-black group-hover:text-emerald-400 transition-colors">
+              NETWORK ACTIVE
+            </span>
+          </div>
+        </div>
+
+      </div>
+    </div>
 
       {/* RIGHT PARTITION - LOGIN FORM */}
       <div className="flex h-full w-full flex-col items-center justify-center px-6 md:w-[45%] lg:px-24">
         <div className="w-full max-w-[440px] space-y-12 animate-in fade-in zoom-in-95 duration-700">
-          
+
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-teal-600 mb-2">
               <Lock size={12} strokeWidth={3} />
@@ -198,7 +259,7 @@ const LoginPage = () => {
                   Secure Access Key
                 </label>
                 <div className="relative">
-                   <div className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-[#0f766e] transition-colors">
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-[#0f766e] transition-colors">
                     <Lock size={18} />
                   </div>
                   <input
@@ -237,7 +298,7 @@ const LoginPage = () => {
               >
                 <div className="absolute inset-x-0 bottom-0 h-[2px] w-full scale-x-0 bg-white/30 transition-transform duration-500 group-hover:scale-x-100" />
                 {formik.isSubmitting ? (
-                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 ) : (
                   <>
                     <span>Initialize Session</span>
