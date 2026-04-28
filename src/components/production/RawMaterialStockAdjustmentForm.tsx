@@ -2,12 +2,12 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { getRawMaterialDropdown } from '@/services/rawMaterialApi';
-import { 
-  TrendingUp, 
-  CheckCircle2, 
-  FileText, 
-  AlertCircle, 
-  Hash, 
+import {
+  TrendingUp,
+  CheckCircle2,
+  FileText,
+  AlertCircle,
+  Hash,
   X,
   Loader2,
   Layers
@@ -27,9 +27,9 @@ interface RawMaterialStockAdjustmentFormProps {
   isEditMode?: boolean;
 }
 
-const RawMaterialStockAdjustmentForm: React.FC<RawMaterialStockAdjustmentFormProps> = ({ 
-  onSubmit, 
-  onCancel, 
+const RawMaterialStockAdjustmentForm: React.FC<RawMaterialStockAdjustmentFormProps> = ({
+  onSubmit,
+  onCancel,
   initialMaterialId,
   initialData,
   isEditMode = false
@@ -56,13 +56,13 @@ const RawMaterialStockAdjustmentForm: React.FC<RawMaterialStockAdjustmentFormPro
     fetchMaterials();
   }, []);
 
-  const materialOptions = useMemo(() => 
+  const materialOptions = useMemo(() =>
     materials.map(m => ({ value: m._id, label: `${m.name} (${m.itemCode})` })),
-  [materials]);
+    [materials]);
 
-  const selectedMaterial = useMemo(() => 
+  const selectedMaterial = useMemo(() =>
     materials.find(m => m._id === selectedMaterialId),
-  [materials, selectedMaterialId]);
+    [materials, selectedMaterialId]);
 
   // Autofill current quantity when material is selected (only for new adjustments)
   useEffect(() => {
@@ -85,10 +85,10 @@ const RawMaterialStockAdjustmentForm: React.FC<RawMaterialStockAdjustmentFormPro
 
     setIsSubmitting(true);
     try {
-      const adjustmentNote = isEditMode 
+      const adjustmentNote = isEditMode
         ? (note || `Manual correction to ${quantity}.`)
         : `Manual adjustment from ${selectedMaterial.availableQty} to ${quantity}. ${note}`;
-        
+
       await onSubmit(selectedMaterialId, finalQty, adjustmentNote);
       onCancel();
     } catch (error: any) {
@@ -163,7 +163,7 @@ const RawMaterialStockAdjustmentForm: React.FC<RawMaterialStockAdjustmentFormPro
                 disabled={isEditMode}
               />
 
-        
+
 
               <div className="space-y-6">
                 <div className="space-y-3">
@@ -180,13 +180,13 @@ const RawMaterialStockAdjustmentForm: React.FC<RawMaterialStockAdjustmentFormPro
                       placeholder="0.00"
                     />
                     <Hash size={24} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" />
-                    
+
                     {selectedMaterial && (
                       <div className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col items-end">
                         <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">{selectedMaterial.unit}</span>
                         {quantity !== selectedMaterial.availableQty && (
                           <span className={`text-[10px] font-black uppercase ${quantity > selectedMaterial.availableQty ? 'text-emerald-500' : 'text-rose-500'}`}>
-                            {quantity > selectedMaterial.availableQty ? '+' : ''}{ (quantity - selectedMaterial.availableQty).toLocaleString() }
+                            {quantity > selectedMaterial.availableQty ? '+' : ''}{(quantity - selectedMaterial.availableQty).toLocaleString()}
                           </span>
                         )}
                       </div>
@@ -207,7 +207,7 @@ const RawMaterialStockAdjustmentForm: React.FC<RawMaterialStockAdjustmentFormPro
                 <FileText size={14} />
                 Reason for Adjustment
               </h3>
-              <textarea 
+              <textarea
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
                 rows={6}

@@ -152,10 +152,16 @@ const RawMaterialRegistryPage = () => {
             header: 'Actions',
             render: (item) => (
                 <div className="flex justify-end gap-2">
-                    <button onClick={(e) => { e.stopPropagation(); router.push(`/production/raw-materials/edit/${item._id}`); }} className="w-10 h-10 flex items-center justify-center bg-white text-slate-400 hover:text-[#0f766e] hover:bg-[#0f766e]/5 rounded-xl border border-slate-100 transition-all active:scale-95 shadow-sm">
+                    <button
+                        onClick={(e) => { e.stopPropagation(); router.push(`/production/raw-materials/edit/${item._id}`); }}
+                        className="w-9 h-9 flex items-center justify-center text-gray-500 hover:text-[#0f766e] hover:bg-[#0f766e]/5 rounded-lg transition-all border border-gray-100 hover:border-[#0f766e]/20"
+                    >
                         <Edit3 size={16} />
                     </button>
-                    <button onClick={(e) => handleDelete(item._id, e)} className="w-10 h-10 flex items-center justify-center bg-white text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl border border-slate-100 transition-all active:scale-95 shadow-sm">
+                    <button
+                        onClick={(e) => handleDelete(item._id, e)}
+                        className="w-9 h-9 flex items-center justify-center text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all border border-gray-100 hover:border-red-200"
+                    >
                         <Trash2 size={16} />
                     </button>
                 </div>
@@ -166,7 +172,7 @@ const RawMaterialRegistryPage = () => {
     const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
     return (
-        <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white p-6 md:p-10">
+        <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white p-2 md:p-4">
             <ListPageHeader
                 eyebrow="Production Hub"
                 title="Material"

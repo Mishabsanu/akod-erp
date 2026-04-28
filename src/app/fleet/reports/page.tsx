@@ -129,7 +129,7 @@ const FleetReportsPage: React.FC = () => {
         };
         const Icon = log.status === 'Fit' ? CheckCircle2 : log.status === 'Grounded' ? AlertTriangle : AlertTriangle;
         return (
-          <div className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border text-[10px] font-black uppercase tracking-widest ${colors[log.status]}`}>
+          <div className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border text-[10px] font-black uppercase tracking-widest ${colors[log.status as keyof typeof colors]}`}>
             <Icon size={12} />
             {log.status}
           </div>
@@ -153,16 +153,30 @@ const FleetReportsPage: React.FC = () => {
       accessor: '_id' as any,
       render: (log) => (
         <div className="flex items-center gap-2">
-           <button onClick={() => router.push(`/fleet/mechanical/${log._id}`)} className="p-2 hover:bg-teal-50 rounded-lg text-teal-600 transition-colors" title="View Manifest">
-             <FileText size={18} />
+           <button
+             onClick={(e) => {
+               e.stopPropagation();
+               router.push(`/fleet/mechanical/${log._id}`);
+             }}
+             className="w-9 h-9 flex items-center justify-center text-sky-600 hover:text-sky-700 hover:bg-sky-50 rounded-lg transition-all border border-gray-100 hover:border-sky-200"
+             title="View Manifest"
+           >
+             <FileText size={16} />
            </button>
-           <button onClick={() => router.push(`/fleet/reports/${(log.vehicleId as any)?._id || log.vehicleId}`)} className="p-2 hover:bg-indigo-50 rounded-lg text-indigo-600 transition-colors" title="View Vehicle History">
-             <History size={18} />
+           <button
+             onClick={(e) => {
+               e.stopPropagation();
+               router.push(`/fleet/reports/${(log.vehicleId as any)?._id || log.vehicleId}`);
+             }}
+             className="w-9 h-9 flex items-center justify-center text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 rounded-lg transition-all border border-gray-100 hover:border-indigo-200"
+             title="View Vehicle History"
+           >
+             <History size={16} />
            </button>
         </div>
       )
     }
-  ], []);
+  ], [router]);
 
   const vehicleColumns: Column<Vehicle>[] = useMemo(() => [
     {
@@ -200,10 +214,10 @@ const FleetReportsPage: React.FC = () => {
          </button>
        )
     }
-  ], []);
+  ], [router]);
 
   return (
-    <div className="min-h-screen w-full bg-white p-6 md:p-10">
+    <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white p-2 md:p-4">
       <ListPageHeader
         eyebrow="Fleet Diagnostic Centre"
         title="Inspection"

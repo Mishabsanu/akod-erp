@@ -2,7 +2,21 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { ClipboardCheck, Camera, CheckCircle2, Home, MapPin, Zap, Droplets } from 'lucide-react';
+import { 
+  ClipboardCheck, 
+  Camera, 
+  CheckCircle2, 
+  Home, 
+  MapPin, 
+  Zap, 
+  Droplets, 
+  ShieldAlert, 
+  Wind, 
+  Settings, 
+  Wifi, 
+  Bug, 
+  HardHat 
+} from 'lucide-react';
 import ListPageHeader from '@/components/shared/ListPageHeader';
 import { getFacilityDropdown, createAuditReport } from '@/services/facilityApi';
 import withAuth from '@/components/withAuth';
@@ -12,6 +26,7 @@ const FacilityAuditPage = () => {
   const [facilities, setFacilities] = useState<{ _id: string, name: string, type: string }[]>([]);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [selectedFacility, setSelectedFacility] = useState<{ _id: string, name: string, type: string } | null>(null);
 
   const [formData, setFormData] = useState({
     facilityId: '',
@@ -20,6 +35,12 @@ const FacilityAuditPage = () => {
     isClean: true,
     isWaterAvailable: true,
     isElectricityOK: true,
+    isFireSafetyOK: true,
+    isACVentilationOK: true,
+    isEquipmentOK: true,
+    isInternetOK: true,
+    isPestControlOK: true,
+    isPPEComplianceOK: true,
     remarks: ''
   });
 
@@ -43,6 +64,10 @@ const FacilityAuditPage = () => {
       setFormData(prev => ({ ...prev, [name]: (e.target as HTMLInputElement).checked }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
+      if (name === 'facilityId') {
+        const facility = facilities.find(f => f._id === value);
+        setSelectedFacility(facility || null);
+      }
     }
   };
 
@@ -61,16 +86,20 @@ const FacilityAuditPage = () => {
     data.append('facilityId', formData.facilityId);
     data.append('date', formData.date);
     data.append('checkFrequency', formData.checkFrequency);
-    data.append('isClean', String(formData.isClean));
-    data.append('isWaterAvailable', String(formData.isWaterAvailable));
-    data.append('isElectricityOK', String(formData.isElectricityOK));
+    
+    // Append all boolean checks
+    Object.keys(formData).forEach(key => {
+      if (key.startsWith('is')) {
+        data.append(key, String((formData as any)[key]));
+      }
+    });
+    
     data.append('remarks', formData.remarks);
-
     photos.forEach(photo => data.append('photos', photo));
 
     try {
       await createAuditReport(data);
-      toast.success('Cleanliness report submitted');
+      toast.success('Facility audit report submitted');
       router.push('/facilities');
     } catch (error) {
       toast.error('Submission failed');
@@ -79,31 +108,77 @@ const FacilityAuditPage = () => {
     }
   };
 
-  return (
-    <div className="bg-gray-50/50 p-6 md:p-10">
-      <ListPageHeader
-        eyebrow="Facilities & Infrastructure"
-        title="Housekeeping"
-        highlight="Audit"
-        description="Daily/Weekly cleanliness and utility maintenance verification."
-      />
-
-      <form onSubmit={handleSubmit} className="mt-8 space-y-8">
-        <div className="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-xl shadow-slate-200/50">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white">
-              <Home size={20} />
-            </div>
-            <h2 className="text-xl font-black text-gray-900 uppercase tracking-tight">Facility Selection</h2>
+  const renderCheckItem = (id: string, label: string, icon: any, color: string) => {
+    const Icon = icon;
+    const isActive = (formData as any)[id];
+    return (
+      <div key={id} className={`flex items-center justify-between p-5 rounded-2xl border transition-all ${isActive ? 'bg-white border-slate-200 shadow-sm' : 'bg-rose-50 border-rose-100'}`}>
+        <div className="flex items-center gap-4">
+          <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${isActive ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-600 text-white shadow-lg shadow-rose-900/20'}`}>
+            <Icon size={20} />
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="flex flex-col gap-2">
-              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Select Facility *</label>
+          <div>
+            <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-500">{label}</h4>
+            <p className={`text-xs font-bold mt-0.5 ${isActive ? 'text-emerald-600' : 'text-rose-600'}`}>
+              {isActive ? 'STATUS: NOMINAL' : 'STATUS: ISSUE DETECTED'}
+            </p>
+          </div>
+        </div>
+        <input
+          type="checkbox"
+          name={id}
+          checked={isActive}
+          onChange={handleInputChange}
+          className="w-6 h-6 rounded-lg text-emerald-600 border-slate-300 focus:ring-emerald-600 transition-all cursor-pointer"
+        />
+      </div>
+    );
+  };
+
+  return (
+    <div className="w-full min-h-screen bg-[#f8fafc] p-4 md:p-8 font-sans" style={{ '--primary': '#059669', '--primary-dark': '#047857' } as React.CSSProperties}>
+      <div className="w-full mx-auto">
+        {/* COMPACT HEADER */}
+        <div className="flex items-center justify-between gap-6 bg-white p-6 rounded-2xl border border-slate-200/60 shadow-sm mb-8">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-emerald-600/10 rounded-xl flex items-center justify-center text-emerald-600">
+              <ClipboardCheck size={24} />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-slate-800 tracking-tight uppercase">Facility Asset Audit</h2>
+              <p className="text-slate-400 font-bold text-xs uppercase tracking-wider">Health, Safety & Environment Terminal</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="px-6 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 transition-all"
+            >
+              Discard
+            </button>
+            <button
+              type="submit"
+              form="audit-form"
+              disabled={submitting}
+              className="px-8 py-2.5 bg-emerald-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-emerald-900/20 hover:bg-emerald-700 transition-all disabled:opacity-50 flex items-center gap-2"
+            >
+              {submitting ? 'Saving...' : 'Commit Audit'}
+            </button>
+          </div>
+        </div>
+
+        <form id="audit-form" onSubmit={handleSubmit} className="bg-white rounded-[2rem] border border-slate-200/60 shadow-sm p-8 md:p-10 space-y-10">
+          {/* TOP SECTION: TARGET & LOGISTICS */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 border-b border-slate-100 pb-10">
+            <div className="space-y-2">
+              <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest px-1">Target Facility *</label>
               <select
                 name="facilityId"
                 value={formData.facilityId}
                 onChange={handleInputChange}
-                className="w-full h-12 px-4 bg-gray-50 border-2 border-transparent rounded-xl focus:bg-white focus:border-indigo-600 outline-none transition-all font-bold text-gray-800"
+                className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:border-emerald-600 outline-none text-sm font-bold text-slate-900 transition-all"
                 required
               >
                 <option value="">Choose Facility</option>
@@ -112,144 +187,112 @@ const FacilityAuditPage = () => {
                 ))}
               </select>
             </div>
-            <div className="flex flex-col gap-2">
-              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Audit Date</label>
+            <div className="space-y-2">
+              <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest px-1">Audit Date</label>
               <input
                 type="date"
                 name="date"
                 value={formData.date}
                 onChange={handleInputChange}
-                className="w-full h-12 px-4 bg-gray-50 border-2 border-transparent rounded-xl focus:bg-white focus:border-indigo-600 outline-none transition-all font-bold text-gray-800"
+                className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:border-emerald-600 outline-none text-sm font-bold text-slate-900 transition-all"
                 required
               />
             </div>
-            <div className="flex flex-col gap-2">
-              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Frequency</label>
+            <div className="space-y-2">
+              <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest px-1">Frequency</label>
               <select
                 name="checkFrequency"
                 value={formData.checkFrequency}
                 onChange={handleInputChange}
-                className="w-full h-12 px-4 bg-gray-50 border-2 border-transparent rounded-xl focus:bg-white focus:border-indigo-600 outline-none transition-all font-bold text-gray-800"
+                className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:border-emerald-600 outline-none text-sm font-bold text-slate-900 transition-all"
               >
                 <option value="Daily">Daily Check</option>
                 <option value="Weekly">Weekly Deep Clean</option>
               </select>
             </div>
           </div>
-        </div>
 
-        {/* CHECKLIST MATRIX */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className={`p-8 rounded-[2rem] border transition-all duration-300 ${formData.isClean ? 'bg-white border-green-100 shadow-xl shadow-green-900/5' : 'bg-red-50 border-red-100'}`}>
-            <div className="flex items-center justify-between mb-6">
-              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${formData.isClean ? 'bg-green-600 text-white shadow-lg shadow-green-900/20' : 'bg-red-600 text-white shadow-lg'}`}>
-                <ClipboardCheck size={24} />
+          {/* STATUS MATRIX - COMMON */}
+          <div className="space-y-6">
+            <div className="flex items-center gap-2">
+              <div className="w-1 h-3 bg-emerald-600 rounded-full" />
+              <h3 className="text-[11px] font-black text-slate-800 uppercase tracking-widest">Global Health & Safety Checks</h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {renderCheckItem('isClean', 'Cleanliness', ClipboardCheck, 'emerald')}
+              {renderCheckItem('isWaterAvailable', 'Water Supply', Droplets, 'blue')}
+              {renderCheckItem('isElectricityOK', 'Power Supply', Zap, 'amber')}
+              {renderCheckItem('isFireSafetyOK', 'Fire Safety', ShieldAlert, 'rose')}
+              {renderCheckItem('isACVentilationOK', 'AC & Ventilation', Wind, 'sky')}
+            </div>
+          </div>
+
+          {/* DYNAMIC SECTIONS BASED ON TYPE */}
+          {selectedFacility && (
+            <div className="space-y-6 pt-6 border-t border-slate-50">
+              <div className="flex items-center gap-2">
+                <div className="w-1 h-3 bg-emerald-600 rounded-full" />
+                <h3 className="text-[11px] font-black text-slate-800 uppercase tracking-widest">
+                  {selectedFacility.type} Specific Checks
+                </h3>
               </div>
-              <input
-                type="checkbox"
-                name="isClean"
-                checked={formData.isClean}
-                onChange={handleInputChange}
-                className="w-6 h-6 rounded-lg border-2 border-gray-200 text-green-600 focus:ring-green-600"
-              />
-            </div>
-            <h3 className="text-base font-black text-gray-900 uppercase tracking-tight">Cleanliness</h3>
-            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-[0.2em] mt-1">General Hygiene Audit</p>
-            <p className={`mt-4 text-xs font-bold ${formData.isClean ? 'text-green-600' : 'text-red-600'}`}>
-              {formData.isClean ? 'SANITIZED & TIDY' : 'NEEDS CLEANING'}
-            </p>
-          </div>
-
-          <div className={`p-8 rounded-[2rem] border transition-all duration-300 ${formData.isWaterAvailable ? 'bg-white border-indigo-100 shadow-xl shadow-blue-900/5' : 'bg-red-50 border-red-100'}`}>
-            <div className="flex items-center justify-between mb-6">
-              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${formData.isWaterAvailable ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20' : 'bg-red-600 text-white shadow-lg'}`}>
-                <Droplets size={24} />
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {selectedFacility.type === 'Office' && (
+                  <>
+                    {renderCheckItem('isInternetOK', 'Internet & LAN', Wifi, 'blue')}
+                    {renderCheckItem('isEquipmentOK', 'IT & Furniture', Settings, 'slate')}
+                  </>
+                )}
+                {(selectedFacility.type === 'Factory' || selectedFacility.type === 'Production Center' || selectedFacility.type === 'Workshop') && (
+                  <>
+                    {renderCheckItem('isPPEComplianceOK', 'PPE Compliance', HardHat, 'orange')}
+                    {renderCheckItem('isEquipmentOK', 'Machinery Status', Settings, 'slate')}
+                  </>
+                )}
+                {selectedFacility.type === 'Warehouse' && (
+                  <>
+                    {renderCheckItem('isPestControlOK', 'Pest Control', Bug, 'lime')}
+                    {renderCheckItem('isEquipmentOK', 'Pallet & Rack Safety', Settings, 'slate')}
+                  </>
+                )}
+                {selectedFacility.type === 'Camp' && (
+                  <>
+                    {renderCheckItem('isEquipmentOK', 'Bedding & Rooms', Home, 'indigo')}
+                    {renderCheckItem('isPestControlOK', 'Hygiene & Pests', Bug, 'lime')}
+                  </>
+                )}
               </div>
-              <input
-                type="checkbox"
-                name="isWaterAvailable"
-                checked={formData.isWaterAvailable}
-                onChange={handleInputChange}
-                className="w-6 h-6 rounded-lg border-2 border-gray-200 text-blue-600 focus:ring-blue-600"
-              />
             </div>
-            <h3 className="text-base font-black text-gray-900 uppercase tracking-tight">Water Supply</h3>
-            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-[0.2em] mt-1">Utility Verification</p>
-            <p className={`mt-4 text-xs font-bold ${formData.isWaterAvailable ? 'text-blue-600' : 'text-red-600'}`}>
-              {formData.isWaterAvailable ? 'RUNNING WATER OK' : 'NO WATER SUPPLY'}
-            </p>
-          </div>
+          )}
 
-          <div className={`p-8 rounded-[2rem] border transition-all duration-300 ${formData.isElectricityOK ? 'bg-white border-amber-100 shadow-xl shadow-amber-900/5' : 'bg-red-50 border-red-100'}`}>
-            <div className="flex items-center justify-between mb-6">
-              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${formData.isElectricityOK ? 'bg-amber-500 text-white shadow-lg shadow-amber-900/20' : 'bg-red-600 text-white shadow-lg'}`}>
-                <Zap size={24} />
+          {/* BOTTOM: EVIDENCE & NOTES */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 pt-8 border-t border-slate-50">
+            <div className="md:col-span-1 space-y-3">
+              <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest px-1">Visual Evidence</label>
+              <div className="relative border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center hover:bg-emerald-50 hover:border-emerald-600 transition-all cursor-pointer h-[120px]">
+                <Camera size={24} className="text-slate-300 mb-1" />
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Add Photos {photos.length > 0 && `(${photos.length})`}</span>
+                <input type="file" multiple onChange={handleFileChange} className="absolute inset-0 opacity-0 cursor-pointer" />
               </div>
-              <input
-                type="checkbox"
-                name="isElectricityOK"
-                checked={formData.isElectricityOK}
-                onChange={handleInputChange}
-                className="w-6 h-6 rounded-lg border-2 border-gray-200 text-amber-500 focus:ring-amber-500"
-              />
             </div>
-            <h3 className="text-base font-black text-gray-900 uppercase tracking-tight">Electricity</h3>
-            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-[0.2em] mt-1">Utility Verification</p>
-            <p className={`mt-4 text-xs font-bold ${formData.isElectricityOK ? 'text-amber-600' : 'text-red-600'}`}>
-              {formData.isElectricityOK ? 'POWER SUPPLY OK' : 'ELECTRICAL ISSUE'}
-            </p>
-          </div>
-        </div>
 
-        {/* PHOTOS & REMARKS */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-xl shadow-slate-200/50">
-            <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-6 px-1">Visual Evidence</h3>
-            <div className="relative group border-2 border-dashed border-gray-200 rounded-3xl p-8 flex flex-col items-center justify-center hover:border-indigo-500 hover:bg-indigo-50/50 transition-all">
-              <Camera className="text-gray-300 group-hover:text-indigo-500 mb-2" size={32} />
-              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest text-center italic">Snap facility condition</p>
-              <input
-                type="file"
-                multiple
-                onChange={handleFileChange}
-                className="absolute inset-0 opacity-0 cursor-pointer"
-              />
-            </div>
-          </div>
-
-          <div className="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-xl shadow-slate-200/50 flex flex-col justify-between">
-            <div className="flex flex-col gap-2">
-              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Inspector Notes</label>
+            <div className="md:col-span-3 space-y-3">
+              <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest px-1">Inspector Notes</label>
               <textarea
                 name="remarks"
                 value={formData.remarks}
                 onChange={handleInputChange}
-                placeholder="Detail any maintenance required or issues found..."
-                className="w-full h-24 px-6 py-4 bg-gray-50 border-2 border-transparent rounded-2xl text-gray-800 font-medium outline-none focus:bg-white focus:border-indigo-600 transition-all resize-none"
+                rows={4}
+                placeholder="Log maintenance requirements, specific issues, or observations..."
+                className="w-full min-h-[120px] p-5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 font-medium outline-none focus:bg-white focus:border-emerald-600 transition-all resize-none text-sm shadow-inner"
               />
             </div>
-
-            <div className="flex items-center gap-3 pt-4">
-              <button
-                type="button"
-                onClick={() => router.back()}
-                className="flex-1 py-4 rounded-xl border-2 border-gray-200 text-gray-400 text-[10px] font-black uppercase tracking-widest hover:bg-gray-100 transition-all"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={submitting}
-                className="flex-[2] py-4 rounded-xl bg-indigo-800 text-white text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-950/20 hover:bg-indigo-900 transition-all disabled:opacity-50"
-              >
-                {submitting ? 'Submitting...' : 'Commit Audit'}
-              </button>
-            </div>
           </div>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   );
 };
 
 export default withAuth(FacilityAuditPage, [{ module: 'facility', action: 'create' }]);
+

@@ -51,6 +51,7 @@ const emptyPermissions = {
   // CRM
   sales: { view: false, create: false, update: false, delete: false },
   running_order: { view: false, create: false, update: false, delete: false },
+  quote_track: { view: false, create: false, update: false, delete: false },
   
   // Inventory & Logistics
   delivery_ticket: { view: false, create: false, update: false, delete: false },
@@ -68,9 +69,11 @@ const emptyPermissions = {
   payroll: { view: false, create: false, update: false, delete: false },
   salary_breakup: { view: false, create: false, update: false, delete: false },
   salary_slip: { view: false, create: false, update: false, delete: false },
-
+  invoice: { view: false, create: false, update: false, delete: false },
+ 
   // Production & Factory
   production: { view: false, create: false, update: false, delete: false },
+  raw_material: { view: false, create: false, update: false, delete: false },
   raw_material_registry: { view: false, create: false, update: false, delete: false },
   raw_material_stock: { view: false, create: false, update: false, delete: false },
 
@@ -96,6 +99,7 @@ const MODULE_CONFIG: Record<string, { label: string; icon: any; category: string
   // CRM
   sales: { label: 'Leads', icon: UserPlus, category: 'CRM' },
   running_order: { label: 'Running Order', icon: Activity, category: 'CRM' },
+  quote_track: { label: 'Quote Tracker', icon: ClipboardCheck, category: 'CRM' },
 
   // Inventory & Logistics
   delivery_ticket: { label: 'Delivery Note', icon: Truck, category: 'Inventory & Logistics' },
@@ -113,9 +117,11 @@ const MODULE_CONFIG: Record<string, { label: string; icon: any; category: string
   payroll: { label: 'Payroll & Salary', icon: Banknote, category: 'Finance & Accounts' },
   salary_breakup: { label: 'Salary Breakups', icon: PieChart, category: 'Finance & Accounts' },
   salary_slip: { label: 'Salary Slips', icon: ReceiptText, category: 'Finance & Accounts' },
+  invoice: { label: 'Invoices', icon: FileText, category: 'Finance & Accounts' },
 
   // Production & Factory
   production: { label: 'Production Reports', icon: FileText, category: 'Production & Factory' },
+  raw_material: { label: 'Raw Materials Master', icon: Box, category: 'Production & Factory' },
   raw_material_registry: { label: 'Raw Material Registry', icon: Layers, category: 'Production & Factory' },
   raw_material_stock: { label: 'Raw Material Stock', icon: Package, category: 'Production & Factory' },
 

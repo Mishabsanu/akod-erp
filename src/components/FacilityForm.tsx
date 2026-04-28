@@ -39,106 +39,144 @@ const FacilityForm: React.FC<FacilityFormProps> = ({ initialData, onSubmit, onCa
   });
 
   return (
-    <div className="w-full min-h-screen bg-white px-8 py-10 rounded-[3.5rem] border border-gray-100 shadow-2xl shadow-slate-200/60 relative overflow-hidden">
-      {/* Premium Background Accents */}
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-amber-50/40 rounded-full blur-[120px] -mr-64 -mt-64 pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-sky-50/30 rounded-full blur-[120px] -ml-64 -mb-64 pointer-events-none" />
-      
-      <div className="flex items-center justify-between mb-16 relative z-10">
-        <div className="flex items-center gap-8">
-          <div className="w-20 h-20 bg-amber-700 rounded-[2.5rem] flex items-center justify-center text-white shadow-[0_20px_40px_-10px_rgba(180,83,9,0.4)] transition-transform hover:rotate-6">
-            <Building2 size={36} strokeWidth={2.5} />
-          </div>
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-               <div className="w-1.5 h-4 bg-amber-700 rounded-full" />
-               <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.4em]">Infrastructure Ledger</p>
+    <div className="w-full min-h-screen bg-[#f8fafc] p-4 md:p-8 font-sans">
+      <div className="w-full mx-auto">
+        {/* PREMIUM HEADER */}
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-white p-8 rounded-[2rem] border border-slate-200/60 shadow-sm mb-10 transition-all hover:shadow-md">
+          <div className="flex items-center gap-6">
+            <div className="w-16 h-16 bg-[#0f766e]/10 rounded-2xl flex items-center justify-center text-[#0f766e] shadow-inner">
+              <Building2 size={32} strokeWidth={1.5} />
             </div>
-            <h2 className="text-4xl font-black text-[#0f172a] tracking-tight uppercase">
-              {isEditMode ? 'Modify' : 'Architect'} <span className="text-amber-700">Personnel Hub</span>
-            </h2>
-          </div>
-        </div>
-      </div>
-
-      <FormikProvider value={formik}>
-        <form onSubmit={formik.handleSubmit} className="space-y-10 relative z-10">
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-             {/* Core Identity */}
-             <div className="bg-gray-50/30 p-10 rounded-[3rem] border border-gray-100/50 backdrop-blur-sm shadow-sm space-y-10">
-                <div className="flex items-center gap-3">
-                   <div className="w-1 h-5 bg-amber-700 rounded-full shadow-[0_0_10px_rgba(180,83,9,0.5)]" />
-                   <h3 className="text-[11px] font-black text-[#0f172a] uppercase tracking-[0.3em]">Identity & Logic</h3>
-                </div>
-                
-                <div className="space-y-6">
-                   <FormikInput label="Unit Nomenclature" name="name" placeholder="e.g. Al-Rayyan HQ / Site 42" required />
-                   <div className="space-y-4">
-                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">Functional Class</label>
-                      <FormikSelect 
-                        label="" 
-                        name="type" 
-                        options={[
-                          { value: 'Office', label: 'Corporate Office' },
-                          { value: 'Camp', label: 'Labor Housing' },
-                          { value: 'Warehouse', label: 'Strategic Warehouse' },
-                          { value: 'Workshop', label: 'Technical Workshop' },
-                        ]} 
-                        required 
-                      />
-                   </div>
-                </div>
-             </div>
-
-             {/* Logistics */}
-             <div className="bg-gray-50/30 p-10 rounded-[3rem] border border-gray-100/50 backdrop-blur-sm shadow-sm space-y-10">
-                <div className="flex items-center gap-3">
-                   <div className="w-1 h-5 bg-amber-700 rounded-full shadow-[0_0_10px_rgba(180,83,9,0.5)]" />
-                   <h3 className="text-[11px] font-black text-[#0f172a] uppercase tracking-[0.3em]">Logistical Coordinates</h3>
-                </div>
-                
-                <div className="space-y-6">
-                   <FormikInput label="Geographic Coordinate" name="location" placeholder="e.g. Street 302, Industrial Node" />
-                   <FormikInput label="Operational Capacity" name="capacity" type="number" placeholder="0" />
-                   
-                   <div className="space-y-4">
-                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">Operational Lifecycle</label>
-                      <FormikSelect 
-                        label="" 
-                        name="status" 
-                        options={[
-                          { value: 'active', label: 'Operational (ONLINE)' },
-                          { value: 'inactive', label: 'Decommissioned (OFFLINE)' },
-                        ]} 
-                        required 
-                      />
-                   </div>
-                </div>
-             </div>
+            <div>
+              <h2 className="text-3xl font-bold text-slate-800 tracking-tight">
+                {isEditMode ? 'Modify Registry' : 'Add New Facility'}
+              </h2>
+              <p className="text-slate-400 font-bold text-xs uppercase tracking-[0.2em] mt-1 flex items-center gap-2">
+                <span className="w-1 h-1 bg-[#0f766e] rounded-full" />
+                Infrastructure & Asset Management
+              </p>
+            </div>
           </div>
 
-          <div className="flex justify-end items-center gap-10 pt-12 border-t border-gray-100">
+          <div className="flex items-center gap-4">
             <button
-               type="button"
-               onClick={onCancel}
-               className="text-sm font-black text-gray-400 uppercase tracking-widest hover:text-gray-600 transition-colors"
+              type="button"
+              onClick={onCancel}
+              className="px-8 py-3 rounded-xl border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 transition-all active:scale-95"
             >
-              Discard Changes
+              Cancel
             </button>
             <button
               type="submit"
+              form="facility-form"
               disabled={formik.isSubmitting}
-              className="px-16 py-6 rounded-[1.5rem] bg-amber-700 text-white text-[11px] font-black uppercase tracking-[0.2em] shadow-[0_20px_40px_-5px_rgba(180,83,9,0.3)] hover:shadow-[0_25px_50px_-5px_rgba(180,83,9,0.4)] hover:-translate-y-1 transition-all disabled:opacity-50 flex items-center gap-4 active:scale-95"
+              className="px-10 py-3 bg-[#0f766e] text-white rounded-xl font-bold text-sm shadow-xl shadow-teal-900/20 hover:bg-[#134e4a] transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2"
             >
-              {formik.isSubmitting ? (
-                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              ) : isEditMode ? 'Authorize Update' : 'Finalize Hub Creation'}
-              {!formik.isSubmitting && <CheckCircle2 size={18} strokeWidth={3} />}
+              {formik.isSubmitting ? <Building2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+              {formik.isSubmitting ? 'Processing...' : 'Save Registry'}
             </button>
           </div>
-        </form>
-      </FormikProvider>
+        </div>
+
+        <FormikProvider value={formik}>
+          <form id="facility-form" onSubmit={formik.handleSubmit} className="bg-white rounded-[2.5rem] border border-slate-200/60 shadow-sm p-10 md:p-12 space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
+
+              {/* SECTION HEADERS */}
+              <div className="flex items-center gap-2">
+                <div className="w-1 h-3 bg-[#0f766e] rounded-full" />
+                <h3 className="text-[11px] font-black text-slate-800 uppercase tracking-widest">Primary Identification</h3>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-1 h-3 bg-amber-500 rounded-full" />
+                <h3 className="text-[11px] font-black text-slate-800 uppercase tracking-widest">Spatial & Status</h3>
+              </div>
+
+              {/* ROW 1: Unit Name & Location */}
+              <div className="space-y-1">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 ml-1 flex items-center gap-1">
+                  Unit Name <span className="text-rose-500">*</span>
+                </label>
+                <FormikInput
+                  label=""
+                  name="name"
+                  placeholder="e.g. Al-Rayyan HQ"
+                  wrapperClassName="mb-0"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 ml-1">Geographic Location</label>
+                <FormikInput
+                  label=""
+                  name="location"
+                  placeholder="e.g. Street 302, Zone 56..."
+                  wrapperClassName="mb-0"
+                />
+              </div>
+
+              {/* ROW 2: Classification & Capacity/Status */}
+              <div className="space-y-1">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 ml-1 flex items-center gap-1">
+                  Asset Classification <span className="text-rose-500">*</span>
+                </label>
+                <FormikSelect
+                  label=""
+                  name="type"
+                  options={[
+                    { value: 'Office', label: 'Office' },
+                    { value: 'Camp', label: 'Camp' },
+                    { value: 'Warehouse', label: 'Warehouse' },
+                    { value: 'Workshop', label: 'Workshop' },
+                    { value: 'Factory', label: 'Factory' },
+                    { value: 'Production Center', label: 'Production Center' },
+                  ]}
+                  wrapperClassName="mb-0"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 ml-1">Capacity</label>
+                  <FormikInput
+                    label=""
+                    name="capacity"
+                    type="number"
+                    placeholder="0"
+                    wrapperClassName="mb-0"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 ml-1 flex items-center gap-1">
+                    Status <span className="text-rose-500">*</span>
+                  </label>
+                  <FormikSelect
+                    label=""
+                    name="status"
+                    options={[
+                      { value: 'active', label: 'Active' },
+                      { value: 'inactive', label: 'Inactive' },
+                    ]}
+                    wrapperClassName="mb-0"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* POLICY NOTICE */}
+            <div className="bg-slate-50 rounded-2xl p-6 flex items-start gap-4 border border-slate-100">
+              <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-[#0f766e] shadow-sm flex-shrink-0">
+                <Building2 size={20} />
+              </div>
+              <div className="space-y-1">
+                <h4 className="text-[11px] font-black text-slate-800 uppercase tracking-wider">Registry Policy</h4>
+                <p className="text-[10px] text-slate-500 leading-relaxed font-medium">
+                  Ensure all information provided is accurate according to physical site audits. Facility status affects resource allocation and fleet deployment availability. Inactive facilities will be excluded from audit checklists.
+                </p>
+              </div>
+            </div>
+          </form>
+        </FormikProvider>
+      </div>
     </div>
   );
 };

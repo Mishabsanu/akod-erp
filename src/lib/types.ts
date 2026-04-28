@@ -702,7 +702,7 @@ export interface MechanicalCheckup {
 export interface Facility {
   _id?: string;
   name: string;
-  type: 'Office' | 'Camp' | 'Room' | 'Warehouse' | 'Workshop';
+  type: 'Office' | 'Camp' | 'Room' | 'Warehouse' | 'Workshop' | 'Factory' | 'Production Center';
   location?: string;
   capacity?: number;
   status: 'active' | 'inactive';
@@ -718,6 +718,12 @@ export interface FacilityChecklist {
   isClean: boolean;
   isWaterAvailable: boolean;
   isElectricityOK: boolean;
+  isFireSafetyOK?: boolean;
+  isACVentilationOK?: boolean;
+  isEquipmentOK?: boolean;
+  isInternetOK?: boolean;
+  isPestControlOK?: boolean;
+  isPPEComplianceOK?: boolean;
   photos: string[];
   remarks?: string;
   inspectorId?: string | User;

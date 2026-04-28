@@ -208,7 +208,7 @@ const FactoryForm: React.FC<FactoryFormProps> = ({ initialData, onSubmit, onCanc
                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">Inventory Deduction Ledger</p>
                     </div>
                   </div>
-                  <button 
+                  <button
                     type="button"
                     onClick={() => {
                       formik.setFieldValue('rawMaterials', [...formik.values.rawMaterials, { material: '', quantity: '' }]);
@@ -235,8 +235,8 @@ const FactoryForm: React.FC<FactoryFormProps> = ({ initialData, onSubmit, onCanc
                     {({ remove }) => (
                       <div className="space-y-4">
                         {formik.values.rawMaterials.map((rm: any, idx: number) => (
-                          <div 
-                            key={idx} 
+                          <div
+                            key={idx}
                             className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 p-6 bg-slate-50/50 hover:bg-white rounded-[1.5rem] border border-slate-100 hover:border-teal-100/50 transition-all group relative items-start shadow-sm hover:shadow-md hover:shadow-teal-900/5 focus-within:z-10"
                           >
                             {/* INDICATOR TAG */}
@@ -253,11 +253,10 @@ const FactoryForm: React.FC<FactoryFormProps> = ({ initialData, onSubmit, onCanc
                                 <div className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-lg border border-slate-200/60 shadow-sm animate-in fade-in slide-in-from-top-1 w-fit">
                                   <Layers size={10} className="text-[#0f766e]" />
                                   <span className="text-[9px] font-bold text-slate-600 uppercase tracking-widest flex items-center gap-1.5">
-                                    Current Stock: 
-                                    <span className={`px-1.5 py-0.5 rounded ${
-                                      rawMaterials.find(m => m._id === rm.material)?.availableQty <= 5 ? 'bg-rose-50 text-rose-600' : 'bg-teal-50 text-teal-700'
-                                    }`}>
-                                      {rawMaterials.find(m => m._id === rm.material)?.availableQty.toLocaleString() || '0'} 
+                                    Current Stock:
+                                    <span className={`px-1.5 py-0.5 rounded ${rawMaterials.find(m => m._id === rm.material)?.availableQty <= 5 ? 'bg-rose-50 text-rose-600' : 'bg-teal-50 text-teal-700'
+                                      }`}>
+                                      {rawMaterials.find(m => m._id === rm.material)?.availableQty.toLocaleString() || '0'}
                                       {" "}{rawMaterials.find(m => m._id === rm.material)?.unit || ''}
                                     </span>
                                   </span>
@@ -278,7 +277,7 @@ const FactoryForm: React.FC<FactoryFormProps> = ({ initialData, onSubmit, onCanc
                               />
                             </div>
                             <div className="col-span-1 md:col-span-1 flex justify-center pt-2">
-                              <button 
+                              <button
                                 type="button"
                                 onClick={() => remove(idx)}
                                 disabled={formik.values.rawMaterials.length === 1}
@@ -320,8 +319,8 @@ const FactoryForm: React.FC<FactoryFormProps> = ({ initialData, onSubmit, onCanc
                       </div>
                     ) : initialData?.image ? (
                       <div className="absolute inset-0 group">
-                        <img 
-                          src={initialData.image.startsWith('http') ? initialData.image : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${initialData.image}`} 
+                        <img
+                          src={initialData.image.startsWith('http') ? initialData.image : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${initialData.image}`}
                           alt="Current Batch"
                           className="w-full h-full object-cover"
                         />

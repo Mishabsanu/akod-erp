@@ -78,17 +78,17 @@ const FacilitiesPage: React.FC = () => {
         </div>
       )
     },
-    { 
-      accessor: 'type', 
+    {
+      accessor: 'type',
       header: 'Logistics Type',
       render: (f) => (
         <span className={`px-3 py-1 text-[9px] font-black uppercase tracking-[0.2em] rounded-lg border ${f.type === 'Office' ? 'bg-[#0f766e]/5 text-[#0f766e] border-[#0f766e]/10' : 'bg-[#d97706]/5 text-[#d97706] border-[#d97706]/10'}`}>
-           {f.type} UNIT
+          {f.type} UNIT
         </span>
       )
     },
-    { 
-      accessor: 'location', 
+    {
+      accessor: 'location',
       header: 'Location',
       render: (f) => (
         <div className="flex items-center gap-1 text-gray-500">
@@ -117,16 +117,16 @@ const FacilitiesPage: React.FC = () => {
         <div className="flex items-center gap-2 justify-end">
           {can('facility', 'update') && (
             <button
-               onClick={() => router.push(`/facilities/edit/${f._id}`)}
-               className="w-10 h-10 flex items-center justify-center bg-white text-slate-400 hover:text-[#d97706] hover:bg-[#d97706]/5 rounded-xl border border-slate-100 transition-all active:scale-95 shadow-sm"
+              onClick={() => router.push(`/facilities/edit/${f._id}`)}
+              className="w-10 h-10 flex items-center justify-center bg-white text-slate-400 hover:text-[#d97706] hover:bg-[#d97706]/5 rounded-xl border border-slate-100 transition-all active:scale-95 shadow-sm"
             >
               <Edit2 size={16} />
             </button>
           )}
           {can('facility', 'delete') && (
             <button
-               onClick={() => handleDelete(f._id!)}
-               className="w-10 h-10 flex items-center justify-center bg-white text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl border border-slate-100 transition-all active:scale-95 shadow-sm"
+              onClick={() => handleDelete(f._id!)}
+              className="w-10 h-10 flex items-center justify-center bg-white text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl border border-slate-100 transition-all active:scale-95 shadow-sm"
             >
               <Trash2 size={16} />
             </button>

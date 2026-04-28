@@ -165,21 +165,21 @@ function FactoryPage() {
         <div className="flex justify-end gap-2">
           <button
             onClick={() => handleView(row)}
-            className="w-10 h-10 flex items-center justify-center bg-white text-slate-400 hover:text-teal-600 hover:bg-teal-50 rounded-xl border border-slate-100 transition-all active:scale-95 shadow-sm"
+            className="w-9 h-9 flex items-center justify-center text-sky-600 hover:text-sky-700 hover:bg-sky-50 rounded-lg transition-all border border-gray-100 hover:border-sky-200"
             title="View Details"
           >
             <Eye size={16} />
           </button>
           <button
             onClick={() => handleEdit(row)}
-            className="w-10 h-10 flex items-center justify-center bg-white text-slate-400 hover:text-[#d97706] hover:bg-[#d97706]/5 rounded-xl border border-slate-100 transition-all active:scale-95 shadow-sm"
+            className="w-9 h-9 flex items-center justify-center text-gray-500 hover:text-[#0f766e] hover:bg-[#0f766e]/5 rounded-lg transition-all border border-gray-100 hover:border-[#0f766e]/20"
             title="Edit Record"
           >
             <Edit3 size={16} />
           </button>
           <button
             onClick={() => handleDelete(row._id)}
-            className="w-10 h-10 flex items-center justify-center bg-white text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl border border-slate-100 transition-all active:scale-95 shadow-sm"
+            className="w-9 h-9 flex items-center justify-center text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all border border-gray-100 hover:border-red-200"
             title="Delete Record"
           >
             <Trash2 size={16} />
@@ -190,7 +190,7 @@ function FactoryPage() {
   ];
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white p-6 md:p-10">
+    <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white p-2 md:p-4">
       <ListPageHeader
         eyebrow="Operational Node"
         title="Production"

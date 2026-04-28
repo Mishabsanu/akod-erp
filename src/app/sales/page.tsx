@@ -266,7 +266,7 @@ const SalesPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white p-6 md:p-10">
+    <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white p-2 md:p-4">
       <ListPageHeader
         eyebrow="CRM Pipeline"
         title="Enquiry"

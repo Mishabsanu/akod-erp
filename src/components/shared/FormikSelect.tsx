@@ -19,16 +19,19 @@ export const FormikSelect: React.FC<FormikSelectProps> = ({
   name,
   options,
   required = false,
+  wrapperClassName,
   ...props
 }) => {
   const [field, meta, helpers] = useField(name);
 
   return (
-    <div className="mb-4">
-      <Label htmlFor={name} className="mb-1 block text-sm font-medium">
-        {label}
-        {required && <span className="text-red-500 ml-1">*</span>}
-      </Label>
+    <div className={wrapperClassName || "mb-4"}>
+      {label && (
+        <Label htmlFor={name} className="mb-1 block text-sm font-medium">
+          {label}
+          {required && <span className="text-red-500 ml-1">*</span>}
+        </Label>
+      )}
 
       <Select
         id={name}

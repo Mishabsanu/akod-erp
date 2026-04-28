@@ -55,14 +55,39 @@ const FleetPage: React.FC = () => {
   }, [fetchVehicles]);
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to remove this vehicle from fleet?')) return;
-    try {
-      await deleteVehicle(id);
-      toast.success('Vehicle removed successfully');
-      fetchVehicles();
-    } catch (error) {
-      toast.error('Failed to delete vehicle');
-    }
+    toast.custom((t) => (
+      <div className="flex flex-col gap-2 bg-white p-3 rounded-lg shadow-md border border-gray-200">
+        <p className="font-medium text-gray-800">
+          Are you sure you want to remove this vehicle from fleet?
+        </p>
+        <div className="flex justify-end gap-2 mt-2">
+          <button
+            onClick={() => toast.dismiss(t)}
+            className="px-3 py-1 text-sm text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100 transition"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={async () => {
+              toast.dismiss(t);
+              const loadingToast = toast.loading('Removing vehicle...');
+              try {
+                await deleteVehicle(id);
+                toast.dismiss(loadingToast);
+                toast.success('Vehicle removed successfully');
+                fetchVehicles();
+              } catch (error: any) {
+                toast.dismiss(loadingToast);
+                toast.error('Failed to delete vehicle');
+              }
+            }}
+            className="px-3 py-1 text-sm bg-teal-700 text-white rounded-md hover:bg-teal-800 transition"
+          >
+            Yes, Remove
+          </button>
+        </div>
+      </div>
+    ));
   };
 
   const columns: Column<Vehicle>[] = useMemo(() => [
@@ -137,7 +162,7 @@ const FleetPage: React.FC = () => {
           maintenance: 'bg-amber-100 text-amber-800',
           inactive: 'bg-red-100 text-red-800'
         };
-        return <span className={`px-3 py-1 text-xs font-black uppercase tracking-widest rounded-full ${colors[v.status]}`}>{v.status}</span>
+        return <span className={`px-3 py-1 text-xs font-black uppercase tracking-widest rounded-full ${colors[v.status as keyof typeof colors]}`}>{v.status}</span>
       }
     },
     {
@@ -146,75 +171,84 @@ const FleetPage: React.FC = () => {
       render: (v) => (
         <div className="flex items-center gap-2">
           {can('fleet', 'update') && (
-            <button onClick={() => router.push(`/fleet/edit/${v._id}`)} className="p-2 hover:bg-gray-100 rounded-lg text-gray-500 hover:text-teal-600 transition-colors">
-              <Edit2 size={16} />
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                router.push(`/fleet/edit/${v._id}`);
+              }}
+              className="w-9 h-9 flex items-center justify-center text-gray-500 hover:text-[#0f766e] hover:bg-[#0f766e]/5 rounded-lg transition-all border border-gray-100 hover:border-[#0f766e]/20"
+              title="Edit"
+            >
+              <Edit2 className="w-4 h-4" />
             </button>
           )}
           {can('fleet', 'delete') && (
-            <button onClick={() => handleDelete(v._id!)} className="p-2 hover:bg-red-50 rounded-lg text-red-400 hover:text-red-600 transition-colors">
-              <Trash2 size={16} />
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDelete(v._id!);
+              }}
+              className="w-9 h-9 flex items-center justify-center text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all border border-gray-100 hover:border-red-200"
+              title="Delete"
+            >
+              <Trash2 className="w-4 h-4" />
             </button>
           )}
         </div>
       )
     }
-  ], [can]);
+  ], [can, router]);
 
   return (
-    <div className="min-h-screen w-full bg-[#f8fafc] p-6 md:p-10">
-      <div className="max-w-full mx-auto space-y-10">
-        <ListPageHeader
-          eyebrow="Logistics Node"
-          title="Vehicle"
-          highlight="Registry"
-          description="Centralized fleet telemetry and asset management for company logistics."
-          actions={
-            <div className="flex items-center gap-4">
-              {can('fleet', 'create') && (
-                <button
-                  onClick={() => router.push('/fleet/add')}
-                  className="px-8 py-4 bg-amber-600 text-white rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] shadow-2xl shadow-amber-900/20 hover:shadow-amber-900/30 hover:-translate-y-1 transition-all flex items-center gap-3 active:scale-95"
-                >
-                  <Plus size={20} strokeWidth={3} />
-                  Add Vehicle
-                </button>
-              )}
+    <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white p-2 md:p-4">
+      <ListPageHeader
+        eyebrow="Logistics Node"
+        title="Vehicle"
+        highlight="Registry"
+        description="Centralized fleet telemetry and asset management for company logistics."
+        actions={
+          <>
+            {can('fleet', 'create') && (
               <button
-                 onClick={() => setShowFilters(!showFilters)}
-                 className="px-8 py-4 bg-white text-gray-500 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] border-2 border-gray-100/80 hover:bg-gray-50 transition-all flex items-center gap-3 active:scale-95"
+                onClick={() => router.push('/fleet/add')}
+                className="page-header-button"
               >
-                <Filter size={20} /> Filters
+                <Plus size={16} /> Add
               </button>
-            </div>
-          }
+            )}
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="page-header-button secondary"
+            >
+              <Filter size={16} /> Filter
+            </button>
+          </>
+        }
+      />
+
+      <div className="mb-6">
+        <SearchInput
+          initialSearchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          placeholder="Search by name, plate number or model..."
         />
-
-        <div className="bg-white p-8 rounded-[3rem] shadow-2xl shadow-slate-900/5 border border-gray-100">
-          <div className="mb-10 w-full max-w-md">
-            <SearchInput
-              initialSearchTerm={searchTerm}
-              onSearchChange={setSearchTerm}
-              placeholder="Search by name, plate number or model..."
-            />
-          </div>
-
-          {loading ? (
-            <TableSkeleton />
-          ) : (
-            <DataTable
-              columns={columns}
-              data={vehicles}
-              serverSidePagination={true}
-              totalCount={totalCount}
-              currentPage={currentPage}
-              limit={limit}
-              totalPages={totalPages}
-              onPageChange={setCurrentPage}
-              onLimitChange={setLimit}
-            />
-          )}
-        </div>
       </div>
+
+      {loading ? (
+        <TableSkeleton />
+      ) : (
+        <DataTable
+          columns={columns}
+          data={vehicles}
+          serverSidePagination={true}
+          totalCount={totalCount}
+          currentPage={currentPage}
+          limit={limit}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+          onLimitChange={setLimit}
+        />
+      )}
     </div>
   );
 };

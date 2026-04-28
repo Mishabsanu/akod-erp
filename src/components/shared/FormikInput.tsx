@@ -27,10 +27,12 @@ export const FormikInput: React.FC<FormikInputProps> = ({
 
   return (
     <div className={`mb-4 ${wrapperClassName}`}>
-      <Label htmlFor={name} className="mb-1">
-        {label}
-        {required && <span className="text-red-500 ml-1">*</span>}
-      </Label>
+      {label && (
+        <Label htmlFor={name} className="mb-1">
+          {label}
+          {required && <span className="text-red-500 ml-1">*</span>}
+        </Label>
+      )}
       <div className="relative">
         {icon && (
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
